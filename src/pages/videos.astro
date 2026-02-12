@@ -1,0 +1,39 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { videos } from "../data/videos";
+
+const sorted = [...videos].sort((a,b) => (a.date < b.date ? 1 : -1));
+---
+
+<Layout title="Videos | 読書 with Coco">
+  <main class="wrap">
+    <h1>Videos</h1>
+    <p class="lead">Soraで作成した動画を並べるページ（いまは仮データ）。</p>
+
+    <div class="grid">
+      {sorted.map((v) => (
+        <article class="card">
+          <div class="thumb">
+            <img src={v.thumbnail} alt={v.title} loading="lazy" />
+          </div>
+          <div class="body">
+            <div class="title">{v.title}</div>
+            <div class="meta">{v.date}</div>
+          </div>
+        </article>
+      ))}
+    </div>
+  </main>
+</Layout>
+
+<style>
+  .wrap{max-width:980px;margin:0 auto;padding:32px 16px;}
+  .lead{opacity:.8;margin:8px 0 24px;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;}
+  .card{border:1px solid rgba(0,0,0,.08);border-radius:14px;overflow:hidden;background:#fff;}
+  .thumb{aspect-ratio: 16 / 9; background: rgba(0,0,0,.04);}
+  img{width:100%;height:100%;object-fit:cover;}
+  .body{padding:12px 14px;}
+  .title{font-weight:700;}
+  .meta{margin-top:6px;opacity:.7;font-size:.9rem;}
+</style>

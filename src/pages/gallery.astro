@@ -1,0 +1,43 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { galleryGenres } from "../data/gallery";
+---
+
+<Layout title="Gallery | 読書 with Coco">
+  <main class="wrap">
+    <h1>Gallery</h1>
+    <p class="lead">本とココちゃんの写真をジャンル別に並べるページ（いまは仮データ）。</p>
+
+    {galleryGenres.map((g) => (
+      <section class="section">
+        <h2>{g.name}</h2>
+        <div class="grid">
+          {g.items.map((item) => (
+            <article class="card">
+              <div class="thumb">
+                <img src={item.image} alt={item.title} loading="lazy" />
+              </div>
+              <div class="body">
+                <div class="title">{item.title}</div>
+                {item.note && <div class="meta">{item.note}</div>}
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+    ))}
+  </main>
+</Layout>
+
+<style>
+  .wrap{max-width:980px;margin:0 auto;padding:32px 16px;}
+  .lead{opacity:.8;margin:8px 0 24px;}
+  .section{margin:28px 0 38px;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;}
+  .card{border:1px solid rgba(0,0,0,.08);border-radius:14px;overflow:hidden;background:#fff;}
+  .thumb{aspect-ratio: 4 / 3; background: rgba(0,0,0,.04); display:flex;align-items:center;justify-content:center;}
+  img{width:100%;height:100%;object-fit:cover;}
+  .body{padding:12px 14px;}
+  .title{font-weight:700;}
+  .meta{margin-top:6px;opacity:.7;font-size:.9rem;}
+</style>

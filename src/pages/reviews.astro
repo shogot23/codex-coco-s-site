@@ -1,0 +1,33 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { reviews } from "../data/reviews";
+---
+
+<Layout title="Reviews | 読書 with Coco">
+  <main class="wrap">
+    <h1>Reviews</h1>
+    <p class="lead">本の感想（タイトル / 一言要約 / 学び3点）を一覧にするページ（いまは仮データ）。</p>
+
+    <div class="list">
+      {reviews.map((r) => (
+        <article class="item">
+          <h2 class="title">{r.title}</h2>
+          <p class="summary">{r.summary}</p>
+          <ul class="learn">
+            {r.learnings.map((x) => <li>{x}</li>)}
+          </ul>
+        </article>
+      ))}
+    </div>
+  </main>
+</Layout>
+
+<style>
+  .wrap{max-width:980px;margin:0 auto;padding:32px 16px;}
+  .lead{opacity:.8;margin:8px 0 24px;}
+  .list{display:flex;flex-direction:column;gap:16px;}
+  .item{border:1px solid rgba(0,0,0,.08);border-radius:14px;background:#fff;padding:14px 16px;}
+  .title{margin:0 0 8px;font-size:1.1rem;}
+  .summary{margin:0 0 10px;opacity:.85;}
+  .learn{margin:0;padding-left:18px;opacity:.9;}
+</style>
