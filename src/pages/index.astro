@@ -1,11 +1,46 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
+import { getEntry } from 'astro:content';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const BASE_URL = import.meta.env.BASE_URL;
+
+let avatar = '/uploads/avatar-placeholder.png';
+try {
+  const entry = await getEntry('profile', 'profile');
+  avatar = entry?.data?.avatar ?? avatar;
+} catch (e) {}
+
+// GitHub Pagesの base に対応（/uploads/... のときだけBASE_URLを付ける）
+const avatarUrl = avatar.startsWith('/uploads/')
+  ? `${BASE_URL}${avatar.replace(/^\//, '')}`
+  : avatar;
 ---
 
 <Layout>
-	<Welcome />
+  <section class="home">
+    <header class="top">
+      <img class="avatar" src={avatarUrl} alt="プロフィール画像" width="64" height="64" />
+      <div class="meta">
+        <h1>読書 with Coco</h1>
+        <p>本とココちゃんが主役。読書ログと制作の実験場。</p>
+      </div>
+    </header>
+
+    <nav class="cta">
+      <a href={`${BASE_URL}`}>Home</a>
+      <a href={`${BASE_URL}gallery/`}>Gallery</a>
+      <a href={`${BASE_URL}videos/`}>Videos</a>
+      <a href={`${BASE_URL}reviews/`}>Reviews</a>
+    </nav>
+  </section>
+
+  <style>
+    .home { padding: 18px 0 40px; }
+    .top { display:flex; gap:14px; align-items:center; }
+    .avatar { border-radius:999px; object-fit:cover; border:1px solid rgba(0,0,0,.12); }
+    .meta h1 { margin:0; font-size: 26px; }
+    .meta p { margin:6px 0 0; color: rgba(0,0,0,.7); }
+    .cta { margin-top: 18px; display:flex; gap:12px; flex-wrap:wrap; }
+    .cta a { padding: 8px 10px; border-radius: 10px; text-decoration:none; border:1px solid rgba(0,0,0,.12); }
+  </style>
 </Layout>
