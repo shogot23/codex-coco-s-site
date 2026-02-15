@@ -1,6 +1,6 @@
 backend:
   name: github
-  repo: YOUR_USER/YOUR_REPO
+  repo: shogot23/codex-coco-s-site
   branch: main
 
 media_folder: "public/uploads"
