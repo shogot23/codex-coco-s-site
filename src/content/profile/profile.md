@@ -1,6 +1,21 @@
 ---
-title: "プロフィール"
-description: "読書 with Coco のプロフィール"
+title: プロフィール
+description: 読書 with Coco のプロフィール
 ---
+読書で生まれた世界をココちゃんがAIで旅する
 
-ここにプロフィール本文を書いていきます。
+Coco’s AI Journey Through Book-Born Worlds
+
+15秒リール（世界観）＋要約　毎日ストーリー更新
+
+おすすめ本＆AI活用歓迎　
+
+\#読書ログwithココ
+
+\#本と犬のある生活
+
+\#読書で旅する
+
+\#AI生成
+
+\#物語のある日常
