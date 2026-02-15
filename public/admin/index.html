@@ -5,11 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Content Manager</title>
 
-    <!-- Netlify Identity (login / recovery / invite handling) -->
+    <!-- Netlify Identity -->
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-
+  </head>
+  <body>
     <!-- Decap CMS -->
     <script src="https://unpkg.com/decap-cms@^3/dist/decap-cms.js"></script>
-  </head>
-  <body></body>
+
+    <!-- Identity redirect hook (prevents blank/loop in some setups) -->
+    <script>
+      if (window.netlifyIdentity) {
+        window.netlifyIdentity.on("init", function (user) {
+          if (!user) {
+            window.netlifyIdentity.on("login", function () {
+              document.location.href = "/admin/";
+            });
+          }
+        });
+      }
+    </script>
+  </body>
 </html>
