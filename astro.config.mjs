@@ -3,5 +3,5 @@ import { defineConfig } from 'astro/config';
 
 export default defineConfig({
   site: 'https://shogot23.github.io',
-  base: '/codex-coco-s-site/',
+  base: '/',
 });
