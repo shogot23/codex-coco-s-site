@@ -1,0 +1,20 @@
+backend:
+  name: github
+  repo: YOUR_USER/YOUR_REPO
+  branch: main
+
+media_folder: "public/uploads"
+public_folder: "/uploads"
+
+collections:
+  - name: "profile"
+    label: "プロフィール"
+    folder: "src/content/profile"
+    create: false
+    delete: false
+    extension: "md"
+    format: "frontmatter"
+    fields:
+      - { label: "タイトル", name: "title", widget: "string" }
+      - { label: "説明", name: "description", widget: "string", required: false }
+      - { label: "本文", name: "body", widget: "markdown" }
