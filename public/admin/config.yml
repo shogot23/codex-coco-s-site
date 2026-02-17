@@ -17,3 +17,17 @@ collections:
       - { label: "タイトル", name: "title", widget: "string" }
       - { label: "説明", name: "description", widget: "string", required: false }
       - { label: "本文", name: "body", widget: "markdown" }
+
+  - name: "reviews"
+    label: "書評"
+    folder: "src/content/reviews"
+    create: true
+    delete: false
+    extension: "md"
+    format: "frontmatter"
+    fields:
+      - { label: "タイトル", name: "title", widget: "string" }
+      - { label: "説明", name: "description", widget: "string", required: false }
+      - { label: "日付", name: "date", widget: "datetime" }
+      - { label: "カバー画像", name: "cover", widget: "image", required: false }
+      - { label: "本文", name: "body", widget: "markdown" }
