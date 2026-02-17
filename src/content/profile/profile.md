@@ -6,7 +6,7 @@ description: 読書 with Coco のプロフィール
 
 Coco’s AI Journey Through Book-Born Worlds
 
-15秒リール（世界観）＋要約　毎日ストーリー更新
+15秒リール（世界観）＋ 要約 ＋ 毎日ストーリー更新
 
 おすすめ本＆AI活用歓迎　
 
