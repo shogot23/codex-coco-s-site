@@ -1,6 +1,6 @@
 ---
-title: "テスト書評"
-description: "Decapから更新できるかのテスト"
+title: テスト書評
+description: Decapから更新できるかのテスト
 date: 2026-02-17
 cover: ""
 ---
