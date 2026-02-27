@@ -1,6 +1,7 @@
 ---
 title: プロフィール
 description: 読書 with Coco のプロフィール
+avatar: /uploads/img_6088.png
 ---
 読書で生まれた世界をココちゃんがAIで旅する
 
