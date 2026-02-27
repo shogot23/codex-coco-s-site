@@ -5,6 +5,8 @@ const profile = defineCollection({
   schema: z.object({
     title: z.string(),
     description: z.string().optional(),
+    avatar: z.string().optional(),
+    updatedAt: z.coerce.date().optional(),
   }),
 });
 

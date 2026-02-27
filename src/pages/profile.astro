@@ -1,5 +1,6 @@
 ---
 import { getCollection } from "astro:content";
+import Layout from "../layouts/Layout.astro";
 
 const items = await getCollection("profile");
 const entry = items[0] ?? null;
@@ -10,21 +11,16 @@ if (entry) {
 }
 ---
 
-<html lang="ja">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{entry ? entry.data.title : "プロフィール"}</title>
-  </head>
-  <body style="max-width: 720px; margin: 40px auto; padding: 0 16px; line-height: 1.7;">
+<Layout title={entry ? entry.data.title : "プロフィール"}>
+  <section style="max-width: 720px; margin: 0 auto; line-height: 1.7;">
     <h1>{entry ? entry.data.title : "プロフィール"}</h1>
 
     {entry?.data?.updatedAt && (
       <p style="opacity: 0.7; font-size: 0.9rem;">
-        更新: {entry.data.updatedAt}
+        更新: {entry.data.updatedAt.toLocaleDateString('ja-JP')}
       </p>
     )}
 
     {Content ? <Content /> : <p>profile コンテンツが見つかりません（src/content/profile/profile.md を確認）</p>}
-  </body>
-</html>
+  </section>
+</Layout>
