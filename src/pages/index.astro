@@ -1,60 +1,635 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { getEntry } from 'astro:content';
+import { getCollection, getEntry } from 'astro:content';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+import { galleryGenres } from '../data/gallery';
+import { videos } from '../data/videos';
 
-const BASE_URL = import.meta.env.BASE_URL;
+const BASE_URL = import.meta.env.BASE_URL.endsWith('/')
+  ? import.meta.env.BASE_URL
+  : `${import.meta.env.BASE_URL}/`;
 
-let avatar = '/uploads/avatar-placeholder.png';
-let ProfileContent = null;
+const isAbsoluteUrl = (value: string) =>
+  /^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(value);
+
+const withBase = (path: string) => {
+  if (!path) return BASE_URL;
+  if (isAbsoluteUrl(path)) return path;
+  if (path.startsWith(BASE_URL)) return path;
+  return `${BASE_URL}${path.replace(/^\/+/, '')}`;
+};
+
+const publicDir = join(process.cwd(), 'public');
+
+const resolvePublicAsset = (assetPath: string, fallback: string) => {
+  if (!assetPath) return fallback;
+  if (isAbsoluteUrl(assetPath)) return assetPath;
+
+  const normalized = assetPath.startsWith('/') ? assetPath : `/${assetPath}`;
+  const localPath = join(publicDir, normalized.replace(/^\/+/, ''));
+  return existsSync(localPath) ? withBase(normalized) : fallback;
+};
+
+const clampText = (value: string, maxLength: number) => {
+  const normalized = value.replace(/\s+/g, ' ').trim();
+  if (!normalized) return '';
+  if (normalized.length <= maxLength) return normalized;
+  return `${normalized.slice(0, maxLength).trimEnd()}…`;
+};
+
+const reviewDetailRoutePath = join(process.cwd(), 'src/pages/reviews/[slug].astro');
+const hasReviewDetailRoute = existsSync(reviewDetailRoutePath);
+
+const formatReviewDate = (value: Date) =>
+  new Intl.DateTimeFormat('ja-JP', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  }).format(value);
+
+const reviewsUrl = withBase('reviews/');
+const galleryUrl = withBase('gallery/');
+const videosUrl = withBase('videos/');
+
+const pathCards = [
+  {
+    title: 'Reviews',
+    description: '本の感想を短く深く。読後の視点を言葉で残します。',
+    href: reviewsUrl,
+    jumpLabel: 'レビューへ進む',
+  },
+  {
+    title: 'Gallery',
+    description: '読書から生まれた情景を、ココちゃんとAIでビジュアル化。',
+    href: galleryUrl,
+    jumpLabel: 'ギャラリーへ進む',
+  },
+  {
+    title: 'Videos',
+    description: '世界観を短い映像で再編集。読書体験を動きで楽しめます。',
+    href: videosUrl,
+    jumpLabel: '動画をみる',
+  },
+];
+
+let avatar = '/uploads/img_6088.png';
 
 try {
   const entry = await getEntry('profile', 'profile');
   avatar = entry?.data?.avatar ?? avatar;
-  if (entry?.body?.trim()) {
-    const rendered = await entry.render();
-    ProfileContent = rendered.Content;
-  }
 } catch (e) {}
 
-// GitHub Pagesの base に対応（/uploads/... のときだけBASE_URLを付ける）
-const avatarUrl = avatar.startsWith('/uploads/')
-  ? `${BASE_URL}${avatar.replace(/^\//, '')}`
-  : avatar;
+const avatarUrl = withBase(avatar);
+const previewFallbackImage = resolvePublicAsset('/uploads/img_6088.png', avatarUrl);
+
+const reviewEntries = await getCollection('reviews');
+const latestReviews = [...reviewEntries]
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+  .slice(0, 3)
+  .map((entry) => {
+    const slug = entry.id.replace(/\.md$/, '');
+    const summarySource = entry.data.description ?? entry.body ?? '';
+    return {
+      title: entry.data.title,
+      summary: clampText(summarySource, 84),
+      dateLabel: formatReviewDate(entry.data.date),
+      href: hasReviewDetailRoute ? withBase(`reviews/${slug}/`) : reviewsUrl,
+      linkLabel: hasReviewDetailRoute ? '詳細を読む' : 'レビュー一覧で読む',
+    };
+  });
+
+const latestGallery = galleryGenres
+  .flatMap((genre) =>
+    genre.items.map((item) => ({
+      title: item.title,
+      description: item.note ?? `${genre.name}ジャンルのビジュアル`,
+      image: resolvePublicAsset(item.image, previewFallbackImage),
+      href: galleryUrl,
+    })),
+  )
+  .slice(-3)
+  .reverse();
+
+const latestVideos = [...videos]
+  .sort((a, b) => (a.date < b.date ? 1 : -1))
+  .slice(0, 3)
+  .map((video) => ({
+    title: video.title,
+    description: `公開日: ${video.date}`,
+    image: resolvePublicAsset(video.thumbnail, previewFallbackImage),
+    href: videosUrl,
+  }));
 ---
 
 <Layout title="Home">
-  <section class="home">
-    <header class="top">
-      <img class="avatar" src={avatarUrl} alt="プロフィール画像" width="64" height="64" />
-      <div class="meta">
-        <h1>読書 with Coco</h1>
-        <p>本とココちゃんが主役。読書ログと制作の実験場。</p>
+  <section class="home-shell">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Book Review x AI Visual Storytelling</p>
+        <h1>読書で生まれた世界を、ココちゃんが旅する。</h1>
+        <p class="lead">
+          本の感想、AIビジュアル、動画で広がる読書体験をまとめた「読書 with Coco」へ。
+          読後にもう一度、物語へ入り直すための入り口です。
+        </p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href={reviewsUrl}>レビューを見る</a>
+          <a class="btn btn-secondary" href={galleryUrl}>ギャラリーを見る</a>
+        </div>
       </div>
-    </header>
 
-    <nav class="cta">
-      <a href={`${BASE_URL}`}>Home</a>
-      <a href={`${BASE_URL}gallery/`}>Gallery</a>
-      <a href={`${BASE_URL}videos/`}>Videos</a>
-      <a href={`${BASE_URL}reviews/`}>Reviews</a>
-    </nav>
+      <div class="hero-visual">
+        <img
+          class="main-image"
+          src={avatarUrl}
+          alt="ココちゃんのメインビジュアル"
+          width="560"
+          height="560"
+          loading="eager"
+        />
+      </div>
+    </section>
 
-    <section class="profile">
-      <article>
-        {ProfileContent ? <ProfileContent /> : <p>プロフィール準備中です。</p>}
-      </article>
+    <section class="paths" aria-label="主要コンテンツへの導線">
+      {pathCards.map((card) => (
+        <a class="path-card" href={card.href}>
+          <h2>{card.title}</h2>
+          <p>{card.description}</p>
+          <span class="jump">{card.jumpLabel}</span>
+        </a>
+      ))}
+    </section>
+
+    <section class="latest-stack" aria-label="最新コンテンツ">
+      <section class="latest-section">
+        <div class="latest-head">
+          <h2>Latest Reviews</h2>
+          <a class="latest-more" href={reviewsUrl}>すべてのレビューを見る</a>
+        </div>
+        {latestReviews.length ? (
+          <div class="preview-grid reviews-grid">
+            {latestReviews.map((review) => (
+              <article class="preview-card text-card">
+                <div class="card-meta">{review.dateLabel}</div>
+                <h3>{review.title}</h3>
+                <p>{review.summary || 'レビュー本文を公開しています。'}</p>
+                <a class="card-link" href={review.href}>{review.linkLabel}</a>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <p class="preview-empty">レビューがまだありません。最初の1冊を公開予定です。</p>
+        )}
+      </section>
+
+      <section class="latest-section">
+        <div class="latest-head">
+          <h2>Latest Gallery</h2>
+          <a class="latest-more" href={galleryUrl}>ギャラリーをもっと見る</a>
+        </div>
+        {latestGallery.length ? (
+          <div class="preview-grid media-grid">
+            {latestGallery.map((item) => (
+              <article class="preview-card media-card">
+                <a class="media-link" href={item.href}>
+                  <div class="media-thumb">
+                    <img src={item.image} alt={item.title} loading="lazy" />
+                  </div>
+                  <div class="media-body">
+                    <h3>{item.title}</h3>
+                    <p>{item.description}</p>
+                  </div>
+                </a>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <p class="preview-empty">ギャラリーは準備中です。</p>
+        )}
+      </section>
+
+      <section class="latest-section">
+        <div class="latest-head">
+          <h2>Latest Videos</h2>
+          <a class="latest-more" href={videosUrl}>動画をもっと見る</a>
+        </div>
+        {latestVideos.length ? (
+          <div class="preview-grid media-grid video-grid">
+            {latestVideos.map((item) => (
+              <article class="preview-card media-card">
+                <a class="media-link" href={item.href}>
+                  <div class="media-thumb video-thumb">
+                    <img src={item.image} alt={item.title} loading="lazy" />
+                  </div>
+                  <div class="media-body">
+                    <h3>{item.title}</h3>
+                    <p>{item.description}</p>
+                  </div>
+                </a>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <p class="preview-empty">動画は準備中です。</p>
+        )}
+      </section>
+    </section>
+
+    <section class="about">
+      <h2>About 読書 with Coco</h2>
+      <p>
+        「読書 with Coco」は、本の感想とAI表現を組み合わせて、読後のイメージを広げるためのサイトです。
+      </p>
+      <p>
+        ココちゃんが案内役となり、レビュー、ビジュアル、動画を行き来しながら、物語を別の角度から楽しめる体験を届けます。
+      </p>
     </section>
   </section>
 
   <style>
-    .home { padding: 18px 0 40px; }
-    .top { display:flex; gap:14px; align-items:center; }
-    .avatar { border-radius:999px; object-fit:cover; border:1px solid rgba(0,0,0,.12); }
-    .meta h1 { margin:0; font-size: 26px; }
-    .meta p { margin:6px 0 0; color: rgba(0,0,0,.7); }
-    .cta { margin-top: 18px; display:flex; gap:12px; flex-wrap:wrap; }
-    .cta a { padding: 8px 10px; border-radius: 10px; text-decoration:none; border:1px solid rgba(0,0,0,.12); }
-    .profile { margin-top: 20px; }
-    .profile article :global(p) { margin: 0 0 .75rem; }
+    .home-shell {
+      position: relative;
+      overflow: hidden;
+      padding: clamp(20px, 4vw, 32px);
+      border-radius: 32px;
+      background: linear-gradient(155deg, #060f23 0%, #0a1d3f 48%, #17396d 100%);
+      color: #f8f7f1;
+      box-shadow: 0 24px 56px rgba(2, 8, 23, 0.35);
+      display: grid;
+      gap: clamp(24px, 3vw, 34px);
+    }
+
+    .home-shell::before {
+      content: '';
+      position: absolute;
+      top: -120px;
+      right: -90px;
+      width: 360px;
+      height: 360px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 232, 186, 0.3) 0%, rgba(255, 232, 186, 0) 72%);
+      pointer-events: none;
+    }
+
+    .hero {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.9fr);
+      gap: clamp(20px, 4vw, 32px);
+      align-items: center;
+      background: linear-gradient(145deg, rgba(9, 24, 50, 0.95), rgba(20, 46, 86, 0.9));
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 26px;
+      padding: clamp(22px, 4vw, 40px);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 18px 40px rgba(5, 14, 33, 0.35);
+    }
+
+    .eyebrow {
+      margin: 0;
+      font-size: 0.8rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #f5dfad;
+      font-weight: 700;
+    }
+
+    .hero h1 {
+      margin: 10px 0 0;
+      font-size: clamp(1.9rem, 4.2vw, 3rem);
+      line-height: 1.2;
+      letter-spacing: 0.02em;
+    }
+
+    .lead {
+      margin: 18px 0 0;
+      color: rgba(248, 247, 241, 0.9);
+      line-height: 1.75;
+      max-width: 38ch;
+    }
+
+    .hero-cta {
+      margin-top: 24px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 11px 18px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #f3e0b4, #e5c982);
+      color: #172742;
+      box-shadow: 0 10px 24px rgba(237, 205, 133, 0.28);
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 14px 28px rgba(237, 205, 133, 0.38);
+    }
+
+    .btn-secondary {
+      border: 1px solid rgba(243, 224, 180, 0.65);
+      color: #f8f7f1;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.14);
+    }
+
+    .hero-visual {
+      justify-self: center;
+      width: min(100%, 360px);
+      aspect-ratio: 1 / 1;
+      border-radius: 28px;
+      padding: 10px;
+      background: linear-gradient(145deg, rgba(245, 223, 173, 0.5), rgba(250, 244, 232, 0.15));
+      box-shadow: 0 16px 40px rgba(3, 10, 25, 0.45);
+    }
+
+    .main-image {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .paths {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: 14px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .path-card {
+      display: grid;
+      gap: 10px;
+      padding: 20px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      box-shadow: 0 14px 30px rgba(4, 11, 26, 0.32);
+      transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+      min-height: 176px;
+    }
+
+    .path-card:hover {
+      transform: translateY(-5px);
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(243, 224, 180, 0.52);
+    }
+
+    .path-card h2 {
+      margin: 0;
+      font-size: 1.25rem;
+      color: #fff9e7;
+    }
+
+    .path-card p {
+      margin: 0;
+      color: rgba(248, 247, 241, 0.85);
+      line-height: 1.65;
+    }
+
+    .jump {
+      margin-top: auto;
+      color: #f3dfb2;
+      font-weight: 700;
+      font-size: 0.93rem;
+    }
+
+    .latest-stack {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: 16px;
+    }
+
+    .latest-section {
+      padding: clamp(18px, 2.6vw, 24px);
+      border-radius: 22px;
+      background: rgba(6, 16, 36, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 12px 28px rgba(2, 9, 22, 0.28);
+    }
+
+    .latest-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .latest-head h2 {
+      margin: 0;
+      color: #f7e3b4;
+      font-size: clamp(1.15rem, 2.3vw, 1.4rem);
+    }
+
+    .latest-more {
+      color: rgba(248, 247, 241, 0.9);
+      font-size: 0.9rem;
+      font-weight: 700;
+      padding: 7px 11px;
+      border-radius: 999px;
+      border: 1px solid rgba(248, 247, 241, 0.28);
+      background: rgba(255, 255, 255, 0.05);
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .latest-more:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(243, 224, 180, 0.62);
+    }
+
+    .preview-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .reviews-grid,
+    .media-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .video-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .preview-card {
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.06);
+      box-shadow: 0 10px 24px rgba(3, 9, 21, 0.3);
+      overflow: hidden;
+    }
+
+    .text-card {
+      display: grid;
+      gap: 8px;
+      padding: 16px;
+    }
+
+    .card-meta {
+      color: rgba(243, 224, 180, 0.9);
+      font-size: 0.8rem;
+      letter-spacing: 0.02em;
+    }
+
+    .text-card h3,
+    .media-body h3 {
+      margin: 0;
+      font-size: 1.02rem;
+      line-height: 1.45;
+      color: #fff9ea;
+    }
+
+    .text-card p,
+    .media-body p {
+      margin: 0;
+      color: rgba(248, 247, 241, 0.84);
+      line-height: 1.6;
+      font-size: 0.92rem;
+    }
+
+    .card-link {
+      margin-top: 2px;
+      color: #f3dfb2;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .media-link {
+      display: grid;
+      color: inherit;
+      height: 100%;
+      transition: transform 0.2s ease;
+    }
+
+    .media-link:hover {
+      transform: translateY(-3px);
+    }
+
+    .media-thumb {
+      aspect-ratio: 4 / 3;
+      background: rgba(0, 0, 0, 0.28);
+    }
+
+    .video-thumb {
+      aspect-ratio: 16 / 9;
+    }
+
+    .media-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .media-body {
+      display: grid;
+      gap: 7px;
+      padding: 12px 14px 14px;
+    }
+
+    .preview-empty {
+      margin: 0;
+      color: rgba(248, 247, 241, 0.78);
+      font-size: 0.93rem;
+    }
+
+    .about {
+      position: relative;
+      z-index: 1;
+      padding: clamp(20px, 3vw, 28px);
+      border-radius: 24px;
+      background: rgba(4, 12, 29, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      box-shadow: 0 14px 34px rgba(2, 8, 20, 0.33);
+    }
+
+    .about h2 {
+      margin: 0 0 12px;
+      color: #f3dfb2;
+      font-size: clamp(1.4rem, 3vw, 1.8rem);
+    }
+
+    .about p {
+      margin: 0;
+      color: rgba(248, 247, 241, 0.9);
+      line-height: 1.85;
+    }
+
+    .about p + p {
+      margin-top: 0.75rem;
+    }
+
+    @media (max-width: 900px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .lead {
+        max-width: none;
+      }
+
+      .hero-visual {
+        width: min(100%, 300px);
+      }
+
+      .paths {
+        grid-template-columns: 1fr;
+      }
+
+      .reviews-grid,
+      .media-grid,
+      .video-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 520px) {
+      .home-shell {
+        border-radius: 22px;
+        padding: 16px;
+      }
+
+      .hero {
+        border-radius: 20px;
+        padding: 18px;
+      }
+
+      .path-card,
+      .latest-section,
+      .preview-card,
+      .about {
+        border-radius: 16px;
+      }
+
+      .reviews-grid,
+      .media-grid,
+      .video-grid {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </Layout>
