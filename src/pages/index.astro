@@ -125,19 +125,6 @@ const latestVideos = [...videos]
 <Layout title="Home">
   <section class="home-shell">
     <section class="hero">
-      <div class="hero-copy">
-        <p class="eyebrow">Book Review x AI Visual Storytelling</p>
-        <h1>読書で生まれた世界を、ココちゃんが旅する。</h1>
-        <p class="lead">
-          本の感想、AIビジュアル、動画で広がる読書体験をまとめた「読書 with Coco」へ。
-          読後にもう一度、物語へ入り直すための入り口です。
-        </p>
-        <div class="hero-cta">
-          <a class="btn btn-primary" href={reviewsUrl}>レビューを見る</a>
-          <a class="btn btn-secondary" href={galleryUrl}>ギャラリーを見る</a>
-        </div>
-      </div>
-
       <div class="hero-visual">
         <img
           class="main-image"
@@ -147,6 +134,20 @@ const latestVideos = [...videos]
           height="560"
           loading="eager"
         />
+        <div class="hero-glow"></div>
+        <div class="hero-particles"></div>
+      </div>
+
+      <div class="hero-copy">
+        <p class="eyebrow">読書体験を、イメージで広げる</p>
+        <h1>本の記憶を、イメージで深める。</h1>
+        <p class="lead">
+          読み終えた本の余韻を、ココちゃんと共にビジュアルで再び訪れます。
+        </p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href={galleryUrl}>ギャラリーで旅する</a>
+          <a class="btn btn-secondary" href={reviewsUrl}>レビューを読む</a>
+        </div>
       </div>
     </section>
 
@@ -275,8 +276,8 @@ const latestVideos = [...videos]
       position: relative;
       z-index: 1;
       display: grid;
-      grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.9fr);
-      gap: clamp(20px, 4vw, 32px);
+      grid-template-columns: 1fr;
+      gap: clamp(24px, 4vw, 36px);
       align-items: center;
       background: linear-gradient(145deg, rgba(9, 24, 50, 0.95), rgba(20, 46, 86, 0.9));
       border: 1px solid rgba(255, 255, 255, 0.12);
@@ -287,16 +288,15 @@ const latestVideos = [...videos]
 
     .eyebrow {
       margin: 0;
-      font-size: 0.8rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
+      font-size: 0.9rem;
+      letter-spacing: 0.04em;
       color: #f5dfad;
-      font-weight: 700;
+      font-weight: 600;
     }
 
     .hero h1 {
       margin: 10px 0 0;
-      font-size: clamp(1.9rem, 4.2vw, 3rem);
+      font-size: clamp(2.2rem, 5vw, 3.2rem);
       line-height: 1.2;
       letter-spacing: 0.02em;
     }
@@ -351,8 +351,9 @@ const latestVideos = [...videos]
     }
 
     .hero-visual {
+      position: relative;
       justify-self: center;
-      width: min(100%, 360px);
+      width: min(100%, 420px);
       aspect-ratio: 1 / 1;
       border-radius: 28px;
       padding: 10px;
@@ -368,6 +369,71 @@ const latestVideos = [...videos]
       border-radius: 20px;
       border: 1px solid rgba(255, 255, 255, 0.35);
       background: rgba(255, 255, 255, 0.08);
+    }
+
+    .hero-glow {
+      position: absolute;
+      inset: -20px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(245, 223, 173, 0.25) 0%, rgba(245, 223, 173, 0) 70%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .hero-particles {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      border-radius: 28px;
+    }
+
+    .hero-particles::before,
+    .hero-particles::after {
+      content: '';
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      background: rgba(245, 223, 173, 0.6);
+      border-radius: 50%;
+      animation: float 8s ease-in-out infinite;
+    }
+
+    .hero-particles::before {
+      top: 20%;
+      left: 15%;
+      box-shadow:
+        40px 80px 0 rgba(245, 223, 173, 0.4),
+        120px 40px 0 rgba(245, 223, 173, 0.3),
+        200px 100px 0 rgba(245, 223, 173, 0.5),
+        80px 150px 0 rgba(245, 223, 173, 0.35),
+        160px 200px 0 rgba(245, 223, 173, 0.45),
+        30px 180px 0 rgba(245, 223, 173, 0.25),
+        220px 60px 0 rgba(245, 223, 173, 0.4);
+    }
+
+    .hero-particles::after {
+      top: 60%;
+      left: 25%;
+      animation-delay: -4s;
+      box-shadow:
+        60px 40px 0 rgba(245, 223, 173, 0.35),
+        140px 90px 0 rgba(245, 223, 173, 0.45),
+        20px 120px 0 rgba(245, 223, 173, 0.3),
+        180px 30px 0 rgba(245, 223, 173, 0.4),
+        100px 160px 0 rgba(245, 223, 173, 0.25);
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .hero-particles::before,
+      .hero-particles::after {
+        animation: none;
+      }
     }
 
     .paths {
@@ -593,7 +659,15 @@ const latestVideos = [...videos]
       }
 
       .hero-visual {
-        width: min(100%, 300px);
+        width: min(100%, 280px);
+      }
+
+      .hero-cta {
+        flex-direction: column;
+      }
+
+      .hero-cta .btn {
+        width: 100%;
       }
 
       .paths {
