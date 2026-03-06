@@ -38,8 +38,12 @@ const gallery = defineCollection({
   schema: z.object({
     title: z.string(),
     image: z.string(),
-    genre: z.enum(GALLERY_GENRES),
+    genre: z.enum(GALLERY_GENRES).optional(),
+    author: z.string().optional(),
     note: z.string().optional(),
+    needs_review: z.boolean().optional(),
+    generated_at: z.string().optional(),
+    source_file: z.string().optional(),
   }),
 });
 

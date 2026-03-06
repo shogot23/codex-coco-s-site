@@ -14,6 +14,7 @@ const galleryByGenre = GALLERY_GENRES.map((genre) => ({
       title: entry.data.title,
       image: entry.data.image,
       genre: entry.data.genre,
+      author: entry.data.author,
       note: entry.data.note,
     })),
 })).filter((g) => g.items.length > 0);
@@ -35,6 +36,7 @@ const galleryByGenre = GALLERY_GENRES.map((genre) => ({
               </div>
               <div class="body">
                 <div class="title">{item.title}</div>
+                {item.author && <div class="meta">著者: {item.author}</div>}
                 {item.note && <div class="meta">{item.note}</div>}
               </div>
             </article>

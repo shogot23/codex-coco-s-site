@@ -7,11 +7,15 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "typecheck": "astro check"
+    "typecheck": "astro check",
+    "gallery:ocr": "node scripts/ocr-gallery-images.ts",
+    "gallery:generate": "node scripts/generate-gallery-md.ts",
+    "gallery:sync": "npm run gallery:ocr && npm run gallery:generate"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.0",
-    "astro": "^5.17.1"
+    "astro": "^5.17.1",
+    "tesseract.js": "^7.0.0"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.4",

@@ -55,8 +55,12 @@ collections:
     fields:
       - { label: "タイトル", name: "title", widget: "string" }
       - { label: "画像", name: "image", widget: "image" }
-      - { label: "ジャンル", name: "genre", widget: "select", options: ["小説", "ビジネス", "歴史"] }
+      - { label: "ジャンル", name: "genre", widget: "select", options: ["小説", "ビジネス", "歴史"], required: false }
+      - { label: "著者", name: "author", widget: "string", required: false }
       - { label: "メモ", name: "note", widget: "string", required: false }
+      - { label: "要確認", name: "needs_review", widget: "boolean", required: false, default: false }
+      - { label: "自動生成日時", name: "generated_at", widget: "string", required: false }
+      - { label: "元画像ファイル", name: "source_file", widget: "string", required: false }
       - { label: "本文", name: "body", widget: "markdown", required: false }
 
   - name: "videos"
