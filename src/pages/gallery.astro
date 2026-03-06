@@ -3,6 +3,20 @@ import Layout from "../layouts/Layout.astro";
 import { getCollection } from "astro:content";
 import { GALLERY_GENRES } from "../content/config";
 
+const BASE_URL = import.meta.env.BASE_URL.endsWith("/")
+  ? import.meta.env.BASE_URL
+  : `${import.meta.env.BASE_URL}/`;
+
+const isAbsoluteUrl = (value: string) =>
+  /^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(value);
+
+const withBase = (assetPath: string) => {
+  if (!assetPath) return BASE_URL;
+  if (isAbsoluteUrl(assetPath)) return assetPath;
+  if (assetPath.startsWith(BASE_URL)) return assetPath;
+  return `${BASE_URL}${assetPath.replace(/^\/+/, "")}`;
+};
+
 const galleryEntries = await getCollection("gallery");
 
 // Group items by genre
@@ -12,7 +26,7 @@ const galleryByGenre = GALLERY_GENRES.map((genre) => ({
     .filter((entry) => entry.data.genre === genre)
     .map((entry) => ({
       title: entry.data.title,
-      image: entry.data.image,
+      image: withBase(entry.data.image),
       genre: entry.data.genre,
       author: entry.data.author,
       note: entry.data.note,

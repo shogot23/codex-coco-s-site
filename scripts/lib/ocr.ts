@@ -1,9 +1,11 @@
+import { mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { basename, extname } from 'node:path';
 
-const OCR_LANGS = 'jpn+eng';
+const OCR_LANGS = 'jpn';
 const CONFIDENCE_REVIEW_THRESHOLD = 0.8;
 const GALLERY_GENRES = ['小説', 'ビジネス', '歴史'] as const;
+const OCR_CACHE_PATH = path.resolve('.cache/tesseract');
 
 type GalleryGenre = typeof GALLERY_GENRES[number];
 type OcrLine = {
@@ -37,6 +39,21 @@ function normalizeText(value: string): string {
 
 function normalizePathSegment(value: string): string {
   return value.split(path.sep).join(path.posix.sep);
+}
+
+function isLikelyTextCandidate(value: string): boolean {
+  const compact = value.replace(/\s+/g, '');
+  const meaningfulChars = compact.match(/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}A-Za-z0-9]/gu) ?? [];
+
+  if (meaningfulChars.length < 3) {
+    return false;
+  }
+
+  if (/^[ー一-]+$/u.test(compact)) {
+    return false;
+  }
+
+  return true;
 }
 
 function fallbackTitleFromSource(sourceFile: string): string {
@@ -85,7 +102,11 @@ function extractAuthor(lines: OcrLine[]): { value?: string; confidence?: number 
 
 function extractTitle(lines: OcrLine[], author?: string, genre?: GalleryGenre): { value?: string; confidence?: number } {
   for (const line of lines) {
-    if (line.text.length < 2) {
+    if (line.confidence < CONFIDENCE_REVIEW_THRESHOLD) {
+      continue;
+    }
+
+    if (!isLikelyTextCandidate(line.text)) {
       continue;
     }
 
@@ -109,11 +130,13 @@ function extractTitle(lines: OcrLine[], author?: string, genre?: GalleryGenre): 
 
 function shouldMarkForReview(entry: {
   title?: string;
+  genre?: GalleryGenre;
   ocr_confidence: number;
   title_confidence?: number;
   author_confidence?: number;
 }): boolean {
   return (
+    !entry.genre ||
     entry.ocr_confidence < CONFIDENCE_REVIEW_THRESHOLD ||
     !entry.title ||
     entry.title.length < 2 ||
@@ -132,7 +155,19 @@ async function getWorker(): Promise<any> {
         tesseract.setLogging(false);
       }
 
-      return tesseract.createWorker(OCR_LANGS);
+      mkdirSync(OCR_CACHE_PATH, { recursive: true });
+
+      const worker = await tesseract.createWorker(OCR_LANGS, 1, {
+        cachePath: OCR_CACHE_PATH,
+      });
+
+      if ('PSM' in tesseract && tesseract.PSM?.SPARSE_TEXT !== undefined) {
+        await worker.setParameters({
+          tessedit_pageseg_mode: tesseract.PSM.SPARSE_TEXT,
+        });
+      }
+
+      return worker;
     })();
   }
 
@@ -151,7 +186,7 @@ export async function terminateOcrWorker(): Promise<void> {
 
 export async function extractGalleryMetadata(imagePath: string, imagePublicPath: string, sourceFile: string): Promise<GalleryManifestEntry> {
   const worker = await getWorker();
-  const { data } = await worker.recognize(imagePath);
+  const { data } = await worker.recognize(imagePath, {}, { text: true, blocks: true });
   const lines = flattenLines(data);
   const genre = extractGenre(lines);
   const author = extractAuthor(lines);
@@ -167,6 +202,7 @@ export async function extractGalleryMetadata(imagePath: string, imagePublicPath:
     author: author.value,
     needs_review: shouldMarkForReview({
       title: title.value,
+      genre,
       ocr_confidence: ocrConfidence,
       title_confidence: title.confidence,
       author_confidence: author.confidence,
