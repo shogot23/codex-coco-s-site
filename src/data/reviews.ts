@@ -1,3 +1,10 @@
+/**
+ * @deprecated This file is deprecated.
+ * Reviews are now managed via Content Collection at src/content/reviews/.
+ * Use getCollection('reviews') from 'astro:content' to fetch review data.
+ * This file will be removed in a future update.
+ */
+
 export type ReviewItem = {
   title: string;
   summary: string;

@@ -1,3 +1,8 @@
+/**
+ * @deprecated Use Content Collection (src/content/gallery/) instead.
+ * This file will be removed in a future update.
+ */
+
 export type GalleryItem = {
   title: string;
   image: string;

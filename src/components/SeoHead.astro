@@ -1,0 +1,119 @@
+---
+/**
+ * SeoHead Component
+ *
+ * Provides comprehensive SEO meta tags including:
+ * - OGP (Open Graph Protocol) tags
+ * - Twitter Card tags
+ * - JSON-LD structured data
+ *
+ * Usage:
+ * <SeoHead
+ *   title="Page Title"
+ *   description="Page description"
+ *   image="/path/to/image.png"
+ *   type="article"
+ *   jsonLd={{"@type": "Article", ...}}
+ * />
+ */
+
+interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+  type?: 'website' | 'article';
+  jsonLd?: Record<string, unknown>;
+}
+
+const {
+  title,
+  description = '読書 with Coco - 書評、ギャラリー、動画を通じて本の魅力をお届けする読書サイト',
+  image,
+  type = 'website',
+  jsonLd,
+} = Astro.props;
+
+// Base configuration
+const base = import.meta.env.BASE_URL;
+const siteName = '読書 with Coco';
+
+// Resolve canonical URL
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site!).toString();
+
+// Default OGP image (site avatar)
+const defaultOgImage = `${base}uploads/img_6088.png`;
+
+// Resolve image URL to absolute URL
+const resolveImageUrl = (img: string | undefined): string => {
+  if (!img) {
+    // Return default image as absolute URL
+    return new URL(defaultOgImage, Astro.site!).toString();
+  }
+
+  // Already absolute URL
+  if (/^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(img)) {
+    return img;
+  }
+
+  // Already includes base path (starts with base)
+  if (img.startsWith(base)) {
+    return new URL(img, Astro.site!).toString();
+  }
+
+  // Relative path - add base path and make absolute
+  const normalized = img.startsWith('/') ? img : `/${img}`;
+  return new URL(`${base}${normalized.replace(/^\/+/, '')}`, Astro.site!).toString();
+};
+
+const ogImageUrl = resolveImageUrl(image);
+
+// Build JSON-LD
+const buildJsonLd = (): Record<string, unknown> | null => {
+  if (jsonLd) {
+    return jsonLd;
+  }
+
+  // Default WebSite schema - include base path in URL
+  const siteUrl = new URL(base, Astro.site!).toString();
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: siteName,
+    description,
+    url: siteUrl,
+  };
+};
+
+const jsonLdData = buildJsonLd();
+
+// Safe JSON serializer to prevent XSS via script breakout
+// Escapes characters that could break out of a <script> tag
+const safeJsonStringify = (obj: Record<string, unknown>): string => {
+  return JSON.stringify(obj)
+    .replace(/</g, '\\u003C')
+    .replace(/>/g, '\\u003E')
+    .replace(/&/g, '\\u0026')
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029');
+};
+---
+
+<!-- OGP Meta Tags -->
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:image" content={ogImageUrl} />
+<meta property="og:url" content={canonicalUrl} />
+<meta property="og:type" content={type} />
+<meta property="og:site_name" content={siteName} />
+<meta property="og:locale" content="ja_JP" />
+
+<!-- Twitter Card Meta Tags -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImageUrl} />
+
+<!-- JSON-LD Structured Data -->
+{jsonLdData && (
+  <script type="application/ld+json" is:inline set:html={safeJsonStringify(jsonLdData)} />
+)}

@@ -1,3 +1,8 @@
+/**
+ * @deprecated Use Content Collection (src/content/videos/) instead.
+ * This file will be removed in a future update.
+ */
+
 export type VideoItem = {
   title: string;
   date: string; // YYYY-MM-DD

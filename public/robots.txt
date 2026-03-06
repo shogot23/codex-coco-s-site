@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://shogot23.github.io/codex-coco-s-site/sitemap-index.xml

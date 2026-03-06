@@ -1,6 +1,22 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import { galleryGenres } from "../data/gallery";
+import { getCollection } from "astro:content";
+import { GALLERY_GENRES } from "../content/config";
+
+const galleryEntries = await getCollection("gallery");
+
+// Group items by genre
+const galleryByGenre = GALLERY_GENRES.map((genre) => ({
+  name: genre,
+  items: galleryEntries
+    .filter((entry) => entry.data.genre === genre)
+    .map((entry) => ({
+      title: entry.data.title,
+      image: entry.data.image,
+      genre: entry.data.genre,
+      note: entry.data.note,
+    })),
+})).filter((g) => g.items.length > 0);
 ---
 
 <Layout title="Gallery | 読書 with Coco">
@@ -8,14 +24,14 @@ import { galleryGenres } from "../data/gallery";
     <h1>Gallery</h1>
     <p class="lead">本とココちゃんの写真をジャンル別に並べるページ（いまは仮データ）。</p>
 
-    {galleryGenres.map((g) => (
+    {galleryByGenre.map((g) => (
       <section class="section">
         <h2>{g.name}</h2>
         <div class="grid">
           {g.items.map((item) => (
             <article class="card">
               <div class="thumb">
-                <img src={item.image} alt={item.title} loading="lazy" />
+                <img src={item.image} alt={item.title} loading="lazy" decoding="async" width="400" height="300" />
               </div>
               <div class="body">
                 <div class="title">{item.title}</div>

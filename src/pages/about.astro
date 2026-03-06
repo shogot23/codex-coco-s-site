@@ -1,13 +1,26 @@
 ---
+import { getCollection } from "astro:content";
 import Layout from "../layouts/Layout.astro";
+
+const items = await getCollection("about");
+const entry = items[0] ?? null;
+
+let Content = null;
+if (entry) {
+  ({ Content } = await entry.render());
+}
 ---
 
-<Layout title="About | 読書 with Coco">
-  <h1>About</h1>
-  <p>「本×ココ×学び」を記録するための、軽くて更新しやすい個人サイトです。</p>
-  <ul>
-    <li>Gallery: 写真をジャンル別に</li>
-    <li>Videos: Sora動画の保管庫</li>
-    <li>Reviews: 感想と学びを短く</li>
-  </ul>
+<Layout title={entry ? entry.data.title : "About"} description={entry?.data?.description}>
+  <section style="max-width: 720px; margin: 0 auto; line-height: 1.7;">
+    <h1>{entry ? entry.data.title : "About"}</h1>
+
+    {entry?.data?.updatedAt && (
+      <p style="opacity: 0.7; font-size: 0.9rem;">
+        更新: {entry.data.updatedAt.toLocaleDateString('ja-JP')}
+      </p>
+    )}
+
+    {Content ? <Content /> : <p>about コンテンツが見つかりません（src/content/about/about.md を確認）</p>}
+  </section>
 </Layout>

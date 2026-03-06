@@ -18,6 +18,19 @@ collections:
       - { label: "説明", name: "description", widget: "string", required: false }
       - { label: "本文", name: "body", widget: "markdown" }
 
+  - name: "about"
+    label: "About"
+    folder: "src/content/about"
+    create: false
+    delete: false
+    extension: "md"
+    format: "frontmatter"
+    fields:
+      - { label: "タイトル", name: "title", widget: "string" }
+      - { label: "説明", name: "description", widget: "string", required: false }
+      - { label: "更新日", name: "updatedAt", widget: "datetime", required: false }
+      - { label: "本文", name: "body", widget: "markdown" }
+
   - name: "reviews"
     label: "書評"
     folder: "src/content/reviews"
@@ -31,3 +44,35 @@ collections:
       - { label: "日付", name: "date", widget: "datetime" }
       - { label: "カバー画像", name: "cover", widget: "image", required: false }
       - { label: "本文", name: "body", widget: "markdown" }
+
+  - name: "gallery"
+    label: "ギャラリー"
+    folder: "src/content/gallery"
+    create: true
+    delete: false
+    extension: "md"
+    format: "frontmatter"
+    fields:
+      - { label: "タイトル", name: "title", widget: "string" }
+      - { label: "画像", name: "image", widget: "image" }
+      - { label: "ジャンル", name: "genre", widget: "select", options: ["小説", "ビジネス", "歴史"] }
+      - { label: "メモ", name: "note", widget: "string", required: false }
+      - { label: "本文", name: "body", widget: "markdown", required: false }
+
+  - name: "videos"
+    label: "動画"
+    folder: "src/content/videos"
+    create: true
+    delete: false
+    extension: "md"
+    format: "frontmatter"
+    fields:
+      - { label: "タイトル", name: "title", widget: "string" }
+      - { label: "日付", name: "date", widget: "datetime" }
+      - { label: "サムネイル", name: "thumbnail", widget: "image" }
+      - label: "URL (YouTube/Instagram)"
+        name: "url"
+        widget: "string"
+        required: false
+        pattern: ['^https://((www\.)?youtube\.com|youtu\.be|(www\.)?instagram\.com)(/.*)?$', "YouTube または Instagram の https URL を入力してください"]
+      - { label: "本文", name: "body", widget: "markdown", required: false }

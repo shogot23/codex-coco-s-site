@@ -3,8 +3,6 @@ import Layout from '../layouts/Layout.astro';
 import { getCollection, getEntry } from 'astro:content';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { galleryGenres } from '../data/gallery';
-import { videos } from '../data/videos';
 
 const BASE_URL = import.meta.env.BASE_URL.endsWith('/')
   ? import.meta.env.BASE_URL
@@ -46,7 +44,17 @@ const formatReviewDate = (value: Date) =>
     year: 'numeric',
     month: 'short',
     day: 'numeric',
+    timeZone: 'UTC',
   }).format(value);
+
+// Format video date in YYYY-MM-DD format (same as videos.astro)
+const formatVideoDate = (value: Date) =>
+  new Intl.DateTimeFormat('ja-JP', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    timeZone: 'UTC',
+  }).format(value).replace(/\//g, '-');
 
 const reviewsUrl = withBase('reviews/');
 const galleryUrl = withBase('gallery/');
@@ -99,30 +107,36 @@ const latestReviews = [...reviewEntries]
     };
   });
 
-const latestGallery = galleryGenres
-  .flatMap((genre) =>
-    genre.items.map((item) => ({
-      title: item.title,
-      description: item.note ?? `${genre.name}ジャンルのビジュアル`,
-      image: resolvePublicAsset(item.image, previewFallbackImage),
-      href: galleryUrl,
-    })),
-  )
+// Fetch gallery from Content Collection
+const galleryEntries = await getCollection('gallery');
+const latestGallery = galleryEntries
+  .map((entry) => ({
+    title: entry.data.title,
+    description: entry.data.note ?? `${entry.data.genre}ジャンルのビジュアル`,
+    image: resolvePublicAsset(entry.data.image, previewFallbackImage),
+    href: galleryUrl,
+  }))
   .slice(-3)
   .reverse();
 
-const latestVideos = [...videos]
-  .sort((a, b) => (a.date < b.date ? 1 : -1))
+// Fetch videos from Content Collection
+const videoEntries = await getCollection('videos');
+const latestVideos = [...videoEntries]
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
   .slice(0, 3)
-  .map((video) => ({
-    title: video.title,
-    description: `公開日: ${video.date}`,
-    image: resolvePublicAsset(video.thumbnail, previewFallbackImage),
+  .map((entry) => ({
+    title: entry.data.title,
+    description: `公開日: ${formatVideoDate(entry.data.date)}`,
+    image: resolvePublicAsset(entry.data.thumbnail, previewFallbackImage),
     href: videosUrl,
   }));
 ---
 
-<Layout title="Home">
+<Layout
+  title="読書 with Coco - 本の記憶を、イメージで深める"
+  description="読書 with Cocoは、書評、ギャラリー、動画を通じて本の魅力をお届けする読書サイト。読み終えた本の余韻を、ココちゃんと共にビジュアルで再び訪れます。"
+  image={avatarUrl}
+>
   <section class="home-shell">
     <section class="hero">
       <div class="hero-visual">
@@ -133,6 +147,7 @@ const latestVideos = [...videos]
           width="560"
           height="560"
           loading="eager"
+          decoding="async"
         />
         <div class="hero-glow"></div>
         <div class="hero-particles"></div>
@@ -194,7 +209,7 @@ const latestVideos = [...videos]
               <article class="preview-card media-card">
                 <a class="media-link" href={item.href}>
                   <div class="media-thumb">
-                    <img src={item.image} alt={item.title} loading="lazy" />
+                    <img src={item.image} alt={item.title} loading="lazy" decoding="async" width="400" height="300" />
                   </div>
                   <div class="media-body">
                     <h3>{item.title}</h3>
@@ -220,7 +235,7 @@ const latestVideos = [...videos]
               <article class="preview-card media-card">
                 <a class="media-link" href={item.href}>
                   <div class="media-thumb video-thumb">
-                    <img src={item.image} alt={item.title} loading="lazy" />
+                    <img src={item.image} alt={item.title} loading="lazy" decoding="async" width="400" height="225" />
                   </div>
                   <div class="media-body">
                     <h3>{item.title}</h3>

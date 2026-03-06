@@ -1,16 +1,31 @@
 ---
+import SeoHead from '../components/SeoHead.astro';
+
 interface Props {
   title: string;
+  description?: string;
+  image?: string;
+  type?: 'website' | 'article';
+  jsonLd?: Record<string, unknown>;
 }
 
-const { title } = Astro.props;
+const {
+  title,
+  description = '読書 with Coco - 書評、ギャラリー、動画を通じて本の魅力をお届けする読書サイト',
+  image,
+  type = 'website',
+  jsonLd,
+} = Astro.props;
 const base = import.meta.env.BASE_URL;
+const canonical = new URL(Astro.url.pathname, Astro.site!).toString();
 
 const navItems = [
   { href: '', label: 'Home' },
+  { href: 'about/', label: 'About' },
   { href: 'gallery/', label: 'Gallery' },
   { href: 'videos/', label: 'Videos' },
   { href: 'reviews/', label: 'Reviews' },
+  { href: 'profile/', label: 'Profile' },
 ];
 ---
 
@@ -19,7 +34,10 @@ const navItems = [
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
     <title>{title}</title>
+    <SeoHead title={title} description={description} image={image} type={type} jsonLd={jsonLd} />
     <style>
       :root { color-scheme: light; }
       body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", "Segoe UI", sans-serif; background: #fafafa; color: #111; }

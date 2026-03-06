@@ -1,8 +1,79 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import { videos } from "../data/videos";
+import { getCollection } from "astro:content";
 
-const sorted = [...videos].sort((a,b) => (a.date < b.date ? 1 : -1));
+const videoEntries = await getCollection("videos");
+
+// Format date using UTC to ensure consistent display regardless of server timezone
+const formatVideoDate = (date: Date) =>
+  new Intl.DateTimeFormat('ja-JP', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    timeZone: 'UTC',
+  }).format(date).replace(/\//g, '-');
+
+const videos = videoEntries.map((entry) => ({
+  title: entry.data.title,
+  date: entry.data.date,
+  dateLabel: formatVideoDate(entry.data.date),
+  thumbnail: entry.data.thumbnail,
+  url: entry.data.url,
+})).sort((a, b) => b.date.getTime() - a.date.getTime());
+
+// Helper to extract YouTube video ID from URL using URL API
+function getYouTubeId(urlString: string): string | null {
+  try {
+    const url = new URL(urlString);
+    // Check host is YouTube
+    if (!['youtube.com', 'www.youtube.com', 'youtu.be'].includes(url.hostname)) {
+      return null;
+    }
+    // youtu.be short URL
+    if (url.hostname === 'youtu.be') {
+      const id = url.pathname.slice(1);
+      if (/^[a-zA-Z0-9_-]{11}$/.test(id)) return id;
+      return null;
+    }
+    // youtube.com - check for watch or embed
+    if (url.pathname.startsWith('/embed/')) {
+      const id = url.pathname.slice(7);
+      if (/^[a-zA-Z0-9_-]{11}$/.test(id)) return id;
+    }
+    const v = url.searchParams.get('v');
+    if (v && /^[a-zA-Z0-9_-]{11}$/.test(v)) return v;
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+// Helper to extract Instagram post ID from URL using URL API
+function getInstagramId(urlString: string): string | null {
+  try {
+    const url = new URL(urlString);
+    // Check host is Instagram
+    if (!['instagram.com', 'www.instagram.com'].includes(url.hostname)) {
+      return null;
+    }
+    // Check for /p/ or /reel/ path
+    const pathMatch = url.pathname.match(/^\/(p|reel)\/([a-zA-Z0-9_-]+)/);
+    if (pathMatch) return pathMatch[2];
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+// Determine embed type
+function getEmbedInfo(url: string | undefined): { type: "youtube" | "instagram" | "none"; id: string | null } {
+  if (!url) return { type: "none", id: null };
+  const ytId = getYouTubeId(url);
+  if (ytId) return { type: "youtube", id: ytId };
+  const igId = getInstagramId(url);
+  if (igId) return { type: "instagram", id: igId };
+  return { type: "none", id: null };
+}
 ---
 
 <Layout title="Videos | 読書 with Coco">
@@ -11,17 +82,36 @@ const sorted = [...videos].sort((a,b) => (a.date < b.date ? 1 : -1));
     <p class="lead">Soraで作成した動画を並べるページ（いまは仮データ）。</p>
 
     <div class="grid">
-      {sorted.map((v) => (
-        <article class="card">
-          <div class="thumb">
-            <img src={v.thumbnail} alt={v.title} loading="lazy" />
-          </div>
-          <div class="body">
-            <div class="title">{v.title}</div>
-            <div class="meta">{v.date}</div>
-          </div>
-        </article>
-      ))}
+      {videos.map((v) => {
+        const embed = getEmbedInfo(v.url);
+        return (
+          <article class="card">
+            <div class="thumb">
+              {embed.type === "youtube" && embed.id ? (
+                <iframe
+                  src={`https://www.youtube.com/embed/${embed.id}`}
+                  title={v.title}
+                  loading="lazy"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen
+                />
+              ) : embed.type === "instagram" && embed.id ? (
+                <iframe
+                  src={`https://www.instagram.com/p/${embed.id}/embed`}
+                  title={v.title}
+                  loading="lazy"
+                />
+              ) : (
+                <img src={v.thumbnail} alt={v.title} loading="lazy" decoding="async" width="400" height="225" />
+              )}
+            </div>
+            <div class="body">
+              <div class="title">{v.title}</div>
+              <div class="meta">{v.dateLabel}</div>
+            </div>
+          </article>
+        );
+      })}
     </div>
   </main>
 </Layout>
@@ -32,7 +122,7 @@ const sorted = [...videos].sort((a,b) => (a.date < b.date ? 1 : -1));
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;}
   .card{border:1px solid rgba(0,0,0,.08);border-radius:14px;overflow:hidden;background:#fff;}
   .thumb{aspect-ratio: 16 / 9; background: rgba(0,0,0,.04);}
-  img{width:100%;height:100%;object-fit:cover;}
+  img, iframe{width:100%;height:100%;object-fit:cover;border:none;}
   .body{padding:12px 14px;}
   .title{font-weight:700;}
   .meta{margin-top:6px;opacity:.7;font-size:.9rem;}

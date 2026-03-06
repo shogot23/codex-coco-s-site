@@ -1,33 +1,165 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import { reviews } from "../data/reviews";
+import { getCollection } from 'astro:content';
+
+const reviews = await getCollection('reviews');
+const sortedReviews = [...reviews].sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+const base = import.meta.env.BASE_URL;
+const baseWithSlash = base.endsWith('/') ? base : `${base}/`;
+
+const formatDate = (value: Date) =>
+  new Intl.DateTimeFormat('ja-JP', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  }).format(value);
+
+const getExcerpt = (text: string, maxLength: number = 120): string => {
+  const normalized = text.replace(/\s+/g, ' ').trim();
+  if (!normalized) return '';
+  if (normalized.length <= maxLength) return normalized;
+  return `${normalized.slice(0, maxLength).trimEnd()}...`;
+};
 ---
 
 <Layout title="Reviews | 読書 with Coco">
-  <main class="wrap">
-    <h1>Reviews</h1>
-    <p class="lead">本の感想（タイトル / 一言要約 / 学び3点）を一覧にするページ（いまは仮データ）。</p>
+  <section class="wrap" aria-labelledby="reviews-heading">
+    <h1 id="reviews-heading">Reviews</h1>
+    <p class="lead">読んだ本の感想と学びを記録しています。</p>
 
-    <div class="list">
-      {reviews.map((r) => (
-        <article class="item">
-          <h2 class="title">{r.title}</h2>
-          <p class="summary">{r.summary}</p>
-          <ul class="learn">
-            {r.learnings.map((x) => <li>{x}</li>)}
-          </ul>
-        </article>
-      ))}
-    </div>
-  </main>
+    {sortedReviews.length === 0 ? (
+      <p class="empty">レビューがまだありません。最初のレビューを公開予定です。</p>
+    ) : (
+      <div class="list">
+        {sortedReviews.map((review) => {
+          const href = `${baseWithSlash}reviews/${review.slug}/`;
+          const excerpt = review.data.description
+            ? getExcerpt(review.data.description, 120)
+            : getExcerpt(review.body || '', 120);
+
+          return (
+            <article class="item">
+              <a href={href} class="item-link">
+                <div class="item-content">
+                  <h2 class="title">{review.data.title}</h2>
+                  {excerpt && <p class="summary">{excerpt}</p>}
+                  <time class="date" datetime={review.data.date.toISOString()}>
+                    {formatDate(review.data.date)}
+                  </time>
+                </div>
+                <span class="read-more">詳細を読む</span>
+              </a>
+            </article>
+          );
+        })}
+      </div>
+    )}
+  </section>
 </Layout>
 
 <style>
-  .wrap{max-width:980px;margin:0 auto;padding:32px 16px;}
-  .lead{opacity:.8;margin:8px 0 24px;}
-  .list{display:flex;flex-direction:column;gap:16px;}
-  .item{border:1px solid rgba(0,0,0,.08);border-radius:14px;background:#fff;padding:14px 16px;}
-  .title{margin:0 0 8px;font-size:1.1rem;}
-  .summary{margin:0 0 10px;opacity:.85;}
-  .learn{margin:0;padding-left:18px;opacity:.9;}
+  .wrap {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 32px 16px;
+  }
+
+  h1 {
+    margin: 0 0 8px;
+  }
+
+  .lead {
+    opacity: 0.8;
+    margin: 8px 0 24px;
+  }
+
+  .empty {
+    opacity: 0.7;
+    text-align: center;
+    padding: 40px 20px;
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 14px;
+  }
+
+  .list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .item {
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 14px;
+    background: #fff;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+  }
+
+  .item:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+  }
+
+  .item-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px 20px;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .item-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .title {
+    margin: 0 0 8px;
+    font-size: 1.15rem;
+    line-height: 1.4;
+  }
+
+  .summary {
+    margin: 0 0 10px;
+    opacity: 0.85;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .date {
+    display: block;
+    font-size: 0.85rem;
+    opacity: 0.65;
+  }
+
+  .read-more {
+    flex-shrink: 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #0066cc;
+    opacity: 0.9;
+  }
+
+  .item:hover .read-more {
+    opacity: 1;
+  }
+
+  @media (max-width: 600px) {
+    .item-link {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .read-more {
+      align-self: flex-end;
+    }
+  }
 </style>
