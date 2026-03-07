@@ -1,4 +1,4 @@
-import { defineCollection, z } from 'astro:content';
+import { defineCollection, reference, z } from 'astro:content';
 
 const profile = defineCollection({
   type: 'content',
@@ -44,6 +44,9 @@ const gallery = defineCollection({
     needs_review: z.boolean().optional(),
     generated_at: z.string().optional(),
     source_file: z.string().optional(),
+    published: z.boolean().default(false),
+    description: z.string().optional(),
+    relatedReview: reference('reviews').optional(),
   }),
 });
 

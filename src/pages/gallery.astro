@@ -1,9 +1,9 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import { getCollection } from "astro:content";
 import { GALLERY_GENRES } from "../content/config";
+import { getPublishedGallery, hasDetailContent } from "../utils/gallery";
 
-const BASE_URL = import.meta.env.BASE_URL.endsWith("/")
+const baseWithSlash = import.meta.env.BASE_URL.endsWith("/")
   ? import.meta.env.BASE_URL
   : `${import.meta.env.BASE_URL}/`;
 
@@ -11,65 +11,383 @@ const isAbsoluteUrl = (value: string) =>
   /^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(value);
 
 const withBase = (assetPath: string) => {
-  if (!assetPath) return BASE_URL;
+  if (!assetPath) return baseWithSlash;
   if (isAbsoluteUrl(assetPath)) return assetPath;
-  if (assetPath.startsWith(BASE_URL)) return assetPath;
-  return `${BASE_URL}${assetPath.replace(/^\/+/, "")}`;
+  if (assetPath.startsWith(baseWithSlash)) return assetPath;
+  return `${baseWithSlash}${assetPath.replace(/^\/+/, "")}`;
 };
 
-const galleryEntries = await getCollection("gallery");
+const reviewsUrl = `${baseWithSlash}reviews/`;
+const galleryEntries = await getPublishedGallery();
 
-// Group items by genre
 const galleryByGenre = GALLERY_GENRES.map((genre) => ({
   name: genre,
-  items: galleryEntries
-    .filter((entry) => entry.data.genre === genre)
-    .map((entry) => ({
-      title: entry.data.title,
-      image: withBase(entry.data.image),
-      genre: entry.data.genre,
-      author: entry.data.author,
-      note: entry.data.note,
-    })),
-})).filter((g) => g.items.length > 0);
+  items: galleryEntries.filter((entry) => entry.data.genre === genre),
+})).filter((group) => group.items.length > 0);
 ---
 
-<Layout title="Gallery | 読書 with Coco">
-  <main class="wrap">
-    <h1>Gallery</h1>
-    <p class="lead">本とココちゃんの写真をジャンル別に並べるページ（いまは仮データ）。</p>
+<Layout
+  title="Gallery | 読書 with Coco"
+  description="読書から生まれた情景を、ココちゃんと一緒に辿る作品展示ギャラリー。"
+>
+  <section class="wrap" aria-labelledby="gallery-page-title">
+    <header class="page-header">
+      <p class="eyebrow">Visual Gallery</p>
+      <h1 id="gallery-page-title">Gallery</h1>
+      <p class="lead">読書から生まれた情景を、ココちゃんと一緒に眺めるビジュアルギャラリー。</p>
+      <p class="supporting-link">
+        本の余韻を言葉でも辿りたい方は <a href={reviewsUrl}>Reviews</a> へ。
+      </p>
+    </header>
 
-    {galleryByGenre.map((g) => (
-      <section class="section">
-        <h2>{g.name}</h2>
-        <div class="grid">
-          {g.items.map((item) => (
-            <article class="card">
-              <div class="thumb">
-                <img src={item.image} alt={item.title} loading="lazy" decoding="async" width="400" height="300" />
-              </div>
-              <div class="body">
-                <div class="title">{item.title}</div>
-                {item.author && <div class="meta">著者: {item.author}</div>}
-                {item.note && <div class="meta">{item.note}</div>}
-              </div>
-            </article>
+    {galleryByGenre.length ? (
+      <>
+        <nav class="filters" aria-label="ギャラリーのジャンル絞り込み">
+          <button class="filter-button is-active" type="button" data-filter="すべて" aria-pressed="true">
+            すべて
+          </button>
+          {GALLERY_GENRES.map((genre) => (
+            <button class="filter-button" type="button" data-filter={genre} aria-pressed="false">
+              {genre}
+            </button>
           ))}
-        </div>
-      </section>
-    ))}
-  </main>
+        </nav>
+
+        {galleryByGenre.map((group) => (
+          <section class="section" data-genre={group.name}>
+            <div class="section-head">
+              <h2>{group.name}</h2>
+              <p>{group.items.length}作品</p>
+            </div>
+            <div class="grid">
+              {group.items.map((entry) => {
+                const hasDetail = hasDetailContent(entry);
+                const detailUrl = `${baseWithSlash}gallery/${entry.slug}/`;
+                const summary = entry.data.note ?? entry.data.description;
+
+                return hasDetail ? (
+                  <a href={detailUrl} class="card-link" aria-label={`${entry.data.title}の詳細を見る`}>
+                    <article class="card">
+                      <div class="thumb">
+                        <img
+                          src={withBase(entry.data.image)}
+                          alt={`${entry.data.title}の展示画像`}
+                          loading="lazy"
+                          decoding="async"
+                          width="400"
+                          height="300"
+                        />
+                      </div>
+                      <div class="body">
+                        <div class="title-row">
+                          <div class="title">{entry.data.title}</div>
+                        </div>
+                        {entry.data.author && <div class="meta">著者: {entry.data.author}</div>}
+                        {summary && <p class="excerpt">{summary}</p>}
+                        <span class="card-action">作品を見る</span>
+                      </div>
+                    </article>
+                  </a>
+                ) : (
+                  <article class="card">
+                    <div class="thumb">
+                      <img
+                        src={withBase(entry.data.image)}
+                        alt={`${entry.data.title}の展示画像`}
+                        loading="lazy"
+                        decoding="async"
+                        width="400"
+                        height="300"
+                      />
+                    </div>
+                    <div class="body">
+                      <div class="title-row">
+                        <div class="title">{entry.data.title}</div>
+                      </div>
+                      {entry.data.author && <div class="meta">著者: {entry.data.author}</div>}
+                      {summary && <p class="excerpt">{summary}</p>}
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          </section>
+        ))}
+
+        <p class="empty filtered-empty" data-filter-empty hidden>選択したジャンルの作品はまだありません。</p>
+      </>
+    ) : (
+      <p class="empty">公開中の作品はまだありません。</p>
+    )}
+  </section>
+
+  <script is:inline>
+    const allLabel = 'すべて';
+    const filterButtons = Array.from(document.querySelectorAll('[data-filter]'));
+    const genreSections = Array.from(document.querySelectorAll('[data-genre]'));
+    const emptyState = document.querySelector('[data-filter-empty]');
+    const allowedGenres = new Set([allLabel, ...filterButtons.map((button) => button.getAttribute('data-filter'))]);
+
+    const readGenreFromHash = () => {
+      const params = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+      return params.get('genre') || allLabel;
+    };
+
+    const applyGenreFilter = (requestedGenre) => {
+      const activeGenre = allowedGenres.has(requestedGenre) ? requestedGenre : allLabel;
+
+      filterButtons.forEach((button) => {
+        const buttonGenre = button.getAttribute('data-filter') || allLabel;
+        const isActive = buttonGenre === activeGenre;
+        button.classList.toggle('is-active', isActive);
+        button.setAttribute('aria-pressed', String(isActive));
+      });
+
+      genreSections.forEach((section) => {
+        const sectionGenre = section.getAttribute('data-genre') || '';
+        section.hidden = activeGenre !== allLabel && sectionGenre !== activeGenre;
+      });
+
+      const hasVisibleSection = genreSections.some((section) => !section.hidden);
+      if (emptyState) {
+        emptyState.hidden = hasVisibleSection || activeGenre === allLabel;
+      }
+    };
+
+    filterButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const nextGenre = button.getAttribute('data-filter') || allLabel;
+        if (nextGenre === allLabel) {
+          window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}`);
+          applyGenreFilter(allLabel);
+          return;
+        }
+
+        window.location.hash = `genre=${encodeURIComponent(nextGenre)}`;
+      });
+    });
+
+    window.addEventListener('hashchange', () => {
+      applyGenreFilter(readGenreFromHash());
+    });
+
+    applyGenreFilter(readGenreFromHash());
+  </script>
 </Layout>
 
 <style>
-  .wrap{max-width:980px;margin:0 auto;padding:32px 16px;}
-  .lead{opacity:.8;margin:8px 0 24px;}
-  .section{margin:28px 0 38px;}
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;}
-  .card{border:1px solid rgba(0,0,0,.08);border-radius:14px;overflow:hidden;background:#fff;}
-  .thumb{aspect-ratio: 4 / 3; background: rgba(0,0,0,.04); display:flex;align-items:center;justify-content:center;}
-  img{width:100%;height:100%;object-fit:cover;}
-  .body{padding:12px 14px;}
-  .title{font-weight:700;}
-  .meta{margin-top:6px;opacity:.7;font-size:.9rem;}
+  .wrap {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 32px 16px;
+  }
+
+  .page-header {
+    margin-bottom: 28px;
+  }
+
+  .eyebrow {
+    margin: 0 0 8px;
+    font-size: 0.82rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #7a5c17;
+    font-weight: 700;
+  }
+
+  .lead {
+    opacity: 0.82;
+    margin: 10px 0 0;
+    max-width: 42rem;
+    line-height: 1.7;
+  }
+
+  .supporting-link {
+    margin: 10px 0 0;
+    font-size: 0.95rem;
+    color: rgba(17, 17, 17, 0.72);
+  }
+
+  .supporting-link a {
+    color: #0a4a8b;
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+  }
+
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .filter-button {
+    appearance: none;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    background: #fff;
+    color: inherit;
+    border-radius: 999px;
+    padding: 8px 14px;
+    font: inherit;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .filter-button:hover {
+    border-color: rgba(0, 0, 0, 0.28);
+  }
+
+  .filter-button.is-active {
+    background: #111;
+    color: #fff;
+    border-color: #111;
+  }
+
+  .filter-button:focus-visible {
+    outline: 2px solid #0a5fcc;
+    outline-offset: 2px;
+  }
+
+  .section {
+    margin: 28px 0 38px;
+  }
+
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 14px;
+  }
+
+  .section-head h2 {
+    margin: 0;
+  }
+
+  .section-head p {
+    margin: 0;
+    font-size: 0.92rem;
+    color: rgba(17, 17, 17, 0.6);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+  }
+
+  .card-link {
+    display: block;
+    color: inherit;
+  }
+
+  .card {
+    height: 100%;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 14px;
+    overflow: hidden;
+    background: #fff;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .card-link:hover .card {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+  }
+
+  .card-link:focus-visible {
+    outline: none;
+  }
+
+  .card-link:focus-visible .card {
+    outline: 2px solid #0a5fcc;
+    outline-offset: 2px;
+  }
+
+  .thumb {
+    aspect-ratio: 4 / 3;
+    background: rgba(0, 0, 0, 0.04);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .body {
+    display: grid;
+    gap: 8px;
+    padding: 12px 14px 14px;
+  }
+
+  .title-row {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .title {
+    font-weight: 700;
+    line-height: 1.45;
+  }
+
+  .meta {
+    color: rgba(17, 17, 17, 0.72);
+    font-size: 0.9rem;
+  }
+
+  .excerpt {
+    margin: 0;
+    color: rgba(17, 17, 17, 0.78);
+    font-size: 0.94rem;
+    line-height: 1.65;
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+
+  .card-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #0a4a8b;
+    font-size: 0.92rem;
+    font-weight: 700;
+  }
+
+  .card-action::after {
+    content: "→";
+  }
+
+  .empty {
+    opacity: 0.72;
+  }
+
+  @media (max-width: 600px) {
+    .wrap {
+      padding: 24px 14px;
+    }
+
+    .grid {
+      gap: 12px;
+    }
+
+    .body {
+      padding: 10px 12px 12px;
+    }
+
+    .title {
+      font-size: 0.95rem;
+    }
+
+    .excerpt {
+      font-size: 0.9rem;
+    }
+  }
 </style>

@@ -1,0 +1,273 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getEntry, type CollectionEntry } from 'astro:content';
+import { getPublishedGallery, hasDetailContent } from '../../utils/gallery';
+
+export async function getStaticPaths() {
+  const entries = await getPublishedGallery();
+
+  return entries
+    .filter((entry) => hasDetailContent(entry))
+    .map((entry) => ({
+      params: { slug: entry.slug },
+      props: { entry },
+    }));
+}
+
+type Props = {
+  entry: CollectionEntry<'gallery'>;
+};
+
+const { entry } = Astro.props as Props;
+const { title, image, genre, author, note, description } = entry.data;
+
+const base = import.meta.env.BASE_URL;
+const baseWithSlash = base.endsWith('/') ? base : `${base}/`;
+const galleryListUrl = `${baseWithSlash}gallery/`;
+
+const isAbsoluteUrl = (value: string) =>
+  /^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(value);
+
+const withBase = (assetPath: string) => {
+  if (!assetPath) return baseWithSlash;
+  if (isAbsoluteUrl(assetPath)) return assetPath;
+  if (assetPath.startsWith(baseWithSlash)) return assetPath;
+  return `${baseWithSlash}${assetPath.replace(/^\/+/, '')}`;
+};
+
+const resolveAbsoluteImageUrl = (assetPath: string) => {
+  const resolved = withBase(assetPath);
+  if (isAbsoluteUrl(resolved)) return resolved;
+  return new URL(resolved, Astro.site!).toString();
+};
+
+let relatedReview: CollectionEntry<'reviews'> | null = null;
+if (entry.data.relatedReview) {
+  relatedReview = (await getEntry(entry.data.relatedReview)) ?? null;
+}
+
+const pageDescription = description ?? note ?? `${genre ?? 'ギャラリー'}の展示作品`;
+const coverImageUrl = resolveAbsoluteImageUrl(image);
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site!).toString();
+const galleryJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CreativeWork',
+  name: title,
+  description: pageDescription,
+  image: [coverImageUrl],
+  genre: genre,
+  url: canonicalUrl,
+  creator: author
+    ? {
+        '@type': 'Person',
+        name: author,
+      }
+    : undefined,
+  isPartOf: {
+    '@type': 'CollectionPage',
+    name: 'Gallery',
+    url: new URL(galleryListUrl, Astro.site!).toString(),
+  },
+};
+
+const relatedReviewUrl = relatedReview ? `${baseWithSlash}reviews/${relatedReview.slug}/` : null;
+---
+
+<Layout
+  title={`${title} | Gallery`}
+  description={pageDescription}
+  image={image}
+  type="article"
+  jsonLd={galleryJsonLd}
+>
+  <section class="gallery-detail" aria-labelledby="gallery-title">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href={galleryListUrl}>Gallery</a>
+      <span class="separator" aria-hidden="true">/</span>
+      <span class="current" aria-current="page">{title}</span>
+    </nav>
+
+    <article class="panel">
+      <div class="hero">
+        <div class="media">
+          <img src={withBase(image)} alt={`${title}の展示画像`} loading="eager" decoding="async" width="1200" height="900" />
+        </div>
+
+        <header class="content">
+          {genre && <p class="genre">{genre}</p>}
+          <h1 class="title" id="gallery-title">{title}</h1>
+          {author && <p class="author">著者: {author}</p>}
+          <p class="description">{pageDescription}</p>
+          {note && <p class="note">{note}</p>}
+        </header>
+      </div>
+
+      {relatedReview && relatedReviewUrl && (
+        <section class="related-section" aria-labelledby="related-review-title">
+          <h2 id="related-review-title">関連レビュー</h2>
+          <p class="related-copy">この作品の余韻を文章で辿りたいときの入口です。</p>
+          <a class="related-link" href={relatedReviewUrl}>{relatedReview.data.title}</a>
+        </section>
+      )}
+    </article>
+
+    <nav class="back-nav">
+      <a href={galleryListUrl}>ギャラリーに戻る</a>
+    </nav>
+  </section>
+</Layout>
+
+<style>
+  .gallery-detail {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 32px 16px;
+  }
+
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+    font-size: 0.92rem;
+    color: rgba(17, 17, 17, 0.78);
+  }
+
+  .breadcrumb a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover {
+    text-decoration: underline;
+  }
+
+  .separator {
+    opacity: 0.4;
+  }
+
+  .current {
+    font-weight: 700;
+  }
+
+  .panel {
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 18px;
+    padding: 22px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.05);
+  }
+
+  .hero {
+    display: grid;
+    gap: 20px;
+  }
+
+  .media {
+    overflow: hidden;
+    border-radius: 14px;
+    background: rgba(0, 0, 0, 0.04);
+  }
+
+  .media img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .content {
+    display: grid;
+    align-content: start;
+    gap: 12px;
+  }
+
+  .genre {
+    margin: 0;
+    width: fit-content;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(13, 76, 142, 0.1);
+    color: #0a4a8b;
+    font-size: 0.86rem;
+    font-weight: 700;
+  }
+
+  .title {
+    margin: 0;
+    font-size: clamp(1.8rem, 3vw, 2.4rem);
+    line-height: 1.25;
+  }
+
+  .author {
+    margin: 0;
+    color: rgba(17, 17, 17, 0.72);
+    font-size: 0.98rem;
+  }
+
+  .description {
+    margin: 0;
+    line-height: 1.8;
+    color: rgba(17, 17, 17, 0.88);
+  }
+
+  .note {
+    margin: 0;
+    padding: 14px 16px;
+    border-left: 4px solid rgba(10, 74, 139, 0.26);
+    border-radius: 0 12px 12px 0;
+    background: rgba(10, 74, 139, 0.05);
+    line-height: 1.7;
+  }
+
+  .related-section {
+    margin-top: 28px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  .related-section h2 {
+    margin: 0;
+    font-size: 1.1rem;
+  }
+
+  .related-copy {
+    margin: 10px 0 0;
+    color: rgba(17, 17, 17, 0.72);
+    line-height: 1.7;
+  }
+
+  .related-link {
+    display: inline-flex;
+    margin-top: 14px;
+    color: #0a4a8b;
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .back-nav {
+    margin-top: 18px;
+  }
+
+  .back-nav a {
+    color: #0a4a8b;
+    font-weight: 700;
+  }
+
+  @media (min-width: 860px) {
+    .hero {
+      grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+      align-items: start;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .gallery-detail {
+      padding: 24px 14px;
+    }
+
+    .panel {
+      padding: 16px;
+    }
+  }
+</style>
