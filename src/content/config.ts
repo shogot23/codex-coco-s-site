@@ -42,11 +42,17 @@ const gallery = defineCollection({
     author: z.string().optional(),
     note: z.string().optional(),
     needs_review: z.boolean().optional(),
-    generated_at: z.string().optional(),
+    generated_at: z.preprocess(
+      (val) => (val instanceof Date ? val.toISOString() : val),
+      z.string().optional()
+    ),
     source_file: z.string().optional(),
     published: z.boolean().default(false),
     description: z.string().optional(),
-    relatedReview: reference('reviews').optional(),
+    relatedReview: z.preprocess(
+      (val) => (val === '' ? undefined : val),
+      reference('reviews').optional()
+    ),
   }),
 });
 

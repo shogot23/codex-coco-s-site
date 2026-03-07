@@ -57,10 +57,28 @@ collections:
       - { label: "画像", name: "image", widget: "image" }
       - { label: "ジャンル", name: "genre", widget: "select", options: ["小説", "ビジネス", "歴史"], required: false }
       - { label: "著者", name: "author", widget: "string", required: false }
-      - { label: "メモ", name: "note", widget: "string", required: false }
+      - label: "メモ"
+        name: "note"
+        widget: "string"
+        required: false
+        hint: "簡易メモ。説明文が未入力の場合に一覧表示などで代用されます。"
       - { label: "要確認", name: "needs_review", widget: "boolean", required: false, default: false }
       - { label: "自動生成日時", name: "generated_at", widget: "string", required: false }
       - { label: "元画像ファイル", name: "source_file", widget: "string", required: false }
+      - { label: "公開状態", name: "published", widget: "boolean", required: false, default: false }
+      - label: "説明文"
+        name: "description"
+        widget: "text"
+        required: false
+        hint: "詳細ページの説明文・SEO用。未入力の場合は「メモ」が代用されます。"
+      - label: "関連書評"
+        name: "relatedReview"
+        widget: "relation"
+        collection: "reviews"
+        value_field: "{{slug}}"
+        search_fields: ["title"]
+        display_fields: ["title"]
+        required: false
       - { label: "本文", name: "body", widget: "markdown", required: false }
 
   - name: "videos"
