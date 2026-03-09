@@ -110,15 +110,21 @@ const latestReviews = [...reviewEntries]
 
 // Fetch gallery from Content Collection
 const galleryEntries = await getPublishedGallery();
-const latestGallery = galleryEntries
+const getGalleryTimestamp = (generatedAt?: string) => {
+  if (!generatedAt) return 0;
+  const timestamp = Date.parse(generatedAt);
+  return Number.isNaN(timestamp) ? 0 : timestamp;
+};
+
+const latestGallery = [...galleryEntries]
+  .sort((a, b) => getGalleryTimestamp(b.data.generated_at) - getGalleryTimestamp(a.data.generated_at))
+  .slice(0, 3)
   .map((entry) => ({
     title: entry.data.title,
     description: entry.data.description ?? entry.data.note ?? `${entry.data.genre}ジャンルのビジュアル`,
     image: resolvePublicAsset(entry.data.image, previewFallbackImage),
     href: hasDetailContent(entry) ? withBase(`gallery/${entry.slug}/`) : galleryUrl,
-  }))
-  .slice(-3)
-  .reverse();
+  }));
 
 // Fetch videos from Content Collection
 const videoEntries = await getCollection('videos');
