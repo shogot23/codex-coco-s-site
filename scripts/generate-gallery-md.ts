@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { createGallerySlug } from './lib/slug.ts';
 import type { GalleryManifestEntry } from './lib/ocr.ts';
@@ -8,6 +8,30 @@ const GALLERY_DIR = path.resolve('src/content/gallery');
 const TARGET_IMAGE_PREFIX = '/uploads/gallery/books/';
 const TARGET_SOURCE_PREFIX = 'gallery/books/';
 const force = process.argv.includes('--force');
+const PRESERVE_STRING_FIELDS = ['description', 'generated_at', 'note', 'relatedReview'] as const;
+const MANIFEST_STRING_FIELDS = ['author', 'genre', 'image', 'source_file', 'title'] as const;
+
+type GalleryMarkdownData = {
+  title: string;
+  image: string;
+  genre?: string;
+  author?: string;
+  note?: string;
+  relatedReview?: string;
+  description?: string;
+  needs_review?: boolean;
+  generated_at: string;
+  source_file: string;
+  published: boolean;
+  body: string;
+};
+
+type ExistingGalleryFile = {
+  path: string;
+  sourceFile?: string;
+  data: Partial<GalleryMarkdownData>;
+  body: string;
+};
 
 function readManifest(): GalleryManifestEntry[] {
   if (!existsSync(MANIFEST_PATH)) {
@@ -24,21 +48,108 @@ function readManifest(): GalleryManifestEntry[] {
   return parsed as GalleryManifestEntry[];
 }
 
-function findExistingSourceFiles(): Map<string, string> {
-  const entries = new Map<string, string>();
+function parseFrontmatter(content: string): { frontmatter: string; body: string } | null {
+  const match = content.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
+  if (!match) {
+    return null;
+  }
 
-  for (const fileName of readdirSync(GALLERY_DIR)) {
-    if (!fileName.endsWith('.md')) {
+  return {
+    frontmatter: match[1],
+    body: match[2],
+  };
+}
+
+function readScalarField(frontmatter: string, field: string): string | boolean | undefined {
+  const match = frontmatter.match(new RegExp(`^${field}:\\s*(.+)$`, 'm'));
+  if (!match) {
+    return undefined;
+  }
+
+  const rawValue = match[1].trim();
+
+  if (rawValue === 'true') {
+    return true;
+  }
+
+  if (rawValue === 'false') {
+    return false;
+  }
+
+  if (rawValue.startsWith('"') && rawValue.endsWith('"')) {
+    return JSON.parse(rawValue);
+  }
+
+  if (rawValue.startsWith("'") && rawValue.endsWith("'")) {
+    return rawValue.slice(1, -1).replace(/\\'/g, "'");
+  }
+
+  return rawValue;
+}
+
+function readExistingGalleryFile(fullPath: string): ExistingGalleryFile {
+  const content = readFileSync(fullPath, 'utf8');
+  const parsed = parseFrontmatter(content);
+
+  if (!parsed) {
+    return {
+      path: fullPath,
+      body: content,
+      data: {},
+    };
+  }
+
+  const data: Partial<GalleryMarkdownData> = {
+    body: parsed.body,
+  };
+
+  for (const field of MANIFEST_STRING_FIELDS) {
+    const value = readScalarField(parsed.frontmatter, field);
+    if (typeof value === 'string') {
+      data[field] = value;
+    }
+  }
+
+  for (const field of PRESERVE_STRING_FIELDS) {
+    const value = readScalarField(parsed.frontmatter, field);
+    if (typeof value === 'string') {
+      data[field] = value;
+    }
+  }
+
+  const needsReview = readScalarField(parsed.frontmatter, 'needs_review');
+  if (typeof needsReview === 'boolean') {
+    data.needs_review = needsReview;
+  }
+
+  const published = readScalarField(parsed.frontmatter, 'published');
+  if (typeof published === 'boolean') {
+    data.published = published;
+  }
+
+  return {
+    path: fullPath,
+    sourceFile: data.source_file,
+    data,
+    body: parsed.body,
+  };
+}
+
+function findExistingGalleryFiles(): ExistingGalleryFile[] {
+  return readdirSync(GALLERY_DIR)
+    .filter((fileName) => fileName.endsWith('.md'))
+    .map((fileName) => readExistingGalleryFile(path.join(GALLERY_DIR, fileName)));
+}
+
+function findExistingSourceFiles(): Map<string, ExistingGalleryFile> {
+  const entries = new Map<string, ExistingGalleryFile>();
+
+  for (const file of findExistingGalleryFiles()) {
+    if (!file.sourceFile) {
       continue;
     }
 
-    const fullPath = path.join(GALLERY_DIR, fileName);
-    const content = readFileSync(fullPath, 'utf8');
-    const match = content.match(/^source_file:\s*["']?([^"\n']+)["']?/m);
-
-    if (match?.[1]) {
-      entries.set(match[1], fullPath);
-    }
+    entries.set(file.sourceFile, file);
   }
 
   return entries;
@@ -48,7 +159,26 @@ function quote(value: string): string {
   return JSON.stringify(value);
 }
 
-function renderMarkdown(entry: GalleryManifestEntry): string {
+function mergeEntryData(entry: GalleryManifestEntry, existing?: ExistingGalleryFile): GalleryMarkdownData {
+  const preserved = existing?.data ?? {};
+
+  return {
+    title: entry.title,
+    image: entry.image,
+    genre: entry.genre,
+    author: entry.author,
+    note: preserved.note,
+    relatedReview: preserved.relatedReview,
+    description: preserved.description,
+    needs_review: entry.needs_review,
+    generated_at: preserved.generated_at ?? entry.generated_at,
+    source_file: entry.source_file,
+    published: preserved.published ?? false,
+    body: existing?.body ?? '',
+  };
+}
+
+function renderMarkdown(entry: GalleryMarkdownData): string {
   const frontmatter = [
     '---',
     `title: ${quote(entry.title)}`,
@@ -63,29 +193,81 @@ function renderMarkdown(entry: GalleryManifestEntry): string {
     frontmatter.push(`author: ${quote(entry.author)}`);
   }
 
-  if (entry.needs_review) {
-    frontmatter.push('needs_review: true');
+  if (entry.note) {
+    frontmatter.push(`note: ${quote(entry.note)}`);
   }
 
+  if (entry.relatedReview) {
+    frontmatter.push(`relatedReview: ${quote(entry.relatedReview)}`);
+  }
+
+  if (entry.description) {
+    frontmatter.push(`description: ${quote(entry.description)}`);
+  }
+
+  frontmatter.push(`needs_review: ${entry.needs_review ? 'true' : 'false'}`);
   frontmatter.push(`generated_at: ${quote(entry.generated_at)}`);
   frontmatter.push(`source_file: ${quote(entry.source_file)}`);
-  frontmatter.push('---', '');
+  frontmatter.push(`published: ${entry.published ? 'true' : 'false'}`);
+  frontmatter.push('---');
 
-  return `${frontmatter.join('\n')}\n`;
+  return entry.body ? `${frontmatter.join('\n')}\n${entry.body}` : `${frontmatter.join('\n')}\n\n`;
 }
 
 function isTargetEntry(entry: GalleryManifestEntry): boolean {
   return entry.image.startsWith(TARGET_IMAGE_PREFIX) && entry.source_file.startsWith(TARGET_SOURCE_PREFIX);
 }
 
-function destinationForEntry(entry: GalleryManifestEntry, existingBySourceFile: Map<string, string>): string {
-  return existingBySourceFile.get(entry.source_file) ?? path.join(GALLERY_DIR, `${createGallerySlug(entry.source_file, entry.genre)}.md`);
+function isTargetSourceFile(sourceFile: string | undefined): sourceFile is string {
+  return Boolean(sourceFile?.startsWith(TARGET_SOURCE_PREFIX));
+}
+
+function destinationForEntry(entry: GalleryManifestEntry, existingBySourceFile: Map<string, ExistingGalleryFile>): string {
+  return existingBySourceFile.get(entry.source_file)?.path ?? path.join(GALLERY_DIR, `${createGallerySlug(entry.source_file, entry.genre)}.md`);
+}
+
+function hasSemanticChanges(existing: ExistingGalleryFile | undefined, nextData: GalleryMarkdownData): boolean {
+  if (!existing) {
+    return true;
+  }
+
+  const currentData = existing.data;
+
+  return (
+    currentData.title !== nextData.title ||
+    currentData.image !== nextData.image ||
+    currentData.genre !== nextData.genre ||
+    currentData.author !== nextData.author ||
+    currentData.note !== nextData.note ||
+    currentData.relatedReview !== nextData.relatedReview ||
+    currentData.description !== nextData.description ||
+    currentData.needs_review !== nextData.needs_review ||
+    currentData.generated_at !== nextData.generated_at ||
+    currentData.source_file !== nextData.source_file ||
+    currentData.published !== nextData.published ||
+    existing.body !== nextData.body
+  );
+}
+
+function deleteOrphanedGeneratedFiles(
+  existingBySourceFile: Map<string, ExistingGalleryFile>,
+  manifestSourceFiles: Set<string>
+): void {
+  for (const [sourceFile, existing] of existingBySourceFile.entries()) {
+    if (!isTargetSourceFile(sourceFile) || manifestSourceFiles.has(sourceFile)) {
+      continue;
+    }
+
+    rmSync(existing.path);
+    console.info(`[gallery:generate] deleted ${path.relative(process.cwd(), existing.path)}`);
+  }
 }
 
 function main(): void {
   mkdirSync(GALLERY_DIR, { recursive: true });
   const manifest = readManifest();
   const existingBySourceFile = findExistingSourceFiles();
+  const manifestSourceFiles = new Set<string>();
 
   for (const entry of manifest) {
     if (!isTargetEntry(entry)) {
@@ -93,18 +275,28 @@ function main(): void {
       continue;
     }
 
+    manifestSourceFiles.add(entry.source_file);
     const destinationPath = destinationForEntry(entry, existingBySourceFile);
+    const existing = existingBySourceFile.get(entry.source_file);
+    const nextData = mergeEntryData(entry, existing);
     const exists = existsSync(destinationPath);
 
-    if (exists && !force) {
+    if (!force && !hasSemanticChanges(existing, nextData)) {
       console.info(`[gallery:generate] skip existing file: ${path.relative(process.cwd(), destinationPath)}`);
       continue;
     }
 
-    writeFileSync(destinationPath, renderMarkdown(entry));
-    existingBySourceFile.set(entry.source_file, destinationPath);
+    writeFileSync(destinationPath, renderMarkdown(nextData));
+    existingBySourceFile.set(entry.source_file, {
+      path: destinationPath,
+      sourceFile: entry.source_file,
+      data: nextData,
+      body: nextData.body,
+    });
     console.info(`[gallery:generate] ${exists ? 'updated' : 'created'} ${path.relative(process.cwd(), destinationPath)}`);
   }
+
+  deleteOrphanedGeneratedFiles(existingBySourceFile, manifestSourceFiles);
 }
 
 main();
