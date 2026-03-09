@@ -2,7 +2,7 @@
   {
     "title": "本心",
     "image": "/uploads/gallery/books/00FC6A64-4B39-4030-8C8C-60637E6EB8EA_1_105_c.jpeg",
-    "needs_review": true,
+    "needs_review": false,
     "generated_at": "2026-03-08T08:40:20.666Z",
     "source_file": "gallery/books/00FC6A64-4B39-4030-8C8C-60637E6EB8EA_1_105_c.jpeg",
     "ocr_confidence": 0.28,
@@ -33,16 +33,16 @@
     "author": "新田隆仁"
   },
   {
-    "title": "ルイ ジ ・ ガ ル ラ ンド",
+    "title": "アドレナリン",
     "image": "/uploads/gallery/books/044B90F1-6D3F-461C-B58E-AFC0B02B141D_1_105_c.jpeg",
-    "needs_review": true,
+    "needs_review": false,
     "generated_at": "2026-03-08T08:40:21.296Z",
     "source_file": "gallery/books/044B90F1-6D3F-461C-B58E-AFC0B02B141D_1_105_c.jpeg",
     "ocr_confidence": 0.62,
     "title_confidence": 0.9,
     "ocr_text": "ーー 。 sa < いい シテ IIK ャ ズラ タン ・ イ ブラ ヒモ ピッチ ルイ ジ ・ ガ ル ラ ンド か ん だら ェ 山 ナオ ミ 3 Na 。、 foofbolista レン   MM NR 過 て 則 ズラ タン ・ イ ブラ ヒモ ビッ チ 自 伝 4O 歳 の 俺 が 語る 、 も う ー つ の 物語 ! 示 。 ペ ャ り ベス ト セ ラー 『I AM ZLATAN」 か ら 1O 年 。 人 間 イ ブラ を 今 、 語 る 8 了 る 、 < ザ",
     "genre": "小説",
-    "author": "ズラタン・イブラヒモビッチ"
+    "author": "ズラタン・イブラヒモビッチ / ルイジ・ガルランド"
   },
   {
     "title": "人なぜ物を欲しがるのか",
@@ -58,7 +58,7 @@
   {
     "title": "考察する若者たち",
     "image": "/uploads/gallery/books/0B44A776-27C4-45AD-B457-8EB88EB28BE8_1_105_c.jpeg",
-    "needs_review": true,
+    "needs_review": false,
     "generated_at": "2026-03-08T08:40:21.828Z",
     "source_file": "gallery/books/0B44A776-27C4-45AD-B457-8EB88EB28BE8_1_105_c.jpeg",
     "ocr_confidence": 0.34,
@@ -67,15 +67,15 @@
     "author": "三宅香帆"
   },
   {
-    "title": "外伝 いちサガミ",
+    "title": "外伝 イクサガミ 無",
     "image": "/uploads/gallery/books/0B8090B4-468B-4C58-8D45-FD9A6DC53DD7_4_5005_c.jpeg",
-    "needs_review": true,
+    "needs_review": false,
     "generated_at": "2026-03-08T08:40:21.862Z",
     "source_file": "gallery/books/0B8090B4-468B-4C58-8D45-FD9A6DC53DD7_4_5005_c.jpeg",
     "ocr_confidence": 0.26,
     "ocr_text": "W # 』 内   レグ",
     "genre": "小説",
-    "author": "今村翔"
+    "author": "今村翔吾"
   },
   {
     "title": "現代の古典",
