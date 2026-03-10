@@ -1,5 +1,5 @@
 ---
-title: "料理人という生き方"
+title: "つむじ風の向かう場所"
 image: "/uploads/gallery/books/8E2DA13F-89E4-446B-B67B-73D7B82A4D09_1_105_c.jpeg"
 genre: "ビジネス"
 author: "道野正"
