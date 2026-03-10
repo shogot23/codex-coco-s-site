@@ -1,9 +1,10 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { getCollection, type CollectionEntry } from 'astro:content';
+import { type CollectionEntry } from 'astro:content';
+import { getPublishedReviews } from '../../utils/reviews';
 
 export async function getStaticPaths() {
-  const reviews = await getCollection('reviews');
+  const reviews = await getPublishedReviews();
   return reviews.map((review) => ({
     params: { slug: review.slug },
     props: { review },
@@ -15,7 +16,7 @@ type Props = {
 };
 
 const { review } = Astro.props as Props;
-const { title, description, date, cover } = review.data;
+const { title, description, date, cover, bookTitle, author, tags, infographic, recommendedFor } = review.data;
 const { Content } = await review.render();
 
 const formatDate = (value: Date) =>
@@ -23,26 +24,37 @@ const formatDate = (value: Date) =>
     year: 'numeric',
     month: 'long',
     day: 'numeric',
+    timeZone: 'UTC',
   }).format(value);
 
 const base = import.meta.env.BASE_URL;
-const reviewsListUrl = `${base}reviews/`;
+const baseWithSlash = base.endsWith('/') ? base : `${base}/`;
+const reviewsListUrl = `${baseWithSlash}reviews/`;
+
+const isAbsoluteUrl = (value: string) =>
+  /^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(value);
+
+const withBase = (assetPath: string) => {
+  if (!assetPath) return baseWithSlash;
+  if (isAbsoluteUrl(assetPath)) return assetPath;
+  if (assetPath.startsWith(baseWithSlash)) return assetPath;
+  return `${baseWithSlash}${assetPath.replace(/^\/+/, '')}`;
+};
 
 // Resolve cover image URL to absolute URL
 const resolveImageUrl = (imagePath: string | undefined): string | null => {
   if (!imagePath) return null;
-  // If already absolute URL, return as-is
-  if (/^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(imagePath)) return imagePath;
-  // Already includes base path
-  if (imagePath.startsWith(base)) {
+  if (isAbsoluteUrl(imagePath)) return imagePath;
+  if (imagePath.startsWith(baseWithSlash)) {
     return new URL(imagePath, Astro.site!).toString();
   }
-  // Add base path and convert to absolute URL
   const normalized = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
-  return new URL(`${base}${normalized.replace(/^\/+/, '')}`, Astro.site!).toString();
+  return new URL(`${baseWithSlash}${normalized.replace(/^\/+/, '')}`, Astro.site!).toString();
 };
 
-const coverImageUrl = resolveImageUrl(cover);
+const heroImage = infographic ?? cover;
+const heroImageUrl = resolveImageUrl(heroImage);
+const supplementalTitle = bookTitle && bookTitle !== title ? bookTitle : null;
 
 // Build Article JSON-LD structured data
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site!).toString();
@@ -51,7 +63,7 @@ const articleJsonLd = {
   '@type': 'Article',
   headline: title,
   description: description || '',
-  image: coverImageUrl || undefined,
+  image: heroImageUrl || undefined,
   datePublished: date.toISOString(),
   dateModified: date.toISOString(),
   author: {
@@ -72,7 +84,7 @@ const articleJsonLd = {
 <Layout
   title={`${title} | Reviews`}
   description={description}
-  image={coverImageUrl ?? undefined}
+  image={heroImage ?? undefined}
   type="article"
   jsonLd={articleJsonLd}
 >
@@ -84,23 +96,65 @@ const articleJsonLd = {
     </nav>
 
     <article class="article">
-      <header class="header">
-        <h1 class="title" id="review-title">{title}</h1>
-        {description && <p class="description">{description}</p>}
-        <time class="date" datetime={date.toISOString()}>
-          {formatDate(date)}
-        </time>
+      <header class="hero">
+        <div class="hero-media">
+          {heroImage ? (
+            <img
+              src={withBase(heroImage)}
+              alt={`${title}のインフォグラフィック`}
+              loading="eager"
+              decoding="async"
+              width="412"
+              height="512"
+            />
+          ) : (
+            <div class="hero-fallback" aria-hidden="true">
+              <span>Review</span>
+              <strong>{title}</strong>
+            </div>
+          )}
+        </div>
+
+        <div class="hero-copy">
+          {tags && tags.length > 0 && (
+            <ul class="tags" aria-label="タグ">
+              {tags.map((tag) => (
+                <li>{tag}</li>
+              ))}
+            </ul>
+          )}
+
+          <h1 class="title" id="review-title">{title}</h1>
+          {supplementalTitle && <p class="book-title">{supplementalTitle}</p>}
+
+          <div class="meta">
+            {author && <span>著者: {author}</span>}
+            <time class="date" datetime={date.toISOString()}>
+              {formatDate(date)}
+            </time>
+          </div>
+
+          {description && <p class="description">{description}</p>}
+        </div>
       </header>
 
-      {coverImageUrl && (
-        <div class="cover">
-          <img src={coverImageUrl} alt={title} loading="lazy" decoding="async" width="800" height="450" />
-        </div>
+      {recommendedFor && recommendedFor.length > 0 && (
+        <section class="recommendation" aria-labelledby="recommended-title">
+          <h2 id="recommended-title">おすすめしたい人</h2>
+          <ul>
+            {recommendedFor.map((item) => (
+              <li>{item}</li>
+            ))}
+          </ul>
+        </section>
       )}
 
-      <div class="body">
-        <Content />
-      </div>
+      <section class="body-section" aria-labelledby="impression-title">
+        <h2 id="impression-title">感想</h2>
+        <div class="body">
+          <Content />
+        </div>
+      </section>
     </article>
 
     <nav class="back-nav">
@@ -147,48 +201,134 @@ const articleJsonLd = {
   .article {
     background: #fff;
     border: 1px solid rgba(0, 0, 0, 0.08);
-    border-radius: 16px;
-    padding: 24px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    border-radius: 18px;
+    padding: 22px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.05);
   }
 
-  .header {
-    margin-bottom: 20px;
+  .hero {
+    display: grid;
+    gap: 22px;
+    align-items: start;
   }
 
-  .title {
-    margin: 0 0 12px;
-    font-size: 1.75rem;
-    line-height: 1.3;
-  }
-
-  .description {
-    margin: 0 0 12px;
-    opacity: 0.85;
-    font-size: 1.05rem;
-    line-height: 1.6;
-  }
-
-  .date {
-    display: block;
-    font-size: 0.9rem;
-    opacity: 0.7;
-  }
-
-  .cover {
-    margin: 20px 0;
-    border-radius: 12px;
+  .hero-media {
     overflow: hidden;
-    background: rgba(0, 0, 0, 0.04);
+    border-radius: 14px;
+    background: linear-gradient(160deg, rgba(10, 74, 139, 0.08), rgba(122, 92, 23, 0.14));
   }
 
-  .cover img {
+  .hero-media img {
     width: 100%;
     height: auto;
     display: block;
   }
 
+  .hero-fallback {
+    display: grid;
+    align-content: end;
+    gap: 12px;
+    min-height: 340px;
+    padding: 24px;
+    color: #17324d;
+    background:
+      radial-gradient(circle at top right, rgba(255, 255, 255, 0.85), transparent 42%),
+      linear-gradient(160deg, rgba(10, 74, 139, 0.08), rgba(122, 92, 23, 0.16));
+  }
+
+  .hero-fallback span {
+    width: fit-content;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.76);
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .hero-fallback strong {
+    font-size: 1.8rem;
+    line-height: 1.3;
+  }
+
+  .hero-copy {
+    display: grid;
+    align-content: start;
+    gap: 14px;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .tags li {
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(10, 74, 139, 0.08);
+    color: #0a4a8b;
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+
+  .title {
+    margin: 0;
+    font-size: clamp(1.8rem, 3vw, 2.4rem);
+    line-height: 1.25;
+  }
+
+  .book-title {
+    margin: -6px 0 0;
+    font-size: 1rem;
+    color: rgba(17, 17, 17, 0.72);
+  }
+
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    font-size: 0.92rem;
+    color: rgba(17, 17, 17, 0.68);
+  }
+
+  .description {
+    margin: 0;
+    opacity: 0.85;
+    font-size: 1.05rem;
+    line-height: 1.6;
+  }
+
+  .recommendation,
+  .body-section {
+    margin-top: 28px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  .recommendation h2,
+  .body-section h2 {
+    margin: 0;
+    font-size: 1.15rem;
+  }
+
+  .recommendation ul {
+    display: grid;
+    gap: 12px;
+    margin: 16px 0 0;
+    padding-left: 1.2em;
+  }
+
+  .recommendation li {
+    line-height: 1.7;
+  }
+
   .body {
+    margin-top: 16px;
     line-height: 1.8;
     font-size: 1rem;
   }
@@ -199,12 +339,6 @@ const articleJsonLd = {
   .body :global(h4) {
     margin: 1.5em 0 0.5em;
     line-height: 1.4;
-  }
-
-  .body :global(h2) {
-    font-size: 1.4rem;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    padding-bottom: 8px;
   }
 
   .body :global(h3) {
@@ -292,9 +426,11 @@ const articleJsonLd = {
       padding: 18px;
       border-radius: 12px;
     }
+  }
 
-    .title {
-      font-size: 1.5rem;
+  @media (min-width: 860px) {
+    .hero {
+      grid-template-columns: minmax(0, 1.05fr) minmax(280px, 0.95fr);
     }
   }
 </style>

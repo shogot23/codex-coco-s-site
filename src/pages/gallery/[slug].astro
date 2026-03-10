@@ -43,7 +43,8 @@ const resolveAbsoluteImageUrl = (assetPath: string) => {
 
 let relatedReview: CollectionEntry<'reviews'> | null = null;
 if (entry.data.relatedReview) {
-  relatedReview = (await getEntry(entry.data.relatedReview)) ?? null;
+  const linkedReview = (await getEntry(entry.data.relatedReview)) ?? null;
+  relatedReview = linkedReview?.data.published === true ? linkedReview : null;
 }
 
 const pageDescription = description ?? note ?? `${genre ?? 'ギャラリー'}の展示作品`;

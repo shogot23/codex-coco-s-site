@@ -39,11 +39,27 @@ collections:
     extension: "md"
     format: "frontmatter"
     fields:
-      - { label: "タイトル", name: "title", widget: "string" }
-      - { label: "説明", name: "description", widget: "string", required: false }
-      - { label: "日付", name: "date", widget: "datetime" }
-      - { label: "カバー画像", name: "cover", widget: "image", required: false }
-      - { label: "本文", name: "body", widget: "markdown" }
+      - { label: "記事タイトル", name: "title", widget: "string", required: true, hint: "レビュー記事のタイトル" }
+      - { label: "書籍タイトル", name: "bookTitle", widget: "string", required: false, hint: "書籍名（記事タイトルと異なる場合）" }
+      - { label: "著者", name: "author", widget: "string", required: false }
+      - { label: "公開日", name: "date", widget: "datetime" }
+      - { label: "公開する", name: "published", widget: "boolean", required: false, default: true }
+      - { label: "説明", name: "description", widget: "text", required: false, hint: "詳細ページやSEOで使う要約" }
+      - { label: "抜粋", name: "excerpt", widget: "text", required: false, hint: "一覧カードに出す短い紹介文" }
+      - { label: "カバー画像", name: "cover", widget: "image", required: false, hint: "一覧やSNS用。未設定ならインフォグラフィックを使用" }
+      - { label: "インフォグラフィック", name: "infographic", widget: "image", required: false, hint: "詳細ページで大きく表示" }
+      - label: "タグ"
+        name: "tags"
+        widget: "select"
+        options: ["小説", "青春", "自己理解", "再起", "ビジネス", "自己啓発", "歴史", "科学", "エッセイ", "ノンフィクション", "その他"]
+        multiple: true
+        required: false
+      - label: "おすすめしたい人"
+        name: "recommendedFor"
+        widget: "list"
+        required: false
+        field: { label: "項目", name: "text", widget: "string" }
+      - { label: "感想本文", name: "body", widget: "markdown" }
 
   - name: "gallery"
     label: "ギャラリー"

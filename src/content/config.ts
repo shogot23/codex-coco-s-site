@@ -1,5 +1,30 @@
 import { defineCollection, reference, z } from 'astro:content';
 
+const optionalString = z.preprocess(
+  (value) => (value === '' ? undefined : value),
+  z.string().optional()
+);
+
+const optionalStringList = z.preprocess(
+  (value) => {
+    if (!Array.isArray(value)) return value;
+
+    const normalized = value
+      .map((item) => {
+        if (typeof item === 'string') return item.trim();
+        if (item && typeof item === 'object') {
+          if ('text' in item && typeof item.text === 'string') return item.text.trim();
+          if ('value' in item && typeof item.value === 'string') return item.value.trim();
+        }
+        return '';
+      })
+      .filter(Boolean);
+
+    return normalized.length > 0 ? normalized : undefined;
+  },
+  z.array(z.string()).optional()
+);
+
 const profile = defineCollection({
   type: 'content',
   schema: z.object({
@@ -19,13 +44,38 @@ const about = defineCollection({
   }),
 });
 
+export const REVIEW_TAGS = [
+  '小説',
+  '青春',
+  '自己理解',
+  '再起',
+  'ビジネス',
+  '自己啓発',
+  '歴史',
+  '科学',
+  'エッセイ',
+  'ノンフィクション',
+  'その他',
+] as const;
+export type ReviewTag = typeof REVIEW_TAGS[number];
+
 const reviews = defineCollection({
   type: 'content',
   schema: z.object({
     title: z.string(),
-    description: z.string().optional(),
+    description: optionalString,
     date: z.coerce.date(),
-    cover: z.string().optional(),
+    cover: optionalString,
+    bookTitle: optionalString,
+    author: optionalString,
+    excerpt: optionalString,
+    tags: z.preprocess(
+      (value) => (Array.isArray(value) && value.length === 0 ? undefined : value),
+      z.array(z.enum(REVIEW_TAGS)).optional()
+    ),
+    infographic: optionalString,
+    recommendedFor: optionalStringList,
+    published: z.boolean().default(true),
   }),
 });
 

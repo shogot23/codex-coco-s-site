@@ -4,6 +4,7 @@ import { getCollection, getEntry } from 'astro:content';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { getPublishedGallery, hasDetailContent } from '../utils/gallery';
+import { getPublishedReviews } from '../utils/reviews';
 
 const BASE_URL = import.meta.env.BASE_URL.endsWith('/')
   ? import.meta.env.BASE_URL
@@ -92,13 +93,13 @@ try {
 const avatarUrl = withBase(avatar);
 const previewFallbackImage = resolvePublicAsset('/uploads/img_6088.png', avatarUrl);
 
-const reviewEntries = await getCollection('reviews');
+const reviewEntries = await getPublishedReviews();
 const latestReviews = [...reviewEntries]
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
   .slice(0, 3)
   .map((entry) => {
     const slug = entry.id.replace(/\.md$/, '');
-    const summarySource = entry.data.description ?? entry.body ?? '';
+    const summarySource = entry.data.excerpt ?? entry.data.description ?? entry.body ?? '';
     return {
       title: entry.data.title,
       summary: clampText(summarySource, 84),
