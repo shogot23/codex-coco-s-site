@@ -21,7 +21,7 @@ const withBase = (path: string) => {
 
 const title = entry?.data?.title ?? "プロフィール";
 const description = entry?.data?.description ?? "読書 with Coco のプロフィール";
-const avatarPath = entry?.data?.avatar || "/uploads/img_6088.png";
+const avatarPath = "/uploads/profile.png";
 const avatarUrl = withBase(avatarPath);
 const updatedLabel = entry?.data?.updatedAt
   ? new Intl.DateTimeFormat("ja-JP", {
