@@ -51,6 +51,41 @@ const navItems = [
       .link:hover { background: rgba(0,0,0,.05); }
       main { padding: 28px 0 40px; }
       footer { padding: 28px 0 40px; opacity: .7; font-size: .9rem; }
+
+      @media (max-width: 600px) {
+        .nav {
+          flex-wrap: wrap;
+          height: auto;
+          padding: 6px 0;
+          gap: 6px;
+        }
+
+        .brand {
+          width: 100%;
+          text-align: center;
+          font-size: 1rem;
+          min-height: 44px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .links {
+          width: 100%;
+          justify-content: center;
+          flex-wrap: wrap;
+          gap: 4px;
+          font-size: 0.85rem;
+        }
+
+        .link {
+          min-height: 44px;
+          display: flex;
+          align-items: center;
+          padding: 8px 10px;
+          box-sizing: border-box;
+        }
+      }
     </style>
   </head>
   <body>
