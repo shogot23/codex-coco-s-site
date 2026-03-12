@@ -1,5 +1,5 @@
 ---
-import { getCollection } from "astro:content";
+import { getCollection, getEntry } from "astro:content";
 import Layout from "../layouts/Layout.astro";
 
 const items = await getCollection("about");
@@ -9,18 +9,496 @@ let Content = null;
 if (entry) {
   ({ Content } = await entry.render());
 }
+
+const base = import.meta.env.BASE_URL.endsWith("/")
+  ? import.meta.env.BASE_URL
+  : `${import.meta.env.BASE_URL}/`;
+
+const isAbsoluteUrl = (value: string) => /^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(value);
+
+const withBase = (path: string) => {
+  if (!path) return base;
+  if (isAbsoluteUrl(path)) return path;
+  if (path.startsWith(base)) return path;
+  return `${base}${path.replace(/^\/+/, "")}`;
+};
+
+let heroImage = "/uploads/bc1bf64b-abcd-4e08-80ff-870c34201abf.png";
+
+try {
+  const profile = await getEntry("profile", "profile");
+  heroImage = profile?.data?.avatar ?? heroImage;
+} catch {}
+
+const heroImageUrl = withBase(heroImage);
+const updatedAtLabel = entry?.data?.updatedAt
+  ? new Intl.DateTimeFormat("ja-JP", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      timeZone: "UTC",
+    }).format(entry.data.updatedAt)
+  : null;
+
+const storyBeats = [
+  {
+    label: "Read",
+    title: "読む",
+    description: "感想を短く残しながら、本から受け取った視点を言葉にします。",
+  },
+  {
+    label: "Imagine",
+    title: "ひらく",
+    description: "読後に残った景色や空気を、ココちゃんと一緒にビジュアルへ広げます。",
+  },
+  {
+    label: "Revisit",
+    title: "たどる",
+    description: "レビュー、ギャラリー、動画を行き来しながら余韻をゆっくり深めます。",
+  },
+];
+
+const guideCards = [
+  {
+    title: "Reviews",
+    description: "本の感想と学びを、短く整理して読み返せる入口です。",
+    href: withBase("reviews/"),
+    cta: "レビューを見る",
+  },
+  {
+    title: "Gallery",
+    description: "読書から立ち上がった情景を、ココちゃんと一緒に眺められます。",
+    href: withBase("gallery/"),
+    cta: "ギャラリーへ進む",
+  },
+  {
+    title: "Videos",
+    description: "物語の温度やスピードを、短い映像でもう一度たどれます。",
+    href: withBase("videos/"),
+    cta: "動画を見る",
+  },
+];
 ---
 
-<Layout title={entry ? entry.data.title : "About"} description={entry?.data?.description}>
-  <section style="max-width: 720px; margin: 0 auto; line-height: 1.7;">
-    <h1>{entry ? entry.data.title : "About"}</h1>
+<Layout
+  title={entry ? `${entry.data.title} | 読書 with Coco` : "About | 読書 with Coco"}
+  description={entry?.data?.description}
+  image={heroImageUrl}
+>
+  <section class="about-shell">
+    <section class="hero-card" aria-labelledby="about-title">
+      <div class="hero-copy">
+        <p class="eyebrow">{entry?.data?.title ?? "About"}</p>
+        <h1 id="about-title">ココちゃんと、本の余韻をもう一度ひらく場所。</h1>
+        <p class="lead">
+          読書で受け取った気配を、言葉とイメージと映像で静かに確かめるためのサイトです。
+        </p>
 
-    {entry?.data?.updatedAt && (
-      <p style="opacity: 0.7; font-size: 0.9rem;">
-        更新: {entry.data.updatedAt.toLocaleDateString('ja-JP')}
-      </p>
-    )}
+        <div class="hero-pills" aria-label="ページの主題">
+          <span>本の感想を残す</span>
+          <span>景色をビジュアルにする</span>
+          <span>ココちゃんが案内役</span>
+        </div>
 
-    {Content ? <Content /> : <p>about コンテンツが見つかりません（src/content/about/about.md を確認）</p>}
+        <div class="hero-note">
+          <p>{entry?.data?.description ?? "読書 with Cocoについて"}</p>
+          {updatedAtLabel && <span>更新: {updatedAtLabel}</span>}
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <div class="hero-image-frame">
+          <img
+            src={heroImageUrl}
+            alt="本に囲まれたココちゃん"
+            width="768"
+            height="768"
+            loading="eager"
+            decoding="async"
+          />
+        </div>
+        <div class="visual-caption">
+          <strong>読書の入口に、ココちゃん。</strong>
+          <p>案内役の小さな相棒と一緒に、本の記憶を別の角度から開いていきます。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="story-grid" aria-label="読書 with Coco の見どころ">
+      {storyBeats.map((beat) => (
+        <article class="story-card">
+          <p class="story-label">{beat.label}</p>
+          <h2>{beat.title}</h2>
+          <p>{beat.description}</p>
+        </article>
+      ))}
+    </section>
+
+    <section class="info-grid">
+      <section class="panel prose-panel" aria-labelledby="concept-title">
+        <div class="panel-head">
+          <p class="panel-label">Site Concept</p>
+          <h2 id="concept-title">このサイトについて</h2>
+        </div>
+
+        <div class="body-prose">
+          {Content ? <Content /> : <p>about コンテンツが見つかりません（src/content/about/about.md を確認）</p>}
+        </div>
+      </section>
+
+      <aside class="panel guide-panel" aria-labelledby="guide-title">
+        <div class="panel-head">
+          <p class="panel-label">Explore</p>
+          <h2 id="guide-title">3つの入り口</h2>
+        </div>
+
+        <div class="guide-list">
+          {guideCards.map((card) => (
+            <a class="guide-card" href={card.href}>
+              <h3>{card.title}</h3>
+              <p>{card.description}</p>
+              <span>{card.cta}</span>
+            </a>
+          ))}
+        </div>
+      </aside>
+    </section>
   </section>
 </Layout>
+
+<style>
+  .about-shell {
+    display: grid;
+    gap: 24px;
+    max-width: 980px;
+    margin: 0 auto;
+  }
+
+  .hero-card,
+  .panel,
+  .story-card {
+    border: 1px solid rgba(99, 66, 32, 0.12);
+    box-shadow: 0 18px 40px rgba(83, 55, 28, 0.08);
+  }
+
+  .hero-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+    gap: 28px;
+    padding: 30px;
+    border-radius: 28px;
+    background:
+      radial-gradient(circle at top left, rgba(247, 214, 176, 0.46), transparent 32%),
+      linear-gradient(135deg, #fffaf3 0%, #fff4e5 46%, #f8ede2 100%);
+  }
+
+  .hero-copy {
+    display: grid;
+    align-content: center;
+    gap: 16px;
+  }
+
+  .eyebrow,
+  .panel-label,
+  .story-label {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #8d5b2a;
+  }
+
+  .hero-copy h1,
+  .panel-head h2,
+  .story-card h2,
+  .guide-card h3 {
+    margin: 0;
+    color: #2e1e12;
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(2.2rem, 4vw, 3.45rem);
+    line-height: 1.1;
+    max-width: 10ch;
+  }
+
+  .lead,
+  .hero-note p,
+  .story-card p,
+  .guide-card p,
+  .body-prose :global(p),
+  .body-prose :global(li) {
+    color: #5a4431;
+  }
+
+  .lead {
+    margin: 0;
+    font-size: 1.02rem;
+    line-height: 1.8;
+    max-width: 32rem;
+  }
+
+  .hero-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .hero-pills span,
+  .hero-note,
+  .visual-caption {
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(8px);
+  }
+
+  .hero-pills span {
+    padding: 9px 14px;
+    border: 1px solid rgba(141, 91, 42, 0.16);
+    border-radius: 999px;
+    font-size: 0.9rem;
+    color: #694726;
+  }
+
+  .hero-note {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 16px;
+    width: fit-content;
+    padding: 12px 16px;
+    border-radius: 18px;
+    border: 1px solid rgba(141, 91, 42, 0.14);
+  }
+
+  .hero-note p,
+  .visual-caption p {
+    margin: 0;
+    line-height: 1.7;
+  }
+
+  .hero-note span {
+    font-size: 0.9rem;
+    color: #7d5f45;
+  }
+
+  .hero-visual {
+    position: relative;
+    display: grid;
+    align-items: end;
+  }
+
+  .hero-image-frame {
+    position: relative;
+    overflow: hidden;
+    border-radius: 26px;
+    background: linear-gradient(160deg, rgba(255, 255, 255, 0.58), rgba(237, 212, 184, 0.72));
+    min-height: 100%;
+  }
+
+  .hero-image-frame::after {
+    content: "";
+    position: absolute;
+    inset: auto 18px 18px auto;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.36) 0%, rgba(255, 255, 255, 0) 70%);
+    pointer-events: none;
+  }
+
+  .hero-image-frame img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 420px;
+    object-fit: cover;
+  }
+
+  .visual-caption {
+    position: absolute;
+    right: 18px;
+    bottom: 18px;
+    max-width: 280px;
+    padding: 16px 18px;
+    border-radius: 20px;
+    border: 1px solid rgba(141, 91, 42, 0.16);
+  }
+
+  .visual-caption strong {
+    display: block;
+    margin-bottom: 6px;
+    color: #3a2617;
+  }
+
+  .story-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .story-card {
+    padding: 22px 20px;
+    border-radius: 22px;
+    background: #fff;
+  }
+
+  .story-card h2 {
+    margin-top: 6px;
+    font-size: 1.3rem;
+  }
+
+  .story-card p {
+    margin: 10px 0 0;
+    line-height: 1.75;
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+    gap: 18px;
+    align-items: start;
+  }
+
+  .panel {
+    padding: 24px;
+    border-radius: 24px;
+    background: #fffdfa;
+  }
+
+  .panel-head {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+
+  .panel-head h2 {
+    font-size: 1.55rem;
+    line-height: 1.25;
+  }
+
+  .body-prose {
+    line-height: 1.85;
+  }
+
+  .body-prose :global(p) {
+    margin: 0 0 1rem;
+  }
+
+  .body-prose :global(h2) {
+    margin: 1.8rem 0 0.8rem;
+    font-size: 1.08rem;
+    color: #332216;
+  }
+
+  .body-prose :global(ul) {
+    display: grid;
+    gap: 10px;
+    margin: 0;
+    padding-left: 1.1rem;
+  }
+
+  .body-prose :global(li strong) {
+    color: #2d2016;
+  }
+
+  .guide-list {
+    display: grid;
+    gap: 12px;
+  }
+
+  .guide-card {
+    display: grid;
+    gap: 10px;
+    padding: 18px;
+    border-radius: 20px;
+    border: 1px solid rgba(141, 91, 42, 0.12);
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(250, 244, 235, 0.96));
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  .guide-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(141, 91, 42, 0.24);
+    box-shadow: 0 14px 28px rgba(83, 55, 28, 0.08);
+  }
+
+  .guide-card p {
+    margin: 0;
+    line-height: 1.7;
+  }
+
+  .guide-card span {
+    font-size: 0.93rem;
+    font-weight: 700;
+    color: #7d4c22;
+  }
+
+  @media (max-width: 920px) {
+    .hero-card,
+    .info-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .hero-visual {
+      order: -1;
+    }
+
+    .hero-copy h1 {
+      max-width: none;
+    }
+
+    .story-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .about-shell {
+      gap: 18px;
+    }
+
+    .hero-card,
+    .panel {
+      padding: 22px;
+      border-radius: 24px;
+    }
+
+    .hero-image-frame img {
+      min-height: 320px;
+    }
+
+    .visual-caption {
+      position: static;
+      margin-top: 14px;
+      max-width: none;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .hero-card,
+    .panel,
+    .story-card {
+      padding: 18px;
+      border-radius: 20px;
+    }
+
+    .hero-copy h1 {
+      font-size: 2rem;
+    }
+
+    .hero-note {
+      width: 100%;
+    }
+
+    .hero-pills span {
+      width: 100%;
+      box-sizing: border-box;
+      text-align: center;
+    }
+  }
+</style>
