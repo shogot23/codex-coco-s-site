@@ -704,28 +704,94 @@ const latestVideos = [...videoEntries]
       }
     }
 
-    @media (max-width: 520px) {
+    @media (max-width: 600px) {
       .home-shell {
-        border-radius: 22px;
-        padding: 16px;
+        border-radius: 20px;
+        padding: 14px;
       }
 
       .hero {
         border-radius: 20px;
-        padding: 18px;
+        padding: 20px;
+        gap: 20px;
       }
 
-      .path-card,
-      .latest-section,
-      .preview-card,
-      .about {
+      .hero-visual {
+        width: min(100%, 260px);
+      }
+
+      .lead {
+        font-size: 0.95rem;
+        line-height: 1.75;
+      }
+
+      .hero-cta .btn {
+        min-height: 44px;
+      }
+
+      .hero-particles::before,
+      .hero-particles::after {
+        display: none;
+      }
+
+      .paths {
+        gap: 16px;
+      }
+
+      .path-card {
         border-radius: 16px;
+        min-height: auto;
+        padding: 16px;
+      }
+
+      .latest-section {
+        border-radius: 16px;
+        padding: 16px;
+      }
+
+      .latest-head {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+
+      .latest-more {
+        display: inline-flex;
+        align-items: center;
+        min-height: 44px;
+        padding: 10px 14px;
+      }
+
+      .preview-grid {
+        gap: 16px;
       }
 
       .reviews-grid,
       .media-grid,
       .video-grid {
         grid-template-columns: 1fr;
+      }
+
+      .preview-card {
+        border-radius: 14px;
+      }
+
+      .text-card p,
+      .media-body p {
+        font-size: 0.95rem;
+        line-height: 1.65;
+      }
+
+      .card-link {
+        display: inline-flex;
+        align-items: center;
+        min-height: 44px;
+        padding: 8px 0;
+      }
+
+      .about {
+        border-radius: 16px;
+        padding: 18px;
       }
     }
   </style>
