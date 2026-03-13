@@ -3,6 +3,11 @@ import Layout from "../layouts/Layout.astro";
 import { getCollection } from "astro:content";
 
 const videoEntries = await getCollection("videos");
+const baseWithSlash = import.meta.env.BASE_URL.endsWith("/")
+  ? import.meta.env.BASE_URL
+  : `${import.meta.env.BASE_URL}/`;
+
+const reviewsUrl = `${baseWithSlash}reviews/`;
 
 // Format date using UTC to ensure consistent display regardless of server timezone
 const formatVideoDate = (date: Date) =>
@@ -77,9 +82,15 @@ function getEmbedInfo(url: string | undefined): { type: "youtube" | "instagram" 
 ---
 
 <Layout title="Videos | 読書 with Coco">
-  <main class="wrap">
-    <h1>Videos</h1>
-    <p class="lead">Soraで作成した動画を並べるページ（いまは仮データ）。</p>
+  <section class="wrap" aria-labelledby="videos-page-title">
+    <header class="page-header">
+      <p class="eyebrow">Video Library</p>
+      <h1 id="videos-page-title">Videos</h1>
+      <p class="lead">読書体験を映像で広げる、ショート動画のコレクション。</p>
+      <p class="supporting-link">
+        言葉で深めたい方は <a href={reviewsUrl}>Reviews</a> へ。
+      </p>
+    </header>
 
     <div class="grid">
       {videos.map((v) => {
@@ -113,12 +124,16 @@ function getEmbedInfo(url: string | undefined): { type: "youtube" | "instagram" 
         );
       })}
     </div>
-  </main>
+  </section>
 </Layout>
 
 <style>
   .wrap{max-width:980px;margin:0 auto;padding:32px 16px;}
-  .lead{opacity:.8;margin:8px 0 24px;}
+  .page-header{margin-bottom:28px;}
+  .eyebrow{margin:0 0 8px;font-size:.82rem;letter-spacing:.08em;text-transform:uppercase;color:#7a5c17;font-weight:700;}
+  .lead{opacity:.82;margin:10px 0 0;max-width:42rem;line-height:1.7;}
+  .supporting-link{margin:10px 0 0;font-size:.95rem;color:rgba(17,17,17,.72);}
+  .supporting-link a{color:#0a4a8b;text-decoration:underline;text-underline-offset:.18em;}
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;}
   .card{border:1px solid rgba(0,0,0,.08);border-radius:14px;overflow:hidden;background:#fff;}
   .thumb{aspect-ratio: 16 / 9; background: rgba(0,0,0,.04);}
