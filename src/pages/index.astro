@@ -65,21 +65,21 @@ const videosUrl = withBase('videos/');
 const pathCards = [
   {
     title: 'Reviews',
-    description: '本の感想を短く深く。読後の視点を言葉で残します。',
+    description: '読んだ本の感想と学びを記録。',
     href: reviewsUrl,
-    jumpLabel: 'レビューへ進む',
+    jumpLabel: 'レビューを読む',
   },
   {
     title: 'Gallery',
-    description: '読書から生まれた情景を、ココちゃんとAIでビジュアル化。',
+    description: '本の情景をビジュアルで再現。',
     href: galleryUrl,
-    jumpLabel: 'ギャラリーへ進む',
+    jumpLabel: 'ギャラリーを見る',
   },
   {
     title: 'Videos',
-    description: '世界観を短い映像で再編集。読書体験を動きで楽しめます。',
+    description: '読書の世界観を動画で体験。',
     href: videosUrl,
-    jumpLabel: '動画をみる',
+    jumpLabel: '動画を見る',
   },
 ];
 
@@ -142,7 +142,7 @@ const latestVideos = [...videoEntries]
 
 <Layout
   title="読書 with Coco - 本の記憶を、イメージで深める"
-  description="読書 with Cocoは、書評、ギャラリー、動画を通じて本の魅力をお届けする読書サイト。読み終えた本の余韻を、ココちゃんと共にビジュアルで再び訪れます。"
+  description="読書 with Cocoは、レビュー、ギャラリー、動画を通じて本の世界を再び楽しむサイト。ココちゃんが案内する読書体験のアーカイブ。"
   image={avatarUrl}
 >
   <section class="home-shell">
@@ -165,10 +165,10 @@ const latestVideos = [...videoEntries]
         <p class="eyebrow">読書体験を、イメージで広げる</p>
         <h1>本の記憶を、イメージで深める。</h1>
         <p class="lead">
-          読み終えた本の余韻を、ココちゃんと共にビジュアルで再び訪れます。
+          レビュー、ギャラリー、動画を通じて、読んだ本の世界を再び訪れます。
         </p>
         <div class="hero-cta">
-          <a class="btn btn-primary" href={galleryUrl}>ギャラリーで旅する</a>
+          <a class="btn btn-primary" href={galleryUrl}>ギャラリーを見る</a>
           <a class="btn btn-secondary" href={reviewsUrl}>レビューを読む</a>
         </div>
       </div>
@@ -260,12 +260,9 @@ const latestVideos = [...videoEntries]
     </section>
 
     <section class="about">
-      <h2>About 読書 with Coco</h2>
+      <h2>About</h2>
       <p>
-        「読書 with Coco」は、本の感想とAI表現を組み合わせて、読後のイメージを広げるためのサイトです。
-      </p>
-      <p>
-        ココちゃんが案内役となり、レビュー、ビジュアル、動画を行き来しながら、物語を別の角度から楽しめる体験を届けます。
+        ココちゃんが案内する、読書体験のアーカイブ。レビュー、ビジュアル、動画を通じて、本の世界を再び訪れます。
       </p>
     </section>
   </section>
