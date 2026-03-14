@@ -176,7 +176,7 @@ const latestVideos = [...videoEntries]
 
     <section class="paths" aria-label="主要コンテンツへの導線">
       {pathCards.map((card) => (
-        <a class="path-card" href={card.href}>
+        <a class="path-card ui-action" href={card.href}>
           <h2>{card.title}</h2>
           <p>{card.description}</p>
           <span class="jump">{card.jumpLabel}</span>
