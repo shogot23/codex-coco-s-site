@@ -167,9 +167,9 @@ const latestVideos = [...videoEntries]
         <p class="lead">
           レビュー、ギャラリー、動画を通じて、読んだ本の世界を再び訪れます。
         </p>
-        <div class="hero-cta">
-          <a class="btn btn-primary" href={galleryUrl}>ギャラリーを見る</a>
-          <a class="btn btn-secondary" href={reviewsUrl}>レビューを読む</a>
+        <div class="hero-cta ui-action-group ui-action-group--stack">
+          <a class="btn btn-primary ui-action" href={galleryUrl}>ギャラリーを見る</a>
+          <a class="btn btn-secondary ui-action" href={reviewsUrl}>レビューを読む</a>
         </div>
       </div>
     </section>
@@ -186,9 +186,9 @@ const latestVideos = [...videoEntries]
 
     <section class="latest-stack" aria-label="最新コンテンツ">
       <section class="latest-section">
-        <div class="latest-head">
+        <div class="latest-head ui-action-group">
           <h2>Latest Reviews</h2>
-          <a class="latest-more" href={reviewsUrl}>すべてのレビューを見る</a>
+          <a class="latest-more ui-action" href={reviewsUrl}>すべてのレビューを見る</a>
         </div>
         {latestReviews.length ? (
           <div class="preview-grid reviews-grid">
@@ -207,9 +207,9 @@ const latestVideos = [...videoEntries]
       </section>
 
       <section class="latest-section">
-        <div class="latest-head">
+        <div class="latest-head ui-action-group">
           <h2>Latest Gallery</h2>
-          <a class="latest-more" href={galleryUrl}>ギャラリーをもっと見る</a>
+          <a class="latest-more ui-action" href={galleryUrl}>ギャラリーをもっと見る</a>
         </div>
         {latestGallery.length ? (
           <div class="preview-grid media-grid">
@@ -233,9 +233,9 @@ const latestVideos = [...videoEntries]
       </section>
 
       <section class="latest-section">
-        <div class="latest-head">
+        <div class="latest-head ui-action-group">
           <h2>Latest Videos</h2>
-          <a class="latest-more" href={videosUrl}>動画をもっと見る</a>
+          <a class="latest-more ui-action" href={videosUrl}>動画をもっと見る</a>
         </div>
         {latestVideos.length ? (
           <div class="preview-grid media-grid video-grid">
@@ -680,14 +680,6 @@ const latestVideos = [...videoEntries]
 
       .hero-visual {
         width: min(100%, 280px);
-      }
-
-      .hero-cta {
-        flex-direction: column;
-      }
-
-      .hero-cta .btn {
-        width: 100%;
       }
 
       .paths {

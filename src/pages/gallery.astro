@@ -39,12 +39,12 @@ const galleryByGenre = GALLERY_GENRES.map((genre) => ({
     {galleryByGenre.length ? (
       <>
         <p class="total-count">{galleryEntries.length}作品を公開中</p>
-        <nav class="filters" aria-label="ギャラリーのジャンル絞り込み">
-          <button class="filter-button is-active" type="button" data-filter="すべて" aria-pressed="true">
+        <nav class="filters ui-action-group" aria-label="ギャラリーのジャンル絞り込み">
+          <button class="filter-button is-active ui-action" type="button" data-filter="すべて" aria-pressed="true">
             すべて <span class="count">{galleryEntries.length}</span>
           </button>
           {GALLERY_GENRES.map((genre) => (
-            <button class="filter-button" type="button" data-filter={genre} aria-pressed="false">
+            <button class="filter-button ui-action" type="button" data-filter={genre} aria-pressed="false">
               {genre} <span class="count">{galleryByGenre.find((group) => group.name === genre)?.items.length ?? 0}</span>
             </button>
           ))}
