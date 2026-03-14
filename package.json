@@ -8,6 +8,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "typecheck": "astro check",
+    "gallery:import": "node scripts/gallery-import.ts",
     "gallery:ocr": "node scripts/ocr-gallery-images.ts",
     "gallery:apply-corrections": "node scripts/apply-gallery-corrections.ts",
     "gallery:generate": "node scripts/generate-gallery-md.ts",

@@ -1,25 +1,92 @@
 # Gallery Auto Generation
 
-`gallery` 自動生成の対象は `public/uploads/gallery/books/` 配下の画像だけです。
+`gallery:import` は `inbox/gallery/` を入力起点にし、成功した画像だけを `public/uploads/gallery/books/` と `src/content/gallery/` に生成します。
 
-## 対象
+## 推奨フロー
+
+`inbox/gallery/` に画像を置いて `npm run gallery:import` を実行します。
+
+- 対応拡張子: `jpg` / `jpeg` / `png` / `webp`
+- 新規画像が高信頼で判定できた場合だけ `public/uploads/gallery/books/` と `src/content/gallery/` に反映します
+- 判定が弱い画像や重複候補は `reports/gallery-import-report.md` に残し、元画像は `inbox/gallery/` に維持します
+- 生成 entry は `published: false` と `needs_review: true` で作成されます
+- 実行の最後に `npm run typecheck` と `npm run build` を走らせ、結果もレポートに追記します
+- `manual-review` の復旧は report を起点に行います
+
+## override mode
+
+OCR が崩れても、単体ファイルに対して title / author / genre を与えて draft を生成できます。
+
+```sh
+npm run gallery:import -- --file inbox/gallery/sample.png --title "青天" --author "若林正恭" --genre "小説"
+npm run gallery:import -- --file inbox/gallery/sample.png --title "成瀬は都を駆け抜ける" --author "宮島未奈"
+```
+
+- `--file` 指定時はそのファイルだけを処理します
+- `--file` で指定できるのは `inbox/gallery/` 配下の実ファイルのみです。配下外パスや symlink 解決後に配下外となるパスは処理開始前に失敗します
+- `--title` と `--author` が入っていれば OCR が弱くても draft 生成可能です
+- `--genre` は任意です。未指定時は既存推定を使い、確定できなければ review 前提で残します
+- override mode でも duplicate 判定、report 出力、`typecheck`、`build` は必ず行います
+- override mode で生成された entry も `published: false` / `needs_review: true` のままです
+
+## 入力対象
+
+- `inbox/gallery/**/*.{png,jpg,jpeg,webp}`
+
+## 生成先
 
 - `public/uploads/gallery/books/**/*.{png,jpg,jpeg,webp}`
+- `src/content/gallery/*.md`
 
 ## 対象外
 
-- `public/uploads/` 直下の既存画像
+- `public/uploads/**` 全体は importer の入力対象ではありません
 - `public/uploads/profile/**`
 - `public/uploads/summary/**`
-- 上記以外の `public/uploads/**`
+- `inbox/gallery/` 外の任意パスを使った `--file`
 
 ## 実行手順
 
-1. gallery 対象画像だけを `public/uploads/gallery/books/` に置く
-2. `npm run gallery:ocr`
-3. `data/gallery-manifest.json` の `title` / `author` / `genre` / `needs_review` を人手で確認し、必要なら補正する
-4. `npm run gallery:generate`
-5. 既存 md を更新したいときだけ `npm run gallery:generate -- --force` を使う
+1. `inbox/gallery/` に新規画像を置く
+2. `npm run gallery:import`
+3. `reports/gallery-import-report.md` を確認する
+4. `manual-review` や `duplicate` があれば report の候補・類似 entry・frontmatter template を確認する
+5. OCR で復旧しづらい場合は `--file` と override を付けて単体再実行する
+6. 自動作成された `src/content/gallery/*.md` をレビューして公開可否を判断する
+
+### 既存の段階実行フロー
+
+旧フローの `gallery:ocr` / `gallery:apply-corrections` / `gallery:generate` も残しています。
+
+## manual-review の見方
+
+`reports/gallery-import-report.md` には少なくとも次が出ます。
+
+- 対象画像の相対パス
+- 判定結果 (`created` / `duplicate` / `manual-review` / `error`)
+- OCR candidate strings
+- title / author 候補の上位
+- confidence
+- 既存 gallery / review との類似候補
+- そのまま流用できる frontmatter template
+- 単体再実行用の override command
+
+復旧時は以下の順で見ると速いです。
+
+1. `Next action`
+2. `Ranked Candidates`
+3. `Similar Existing Entries`
+4. `Frontmatter Template`
+5. `OCR Text Excerpt`
+
+## 推奨運用フロー
+
+1. `inbox/gallery/` に画像を入れる
+2. `npm run gallery:import`
+3. `reports/gallery-import-report.md` を確認する
+4. 必要なら `--file` 付き override で単体復旧する
+5. 生成された markdown を review する
+6. review 後に `published: true` へ進める
 
 ## スキップ方針
 
