@@ -1,10 +1,10 @@
 ---
 title: "モモ"
-image: "/uploads/gallery/books/DD55DE8E-8475-4061-BF0D-F0A1D7352F71_4_5005_c.jpeg"
+image: "/uploads/gallery/books/Momo_Michael_Ende_2.jpeg"
 genre: "小説"
 author: "ミヒャエル・エンデ"
 needs_review: false
 generated_at: "2026-03-08T08:40:31.451Z"
-source_file: "gallery/books/DD55DE8E-8475-4061-BF0D-F0A1D7352F71_4_5005_c.jpeg"
+source_file: "gallery/books/Momo_Michael_Ende_2.jpeg"
 published: false
 ---
