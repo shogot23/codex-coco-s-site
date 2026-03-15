@@ -5,7 +5,7 @@ author: 若林正恭
 description: 自意識の曇り空を抜けて、「ありのままの自分」で一歩踏み出せる一冊。
 excerpt: 倒されてから、どう立ち上がるか。勝敗ではなく、その一歩を問う物語。
 date: 2026-03-10
-cover: /uploads/gallery/books/0402915B-30C2-4C39-8473-90D0B4E13795.png
+cover: /uploads/gallery/books/Blue_Sky_Wakabayashi_Masayasu.png
 infographic: /uploads/review/infographic/DCA870DE-310E-427F-861D-2EE78A60F5FB_1_102_o.jpeg
 tags:
   - 小説
