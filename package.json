@@ -9,6 +9,7 @@
     "astro": "astro",
     "typecheck": "astro check",
     "gallery:import": "node scripts/gallery-import.ts",
+    "gallery:pipeline": "node scripts/gallery-pipeline.mjs",
     "gallery:ocr": "node scripts/ocr-gallery-images.ts",
     "gallery:apply-corrections": "node scripts/apply-gallery-corrections.ts",
     "gallery:generate": "node scripts/generate-gallery-md.ts",

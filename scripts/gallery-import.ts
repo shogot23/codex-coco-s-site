@@ -73,6 +73,8 @@ type SimilarEntryCandidate = {
 };
 
 type CliOptions = {
+  dryRun: boolean;
+  reportJsonPath?: string;
   targetFile?: string;
   overrides: {
     title?: string;
@@ -1056,6 +1058,7 @@ function formatConfidenceRow(label: string, value: number): string {
 
 function buildCliOptions(args: string[]): CliOptions {
   const cliOptions: CliOptions = {
+    dryRun: false,
     overrides: {},
     rawArgs: [...args],
   };
@@ -1083,8 +1086,18 @@ function buildCliOptions(args: string[]): CliOptions {
 
     if (current === '--help') {
       throw new Error(
-        'Usage: npm run gallery:import -- [--file <path>] [--title <title>] [--author <author>] [--genre <小説|ビジネス|歴史>]'
+        'Usage: npm run gallery:import -- [--dry-run] [--report-json <path>] [--file <path>] [--title <title>] [--author <author>] [--genre <小説|ビジネス|歴史>]'
       );
+    }
+
+    if (current === '--dry-run') {
+      cliOptions.dryRun = true;
+      continue;
+    }
+
+    if (current === '--report-json' || current.startsWith('--report-json=')) {
+      cliOptions.reportJsonPath = path.resolve(readValue('--report-json'));
+      continue;
     }
 
     if (current === '--file' || current.startsWith('--file=')) {
@@ -1382,6 +1395,7 @@ function buildReport(context: ReportContext): string {
     `- Finished: ${finishedAt}`,
     `- Vision OCR available: ${context.visionAvailable ? 'yes' : 'no'}`,
     `- Mode: ${context.cliOptions.targetFile ? 'single-file' : 'batch'}`,
+    `- Dry run: ${context.cliOptions.dryRun ? 'yes' : 'no'}`,
     `- Override mode: ${formatOverrideSummary(context.cliOptions)}`,
     `- Supported images scanned: ${context.scannedFiles.length}`,
     `- Unsupported files skipped: ${context.unsupportedFiles.length}`,
@@ -1540,6 +1554,17 @@ function buildReport(context: ReportContext): string {
   return `${lines.join('\n')}\n`;
 }
 
+function writeReportOutputs(context: ReportContext): void {
+  writeFileSync(REPORT_PATH, buildReport(context));
+
+  if (!context.cliOptions.reportJsonPath) {
+    return;
+  }
+
+  mkdirSync(path.dirname(context.cliOptions.reportJsonPath), { recursive: true });
+  writeFileSync(context.cliOptions.reportJsonPath, `${JSON.stringify(context, null, 2)}\n`);
+}
+
 async function main(): Promise<number> {
   mkdirSync(TARGET_DIR, { recursive: true });
   mkdirSync(GALLERY_DIR, { recursive: true });
@@ -1553,6 +1578,7 @@ async function main(): Promise<number> {
     results: [],
     validations: [],
     cliOptions: {
+      dryRun: false,
       overrides: {},
       rawArgs: process.argv.slice(2),
     },
@@ -1653,6 +1679,19 @@ async function main(): Promise<number> {
           relatedReview: metadata.relatedReview,
         });
 
+        if (cliOptions.dryRun) {
+          reportContext.results.push({
+            sourcePath: imagePath,
+            sourceHandling: 'retained',
+            status: 'imported',
+            destinationImagePath: importPlan.destinationImagePath,
+            destinationMarkdownPath: importPlan.destinationMarkdownPath,
+            metadata,
+            importPlan,
+          });
+          continue;
+        }
+
         if (existsSync(importPlan.destinationImagePath)) {
           throw new Error(`destination image already exists: ${toRelativeReportPath(importPlan.destinationImagePath)}`);
         }
@@ -1707,10 +1746,12 @@ async function main(): Promise<number> {
       }
     }
 
-    reportContext.validations.push(buildValidationCommand('npm', ['run', 'typecheck']));
-    reportContext.validations.push(buildValidationCommand('npm', ['run', 'build']));
+    if (!cliOptions.dryRun) {
+      reportContext.validations.push(buildValidationCommand('npm', ['run', 'typecheck']));
+      reportContext.validations.push(buildValidationCommand('npm', ['run', 'build']));
+    }
     reportContext.finishedAt = new Date().toISOString();
-    writeFileSync(REPORT_PATH, buildReport(reportContext));
+    writeReportOutputs(reportContext);
 
     return reportContext.validations.every((validation) => validation.success) &&
       reportContext.results.every((result) => result.status !== 'error')
@@ -1719,7 +1760,7 @@ async function main(): Promise<number> {
   } catch (error) {
     reportContext.fatalError = error instanceof Error ? error.stack ?? error.message : String(error);
     reportContext.finishedAt = new Date().toISOString();
-    writeFileSync(REPORT_PATH, buildReport(reportContext));
+    writeReportOutputs(reportContext);
     return 1;
   }
 }
