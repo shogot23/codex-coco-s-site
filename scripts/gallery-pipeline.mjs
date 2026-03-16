@@ -34,6 +34,7 @@ function parseArgs(args) {
     dryRun: false,
     pr: false,
     docs: false,
+    includeDirtyDrafts: false,
   };
 
   for (const arg of args) {
@@ -57,8 +58,13 @@ function parseArgs(args) {
       continue;
     }
 
+    if (arg === '--include-dirty-drafts') {
+      options.includeDirtyDrafts = true;
+      continue;
+    }
+
     if (arg === '--help') {
-      throw new Error('Usage: npm run gallery:pipeline -- [--dry-run] [--apply] [--pr] [--docs]');
+      throw new Error('Usage: npm run gallery:pipeline -- [--dry-run] [--apply] [--pr] [--docs] [--include-dirty-drafts]');
     }
 
     throw new Error(`未対応の引数です: ${arg}`);
@@ -377,7 +383,7 @@ function collectTargetEntries(importReport, options, gitStatusAfter) {
     }
   }
 
-  if (gitStatusAfter.available) {
+  if (options.includeDirtyDrafts && gitStatusAfter.available) {
     for (const entry of gitStatusAfter.entries) {
       if (!entry.path.startsWith(GALLERY_DIR) || !entry.path.endsWith('.md') || !existsSync(entry.path)) {
         continue;
@@ -855,6 +861,7 @@ function printDocs() {
     '- dry-run: npm run gallery:pipeline -- --dry-run',
     '- apply: npm run gallery:pipeline -- --apply',
     '- apply + PR: npm run gallery:pipeline -- --apply --pr',
+    '- include dirty drafts: npm run gallery:pipeline -- --dry-run --include-dirty-drafts',
     '- stop conditions: title/author 未確定, rename-review 超過, placeholder, old path 参照残存, typecheck/build 失敗',
   ];
 
