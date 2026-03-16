@@ -145,6 +145,7 @@ npm run gallery:pipeline -- --apply --pr
 - `--apply` は安全条件を満たした場合だけ rename 本番、`image` / `source_file` 更新、`reviews` / `gallery-manifest.json` / `gallery-corrections.json` 同期、旧参照チェック、`npm run typecheck`、`npm run build` まで進めます
 - `--pr` は `--apply` 成功後に git add / commit / push / PR 作成まで試みます。ただし既存の staged 変更や、今回触るファイルに事前の未コミット変更がある場合は自動で停止して commit / PR をスキップします
 - `--docs` はコマンドと停止条件の要約を表示します
+- デフォルトの target は今回の import 結果に含まれる gallery markdown のみです。既存の dirty draft まで含めたい場合だけ `--include-dirty-drafts` を明示指定します
 
 **自動停止する条件**
 
