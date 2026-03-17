@@ -21,14 +21,35 @@ const REVIEWS_DIR = path.resolve('src/content/reviews');
 const REPORT_PATH = path.resolve('reports/gallery-import-report.md');
 const SUPPORTED_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp']);
 const GALLERY_GENRES = ['小説', 'ビジネス', '歴史'] as const;
-const TITLE_IMPORT_THRESHOLD = 0.72;
-const AUTHOR_IMPORT_THRESHOLD = 0.66;
-const TITLE_CANDIDATE_LIMIT = 3;
-const AUTHOR_CANDIDATE_LIMIT = 3;
-const SIMILAR_ENTRY_LIMIT = 5;
-const TITLE_CANDIDATE_MIN_SCORE = 0.36;
-const AUTHOR_CANDIDATE_MIN_SCORE = 0.42;
-const SIMILAR_ENTRY_MIN_SCORE = 0.45;
+const MATCH_RULES = {
+  import: {
+    title: 0.72,
+    author: 0.66,
+  },
+  candidates: {
+    titleLimit: 3,
+    authorLimit: 3,
+    similarLimit: 5,
+    titleMinScore: 0.36,
+    authorMinScore: 0.42,
+    similarEntryMinScore: 0.45,
+  },
+  review: {
+    strongSimilar: {
+      score: 0.82,
+      title: 0.78,
+      author: 0.7,
+    },
+  },
+  duplicate: {
+    minOcrConfidence: 0.35,
+    authorCandidateScore: 0.82,
+    authorLedTitleBigramRatio: 0.35,
+    titleCandidateScore: 0.86,
+    titleLedSimilarityScore: 0.86,
+    titleLedOverallConfidence: 0.3,
+  },
+} as const;
 
 type GalleryGenre = (typeof GALLERY_GENRES)[number];
 type OverrideField = 'title' | 'author' | 'genre';
@@ -70,6 +91,15 @@ type SimilarEntryCandidate = {
   authorScore: number;
   published?: boolean;
   exact: boolean;
+};
+
+type DuplicateMatch = {
+  entry: ExistingGalleryEntry;
+  kind: 'exact' | 'author-led' | 'title-led';
+  score: number;
+  titleCandidateScore: number;
+  authorCandidateScore: number;
+  titleBigramRatio: number;
 };
 
 type CliOptions = {
@@ -411,7 +441,7 @@ function buildAuthorGenreMap(existingGalleryEntries: ExistingGalleryEntry[]): Ma
   return authorGenres;
 }
 
-function findDuplicateEntry(
+function findExactDuplicateEntry(
   title: string | undefined,
   author: string | undefined,
   existingGalleryEntries: ExistingGalleryEntry[]
@@ -429,6 +459,103 @@ function findDuplicateEntry(
       normalizeForComparison(entry.author) === normalizedAuthor
     );
   });
+}
+
+function calculateSharedBigramRatio(left?: string, right?: string): number {
+  const normalizedLeft = normalizeForComparison(left);
+  const normalizedRight = normalizeForComparison(right);
+
+  if (normalizedLeft.length < 2 || !normalizedRight) {
+    return 0;
+  }
+
+  const grams = [...buildBigrams(normalizedLeft).keys()];
+  const uniqueGrams = new Set(grams);
+  let matched = 0;
+
+  for (const gram of uniqueGrams) {
+    if (normalizedRight.includes(gram)) {
+      matched += 1;
+    }
+  }
+
+  return roundConfidence(matched / uniqueGrams.size);
+}
+
+function findRankedCandidateScore(value: string | undefined, candidates: RankedCandidate[]): number {
+  if (!value) {
+    return 0;
+  }
+
+  const normalized = normalizeForComparison(value);
+  const match = candidates.find((candidate) => normalizeForComparison(candidate.value) === normalized);
+  return match?.score ?? 0;
+}
+
+// Duplicate detection is intentionally more permissive than new-import gating,
+// but only when OCR produced at least one usable candidate signal.
+function findProbableDuplicateEntry(
+  candidate: MetadataCandidate,
+  existingGalleryEntries: ExistingGalleryEntry[]
+): DuplicateMatch | undefined {
+  if (candidate.ocrConfidence < MATCH_RULES.duplicate.minOcrConfidence) {
+    return undefined;
+  }
+
+  if (candidate.titleCandidates.length === 0 && candidate.authorCandidates.length === 0) {
+    return undefined;
+  }
+
+  const similarGalleryEntries = new Map(
+    candidate.similarEntries
+      .filter((entry) => entry.kind === 'gallery')
+      .map((entry) => [entry.path, entry] as const)
+  );
+
+  let bestMatch: DuplicateMatch | undefined;
+
+  for (const entry of existingGalleryEntries) {
+    const titleCandidateScore = findRankedCandidateScore(entry.title, candidate.titleCandidates);
+    const authorCandidateScore = findRankedCandidateScore(entry.author, candidate.authorCandidates);
+    const titleBigramRatio = calculateSharedBigramRatio(entry.title, candidate.ocrText);
+    const similarGalleryEntry = similarGalleryEntries.get(entry.path);
+
+    const authorLed =
+      authorCandidateScore >= MATCH_RULES.duplicate.authorCandidateScore &&
+      titleBigramRatio >= MATCH_RULES.duplicate.authorLedTitleBigramRatio;
+    const titleLed =
+      titleCandidateScore >= MATCH_RULES.duplicate.titleCandidateScore &&
+      (similarGalleryEntry?.titleScore ?? 0) >= MATCH_RULES.duplicate.titleLedSimilarityScore &&
+      candidate.overallConfidence >= MATCH_RULES.duplicate.titleLedOverallConfidence;
+
+    if (!authorLed && !titleLed) {
+      continue;
+    }
+
+    const nextMatch: DuplicateMatch = authorLed
+      ? {
+          entry,
+          kind: 'author-led',
+          score: roundConfidence(authorCandidateScore * 0.58 + titleBigramRatio * 0.42),
+          titleCandidateScore,
+          authorCandidateScore,
+          titleBigramRatio,
+        }
+      : {
+          entry,
+          kind: 'title-led',
+          score: roundConfidence(titleCandidateScore * 0.7 + (similarGalleryEntry?.titleScore ?? 0) * 0.3),
+          titleCandidateScore,
+          authorCandidateScore,
+          titleBigramRatio,
+        };
+
+    if (!bestMatch || nextMatch.score > bestMatch.score) {
+      bestMatch = nextMatch;
+    }
+  }
+
+  return bestMatch;
 }
 
 function findMatchingReview(
@@ -578,8 +705,8 @@ function isImportable(candidate: MetadataCandidate): boolean {
   return (
     Boolean(candidate.title) &&
     Boolean(candidate.author) &&
-    candidate.titleConfidence >= TITLE_IMPORT_THRESHOLD &&
-    candidate.authorConfidence >= AUTHOR_IMPORT_THRESHOLD
+    candidate.titleConfidence >= MATCH_RULES.import.title &&
+    candidate.authorConfidence >= MATCH_RULES.import.author
   );
 }
 
@@ -867,19 +994,19 @@ function buildTitleCandidates(params: {
 
   for (const entry of params.existingGalleryEntries) {
     const score = scoreCandidateAgainstSignals(entry.title, signals);
-    if (score >= TITLE_CANDIDATE_MIN_SCORE) {
+    if (score >= MATCH_RULES.candidates.titleMinScore) {
       addRankedCandidate(store, entry.title, score, 'gallery');
     }
   }
 
   for (const entry of params.reviewEntries) {
     const score = scoreCandidateAgainstSignals(entry.bookTitle ?? entry.title, signals);
-    if (score >= TITLE_CANDIDATE_MIN_SCORE) {
+    if (score >= MATCH_RULES.candidates.titleMinScore) {
       addRankedCandidate(store, entry.bookTitle ?? entry.title, score, 'review');
     }
   }
 
-  return sortRankedCandidates(store.values(), TITLE_CANDIDATE_LIMIT);
+  return sortRankedCandidates(store.values(), MATCH_RULES.candidates.titleLimit);
 }
 
 function buildAuthorCandidates(params: {
@@ -912,12 +1039,12 @@ function buildAuthorCandidates(params: {
 
   for (const author of params.knownAuthors) {
     const score = scoreCandidateAgainstSignals(author, signals);
-    if (score >= AUTHOR_CANDIDATE_MIN_SCORE) {
+    if (score >= MATCH_RULES.candidates.authorMinScore) {
       addRankedCandidate(store, author, score, 'known-author');
     }
   }
 
-  return sortRankedCandidates(store.values(), AUTHOR_CANDIDATE_LIMIT);
+  return sortRankedCandidates(store.values(), MATCH_RULES.candidates.authorLimit);
 }
 
 function buildSimilarEntryCandidates(
@@ -941,7 +1068,7 @@ function buildSimilarEntryCandidates(
       ? roundConfidence(titleScore * 0.72 + authorScore * 0.28)
       : titleScore;
 
-    if (!exact && score < SIMILAR_ENTRY_MIN_SCORE) {
+    if (!exact && score < MATCH_RULES.candidates.similarEntryMinScore) {
       continue;
     }
 
@@ -968,7 +1095,7 @@ function buildSimilarEntryCandidates(
       ? roundConfidence(titleScore * 0.72 + authorScore * 0.28)
       : titleScore;
 
-    if (!exact && score < SIMILAR_ENTRY_MIN_SCORE) {
+    if (!exact && score < MATCH_RULES.candidates.similarEntryMinScore) {
       continue;
     }
 
@@ -998,16 +1125,16 @@ function buildSimilarEntryCandidates(
 
       return left.kind.localeCompare(right.kind);
     })
-    .slice(0, SIMILAR_ENTRY_LIMIT);
+    .slice(0, MATCH_RULES.candidates.similarLimit);
 }
 
 function findStrongSimilarGalleryEntry(similarEntries: SimilarEntryCandidate[]): SimilarEntryCandidate | undefined {
   return similarEntries.find((entry) => {
     return entry.kind === 'gallery' &&
       !entry.exact &&
-      entry.score >= 0.82 &&
-      entry.titleScore >= 0.78 &&
-      entry.authorScore >= 0.7;
+      entry.score >= MATCH_RULES.review.strongSimilar.score &&
+      entry.titleScore >= MATCH_RULES.review.strongSimilar.title &&
+      entry.authorScore >= MATCH_RULES.review.strongSimilar.author;
   });
 }
 
@@ -1620,9 +1747,26 @@ async function main(): Promise<number> {
         : undefined;
 
       try {
-        const duplicate = findDuplicateEntry(metadata.title, metadata.author, existingGalleryEntries);
+        const exactDuplicate = findExactDuplicateEntry(metadata.title, metadata.author, existingGalleryEntries);
+        const probableDuplicate = exactDuplicate
+          ? undefined
+          : findProbableDuplicateEntry(metadata, existingGalleryEntries);
+        const duplicate = exactDuplicate ?? probableDuplicate?.entry;
         if (duplicate) {
-          metadata.warnings.push('同一タイトル・著者の既存 gallery entry があるため、新規作成をスキップしました。');
+          if (probableDuplicate) {
+            if (probableDuplicate.kind === 'author-led') {
+              metadata.warnings.push(
+                `著者候補 (${probableDuplicate.authorCandidateScore.toFixed(3)}) と title の OCR 断片 (${probableDuplicate.titleBigramRatio.toFixed(3)}) から既存 gallery entry に重複寄せしました。`
+              );
+            } else {
+              metadata.warnings.push(
+                `title 候補 (${probableDuplicate.titleCandidateScore.toFixed(3)}) と類似既存 entry から既存 gallery entry に重複寄せしました。`
+              );
+            }
+            metadata.warnings.push('duplicate 判定用の緩和閾値で既存 gallery entry に寄せたため、新規作成をスキップしました。');
+          } else {
+            metadata.warnings.push('同一タイトル・著者の既存 gallery entry があるため、新規作成をスキップしました。');
+          }
           reportContext.results.push({
             sourcePath: imagePath,
             sourceHandling: 'retained',
