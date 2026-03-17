@@ -13,6 +13,11 @@ import path, { basename, extname } from 'node:path';
 import { extractGalleryMetadata, terminateOcrWorker } from './lib/ocr.ts';
 import { createGalleryAssetBasename, createGallerySlug } from './lib/slug.ts';
 import { canUseVisionOcr, extractVisionOcrLines, type VisionOcrLine } from './lib/vision-ocr.ts';
+import {
+  runWebFactCheck,
+  type WebFactCheckDuplicateCandidate,
+  type WebFactCheckResult,
+} from './lib/web-fact-check.ts';
 
 const INBOX_DIR = path.resolve('inbox/gallery');
 const TARGET_DIR = path.resolve('public/uploads/gallery/books');
@@ -48,6 +53,15 @@ const MATCH_RULES = {
     titleCandidateScore: 0.86,
     titleLedSimilarityScore: 0.86,
     titleLedOverallConfidence: 0.3,
+  },
+  webFactCheck: {
+    minOcrConfidence: 0.35,
+    minExactSimilarOcrConfidence: 0.3,
+    minMetadataTitleConfidence: 0.56,
+    minMetadataAuthorConfidence: 0.5,
+    importConfidenceMargin: 0.02,
+    exactSimilarTitleCandidateScore: 0.88,
+    exactSimilarAuthorCandidateScore: 0.62,
   },
 } as const;
 
@@ -95,7 +109,7 @@ type SimilarEntryCandidate = {
 
 type DuplicateMatch = {
   entry: ExistingGalleryEntry;
-  kind: 'exact' | 'author-led' | 'title-led';
+  kind: 'exact' | 'author-led' | 'title-led' | 'fact-check';
   score: number;
   titleCandidateScore: number;
   authorCandidateScore: number;
@@ -138,6 +152,7 @@ type MetadataCandidate = {
   authorCandidates: RankedCandidate[];
   similarEntries: SimilarEntryCandidate[];
   overrideFields: OverrideField[];
+  webFactCheck?: WebFactCheckResult;
 };
 
 type ImportPlan = {
@@ -1138,6 +1153,180 @@ function findStrongSimilarGalleryEntry(similarEntries: SimilarEntryCandidate[]):
   });
 }
 
+function findExactSimilarGalleryEntry(similarEntries: SimilarEntryCandidate[]): SimilarEntryCandidate | undefined {
+  return similarEntries.find((entry) => entry.kind === 'gallery' && entry.exact && Boolean(entry.author));
+}
+
+function buildWebFactCheckDuplicateCandidate(
+  probableDuplicate: DuplicateMatch | undefined,
+  strongSimilarGalleryEntry: SimilarEntryCandidate | undefined,
+  exactSimilarGalleryEntry: SimilarEntryCandidate | undefined,
+  metadata: MetadataCandidate
+): WebFactCheckDuplicateCandidate | undefined {
+  if (probableDuplicate?.entry.author) {
+    return {
+      path: probableDuplicate.entry.path,
+      title: probableDuplicate.entry.title,
+      author: probableDuplicate.entry.author,
+      score: probableDuplicate.score,
+      reason: 'probable-duplicate',
+    };
+  }
+
+  if (
+    exactSimilarGalleryEntry?.kind === 'gallery' &&
+    exactSimilarGalleryEntry.author &&
+    findRankedCandidateScore(exactSimilarGalleryEntry.title, metadata.titleCandidates) >=
+      MATCH_RULES.webFactCheck.exactSimilarTitleCandidateScore &&
+    findRankedCandidateScore(exactSimilarGalleryEntry.author, metadata.authorCandidates) >=
+      MATCH_RULES.webFactCheck.exactSimilarAuthorCandidateScore
+  ) {
+    return {
+      path: exactSimilarGalleryEntry.path,
+      title: exactSimilarGalleryEntry.title,
+      author: exactSimilarGalleryEntry.author,
+      score: exactSimilarGalleryEntry.score,
+      reason: 'exact-similar',
+    };
+  }
+
+  if (strongSimilarGalleryEntry?.kind === 'gallery' && strongSimilarGalleryEntry.author) {
+    return {
+      path: strongSimilarGalleryEntry.path,
+      title: strongSimilarGalleryEntry.title,
+      author: strongSimilarGalleryEntry.author,
+      score: strongSimilarGalleryEntry.score,
+      reason: 'strong-similar',
+    };
+  }
+
+  return undefined;
+}
+
+function shouldRunWebFactCheck(
+  metadata: MetadataCandidate,
+  duplicateCandidate: WebFactCheckDuplicateCandidate | undefined
+): boolean {
+  const hasCandidateSignals =
+    metadata.titleCandidates.length > 0 ||
+    metadata.authorCandidates.length > 0 ||
+    metadata.similarEntries.length > 0;
+  const minimumOcrConfidence =
+    duplicateCandidate?.reason === 'exact-similar'
+      ? MATCH_RULES.webFactCheck.minExactSimilarOcrConfidence
+      : MATCH_RULES.webFactCheck.minOcrConfidence;
+
+  if (!hasCandidateSignals || metadata.ocrConfidence < minimumOcrConfidence) {
+    return false;
+  }
+
+  if (duplicateCandidate?.author) {
+    return true;
+  }
+
+  return Boolean(
+    metadata.title &&
+      metadata.author &&
+      metadata.titleConfidence >= MATCH_RULES.webFactCheck.minMetadataTitleConfidence &&
+      metadata.authorConfidence >= MATCH_RULES.webFactCheck.minMetadataAuthorConfidence
+  );
+}
+
+function applyWebFactCheckMetadataBoost(metadata: MetadataCandidate): void {
+  const metadataMatch = metadata.webFactCheck?.metadata;
+  if (!metadataMatch?.confirmed) {
+    return;
+  }
+
+  metadata.warnings.push(
+    `web fact-check が ${metadataMatch.sourceCount} ソース (${metadataMatch.trustedSourceCount} trusted) で title/author を裏取りしました。`
+  );
+
+  if (
+    metadata.titleConfidence < MATCH_RULES.webFactCheck.minMetadataTitleConfidence ||
+    metadata.authorConfidence < MATCH_RULES.webFactCheck.minMetadataAuthorConfidence
+  ) {
+    metadata.warnings.push('web fact-check は一致しましたが、OCR の基礎信号が弱いため自動加点は行いませんでした。');
+    return;
+  }
+
+  const nextTitleConfidence = roundConfidence(
+    Math.max(metadata.titleConfidence, MATCH_RULES.import.title + MATCH_RULES.webFactCheck.importConfidenceMargin)
+  );
+  const nextAuthorConfidence = roundConfidence(
+    Math.max(metadata.authorConfidence, MATCH_RULES.import.author + MATCH_RULES.webFactCheck.importConfidenceMargin)
+  );
+
+  if (nextTitleConfidence === metadata.titleConfidence && nextAuthorConfidence === metadata.authorConfidence) {
+    return;
+  }
+
+  metadata.titleConfidence = nextTitleConfidence;
+  metadata.authorConfidence = nextAuthorConfidence;
+  metadata.overallConfidence = computeOverallConfidence({
+    titleConfidence: metadata.titleConfidence,
+    authorConfidence: metadata.authorConfidence,
+    genreConfidence: metadata.genreConfidence,
+    descriptionConfidence: metadata.descriptionConfidence,
+    altConfidence: metadata.altConfidence,
+  });
+  metadata.warnings.push('web fact-check により import 閾値直下の title/author confidence を限定的に補強しました。');
+}
+
+function resolveWebFactCheckedDuplicate(
+  metadata: MetadataCandidate,
+  probableDuplicate: DuplicateMatch | undefined,
+  strongSimilarGalleryEntry: SimilarEntryCandidate | undefined,
+  exactSimilarGalleryEntry: SimilarEntryCandidate | undefined,
+  existingGalleryEntries: ExistingGalleryEntry[]
+): DuplicateMatch | undefined {
+  const confirmedDuplicate = metadata.webFactCheck?.duplicate;
+  if (!confirmedDuplicate?.confirmed) {
+    return undefined;
+  }
+
+  if (probableDuplicate && probableDuplicate.entry.path === confirmedDuplicate.path) {
+    return probableDuplicate;
+  }
+
+  if (
+    strongSimilarGalleryEntry?.kind === 'gallery' &&
+    strongSimilarGalleryEntry.path === confirmedDuplicate.path
+  ) {
+    const entry = existingGalleryEntries.find((candidate) => candidate.path === strongSimilarGalleryEntry.path);
+    if (!entry) {
+      return undefined;
+    }
+
+    return {
+      entry,
+      kind: 'fact-check',
+      score: roundConfidence(strongSimilarGalleryEntry.score),
+      titleCandidateScore: findRankedCandidateScore(entry.title, metadata.titleCandidates),
+      authorCandidateScore: findRankedCandidateScore(entry.author, metadata.authorCandidates),
+      titleBigramRatio: calculateSharedBigramRatio(entry.title, metadata.ocrText),
+    };
+  }
+
+  if (exactSimilarGalleryEntry?.kind === 'gallery' && exactSimilarGalleryEntry.path === confirmedDuplicate.path) {
+    const entry = existingGalleryEntries.find((candidate) => candidate.path === exactSimilarGalleryEntry.path);
+    if (!entry) {
+      return undefined;
+    }
+
+    return {
+      entry,
+      kind: 'fact-check',
+      score: 1,
+      titleCandidateScore: findRankedCandidateScore(entry.title, metadata.titleCandidates),
+      authorCandidateScore: findRankedCandidateScore(entry.author, metadata.authorCandidates),
+      titleBigramRatio: calculateSharedBigramRatio(entry.title, metadata.ocrText),
+    };
+  }
+
+  return undefined;
+}
+
 function formatStatus(status: ProcessedImageResult['status']): 'created' | 'duplicate' | 'manual-review' | 'error' {
   return status === 'imported' ? 'created' : status;
 }
@@ -1288,6 +1477,48 @@ function formatSimilarEntries(similarEntries: SimilarEntryCandidate[]): string[]
     const exactLabel = candidate.exact ? ' / exact' : '';
     return `- [${typeLabel}] ${candidate.title}${authorLabel} (score: ${candidate.score.toFixed(3)}, title: ${candidate.titleScore.toFixed(3)}, author: ${candidate.authorScore.toFixed(3)}${exactLabel}) -> ${toRelativeReportPath(candidate.path)}`;
   });
+}
+
+function formatWebFactCheck(webFactCheck: WebFactCheckResult | undefined): string[] {
+  if (!webFactCheck) {
+    return ['- 未実行'];
+  }
+
+  const lines = [
+    `- Attempted: ${webFactCheck.attempted ? 'yes' : 'no'}${webFactCheck.skippedReason ? ` (${webFactCheck.skippedReason})` : ''}`,
+  ];
+
+  if (webFactCheck.duplicate?.confirmed) {
+    lines.push(
+      `- Duplicate corroborated: ${webFactCheck.duplicate.sourceCount} sources (${webFactCheck.duplicate.trustedSourceCount} trusted) -> ${toRelativeReportPath(webFactCheck.duplicate.path)}`
+    );
+  }
+
+  if (webFactCheck.metadata?.confirmed) {
+    lines.push(
+      `- Metadata corroborated: ${webFactCheck.metadata.title} / ${webFactCheck.metadata.author} (${webFactCheck.metadata.sourceCount} sources, ${webFactCheck.metadata.trustedSourceCount} trusted)`
+    );
+  }
+
+  if (webFactCheck.queries.length > 0) {
+    lines.push(`- Queries: ${webFactCheck.queries.join(' | ')}`);
+  }
+
+  if (webFactCheck.sources.length > 0) {
+    for (const source of webFactCheck.sources) {
+      lines.push(
+        `- Source: [${source.sourceType}] ${source.domain} / ${source.title} (title: ${source.titleMatchScore.toFixed(3)}, author: ${source.authorMatchScore.toFixed(3)})`
+      );
+    }
+  }
+
+  if (webFactCheck.warnings.length > 0) {
+    for (const warning of webFactCheck.warnings) {
+      lines.push(`- Warning: ${warning}`);
+    }
+  }
+
+  return lines;
 }
 
 function buildNextAction(result: ProcessedImageResult): string {
@@ -1618,6 +1849,7 @@ function buildReport(context: ReportContext): string {
       );
 
       lines.push('#### Similar Existing Entries', '', ...formatSimilarEntries(result.metadata.similarEntries), '');
+      lines.push('#### Web Fact Check', '', ...formatWebFactCheck(result.metadata.webFactCheck), '');
 
       lines.push(
         '#### Confidence',
@@ -1751,7 +1983,50 @@ async function main(): Promise<number> {
         const probableDuplicate = exactDuplicate
           ? undefined
           : findProbableDuplicateEntry(metadata, existingGalleryEntries);
-        const duplicate = exactDuplicate ?? probableDuplicate?.entry;
+        const strongSimilarGalleryEntry = findStrongSimilarGalleryEntry(metadata.similarEntries);
+        const exactSimilarGalleryEntry = findExactSimilarGalleryEntry(metadata.similarEntries);
+        const webFactCheckDuplicateCandidate = buildWebFactCheckDuplicateCandidate(
+          probableDuplicate,
+          strongSimilarGalleryEntry,
+          exactSimilarGalleryEntry,
+          metadata
+        );
+
+        if (!exactDuplicate && shouldRunWebFactCheck(metadata, webFactCheckDuplicateCandidate)) {
+          try {
+            metadata.webFactCheck = await runWebFactCheck({
+              title: metadata.title,
+              author: metadata.author,
+              titleConfidence: metadata.titleConfidence,
+              authorConfidence: metadata.authorConfidence,
+              ocrConfidence: metadata.ocrConfidence,
+              titleCandidates: metadata.titleCandidates,
+              authorCandidates: metadata.authorCandidates,
+              similarEntries: metadata.similarEntries,
+              duplicateCandidate: webFactCheckDuplicateCandidate,
+            });
+            applyWebFactCheckMetadataBoost(metadata);
+          } catch (error) {
+            metadata.webFactCheck = {
+              attempted: false,
+              skippedReason: 'runtime-error',
+              warnings: [error instanceof Error ? error.message : String(error)],
+              queries: [],
+              sources: [],
+            };
+          }
+        }
+
+        const factCheckedDuplicate = exactDuplicate
+          ? undefined
+          : resolveWebFactCheckedDuplicate(
+              metadata,
+              probableDuplicate,
+              strongSimilarGalleryEntry,
+              exactSimilarGalleryEntry,
+              existingGalleryEntries
+            );
+        const duplicate = exactDuplicate ?? probableDuplicate?.entry ?? factCheckedDuplicate?.entry;
         if (duplicate) {
           if (probableDuplicate) {
             if (probableDuplicate.kind === 'author-led') {
@@ -1764,6 +2039,15 @@ async function main(): Promise<number> {
               );
             }
             metadata.warnings.push('duplicate 判定用の緩和閾値で既存 gallery entry に寄せたため、新規作成をスキップしました。');
+            if (metadata.webFactCheck?.duplicate?.confirmed && metadata.webFactCheck.duplicate.path === probableDuplicate.entry.path) {
+              metadata.warnings.push(
+                `web fact-check が ${metadata.webFactCheck.duplicate.sourceCount} ソース (${metadata.webFactCheck.duplicate.trustedSourceCount} trusted) で duplicate 候補を裏取りしました。`
+              );
+            }
+          } else if (factCheckedDuplicate) {
+            metadata.warnings.push(
+              `類似既存 entry を manual-review に残す代わりに、web fact-check が ${metadata.webFactCheck?.duplicate?.sourceCount ?? 0} ソースで重複を裏取りしたため duplicate として扱いました。`
+            );
           } else {
             metadata.warnings.push('同一タイトル・著者の既存 gallery entry があるため、新規作成をスキップしました。');
           }
@@ -1778,7 +2062,7 @@ async function main(): Promise<number> {
           continue;
         }
 
-        if (findStrongSimilarGalleryEntry(metadata.similarEntries)) {
+        if (strongSimilarGalleryEntry) {
           reportContext.results.push({
             sourcePath: imagePath,
             sourceHandling: 'retained',
