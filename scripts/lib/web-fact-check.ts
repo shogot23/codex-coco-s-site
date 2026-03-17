@@ -48,6 +48,11 @@ type SearchResult = {
   title: string;
 };
 
+type DiscoveryLink = {
+  url: string;
+  discoveredVia: string;
+};
+
 type SearchFixture = {
   searches?: Record<string, SearchResult[]>;
   pages?: Record<
@@ -545,6 +550,93 @@ function evaluatePage(url: string, html: string, expectedTitle: string, expected
   };
 }
 
+function isSearchResultsUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    const hostname = parsed.hostname.toLowerCase();
+    const pathname = parsed.pathname.toLowerCase();
+    const queryKeys = [...parsed.searchParams.keys()].map((key) => key.toLowerCase());
+
+    if (hostname === 'honto.jp' || hostname.endsWith('.honto.jp')) {
+      return pathname.includes('/search_') || pathname.includes('/search/') || pathname.endsWith('/search/detail.html');
+    }
+
+    if (hostname === 'kinokuniya.co.jp' || hostname.endsWith('.kinokuniya.co.jp')) {
+      return pathname.includes('/search') || queryKeys.includes('q') || queryKeys.includes('searchtext');
+    }
+
+    if (hostname === 'books.or.jp' || hostname.endsWith('.books.or.jp')) {
+      return pathname.includes('/search') || queryKeys.includes('q') || queryKeys.includes('keyword');
+    }
+
+    return pathname.includes('/search') && queryKeys.some((key) => ['q', 'query', 'keyword'].includes(key));
+  } catch {
+    return false;
+  }
+}
+
+function normalizeDiscoveredUrl(url: string, baseUrl: string): string | null {
+  try {
+    const resolved = new URL(decodeHtmlEntities(url), baseUrl);
+    resolved.hash = '';
+
+    for (const key of [...resolved.searchParams.keys()]) {
+      if (key.toLowerCase().startsWith('cid') || key === '__TOKEN__' || key.startsWith('utm_')) {
+        resolved.searchParams.delete(key);
+      }
+    }
+
+    return resolved.toString();
+  } catch {
+    return null;
+  }
+}
+
+function extractLinkedPageUrls(url: string, html: string): DiscoveryLink[] {
+  let hostname = '';
+
+  try {
+    hostname = new URL(url).hostname.toLowerCase();
+  } catch {
+    return [];
+  }
+
+  const patterns: RegExp[] = [];
+  if (hostname === 'honto.jp' || hostname.endsWith('.honto.jp')) {
+    patterns.push(
+      /href=["']([^"']*(?:\/ebook\/pd_(?!review_)[^"']+\.html|\/netstore\/pd(?:-book)?_[^"']+\.html)[^"']*)["']/gi
+    );
+  }
+
+  if (hostname === 'kinokuniya.co.jp' || hostname.endsWith('.kinokuniya.co.jp')) {
+    patterns.push(/href=["']([^"']*\/f\/dsg-[^"']+)["']/gi);
+  }
+
+  if (hostname === 'books.or.jp' || hostname.endsWith('.books.or.jp')) {
+    patterns.push(/href=["']([^"']*\/book-details\/[^"']+)["']/gi);
+  }
+
+  const discovered: DiscoveryLink[] = [];
+  const seen = new Set<string>();
+
+  for (const pattern of patterns) {
+    for (const match of html.matchAll(pattern)) {
+      const normalized = normalizeDiscoveredUrl(match[1], url);
+      if (!normalized || seen.has(normalized) || isSearchResultsUrl(normalized)) {
+        continue;
+      }
+
+      seen.add(normalized);
+      discovered.push({
+        url: normalized,
+        discoveredVia: url,
+      });
+    }
+  }
+
+  return discovered;
+}
+
 function isConfirmedBySources(sources: WebFactCheckSource[]): boolean {
   const uniqueDomains = new Set(sources.map((source) => source.domain));
   const trustedCount = sources.filter((source) => isTrustedSourceType(source.sourceType)).length;
@@ -595,7 +687,6 @@ function buildNdlOpenSearchUrl(title: string, author: string): string {
 async function confirmViaNdlOpenSearch(
   title: string,
   author: string,
-  warnings: string[],
   fixture: SearchFixture | null,
   options: { timeoutMs: number }
 ): Promise<{ queries: string[]; sources: WebFactCheckSource[] }> {
@@ -642,6 +733,38 @@ async function confirmViaNdlOpenSearch(
       try {
         const linkedPage =
           resolveFixturePage(fixture, linkedUrl) ?? (await fetchText(linkedUrl, options.timeoutMs));
+        if (isSearchResultsUrl(linkedPage.finalUrl)) {
+          const discoveredDetailLinks = extractLinkedPageUrls(linkedPage.finalUrl, linkedPage.body);
+          for (const detailLink of discoveredDetailLinks) {
+            queries.push(`discovered:${detailLink.discoveredVia}->${detailLink.url}`);
+
+            try {
+              const detailPage =
+                resolveFixturePage(fixture, detailLink.url) ?? (await fetchText(detailLink.url, options.timeoutMs));
+              if (isSearchResultsUrl(detailPage.finalUrl)) {
+                continue;
+              }
+
+              const detailEvaluation = evaluatePage(detailPage.finalUrl, detailPage.body, title, author);
+              if (!detailEvaluation.matchedTitle || !detailEvaluation.matchedAuthor) {
+                continue;
+              }
+
+              corroboratingSources.set(`${detailEvaluation.domain}:${detailEvaluation.title}`, detailEvaluation);
+              if (isConfirmedBySources([...corroboratingSources.values()])) {
+                return {
+                  queries,
+                  sources: [...corroboratingSources.values()],
+                };
+              }
+            } catch {
+              // Ignore transient misses here and keep looking for corroborating detail pages.
+            }
+          }
+
+          continue;
+        }
+
         const linkedEvaluation = evaluatePage(linkedPage.finalUrl, linkedPage.body, title, author);
         if (!linkedEvaluation.matchedTitle || !linkedEvaluation.matchedAuthor) {
           continue;
@@ -654,8 +777,8 @@ async function confirmViaNdlOpenSearch(
             sources: [...corroboratingSources.values()],
           };
         }
-      } catch (error) {
-        warnings.push(`web fact-check linked source fetch failed: ${linkedUrl} (${String(error)})`);
+      } catch {
+        // Ignore transient misses here and keep looking for corroborating detail pages.
       }
     }
   }
@@ -682,8 +805,53 @@ async function confirmPair(
   const corroboratingSources = new Map<string, WebFactCheckSource>();
   const seenUrls = new Set<string>();
 
+  async function fetchAndEvaluatePageCandidate(
+    candidateUrl: string,
+    discoveredVia?: string
+  ): Promise<WebFactCheckSource[]> {
+    const page = resolveFixturePage(fixture, candidateUrl) ?? (await fetchText(candidateUrl, options.timeoutMs));
+    const effectiveUrl = page.finalUrl || candidateUrl;
+
+    if (!isSearchResultsUrl(effectiveUrl)) {
+      const evaluation = evaluatePage(effectiveUrl, page.body, title, author);
+      return evaluation.matchedTitle && evaluation.matchedAuthor ? [evaluation] : [];
+    }
+
+    const detailLinks = extractLinkedPageUrls(effectiveUrl, page.body);
+    const discoveredSources: WebFactCheckSource[] = [];
+
+    for (const detailLink of detailLinks) {
+      if (seenUrls.has(detailLink.url)) {
+        continue;
+      }
+      seenUrls.add(detailLink.url);
+      executedQueries.push(`discovered:${detailLink.discoveredVia}->${detailLink.url}`);
+
+      try {
+        const detailPage =
+          resolveFixturePage(fixture, detailLink.url) ?? (await fetchText(detailLink.url, options.timeoutMs));
+        if (isSearchResultsUrl(detailPage.finalUrl)) {
+          continue;
+        }
+
+        const detailEvaluation = evaluatePage(detailPage.finalUrl, detailPage.body, title, author);
+        if (detailEvaluation.matchedTitle && detailEvaluation.matchedAuthor) {
+          discoveredSources.push(detailEvaluation);
+        }
+      } catch {
+        // Ignore transient misses here and keep looking for corroborating detail pages.
+      }
+    }
+
+    if (discoveredSources.length === 0 && discoveredVia) {
+      warnings.push(`web fact-check search results page yielded no corroborating detail pages: ${candidateUrl}`);
+    }
+
+    return discoveredSources;
+  }
+
   try {
-    const structuredCheck = await confirmViaNdlOpenSearch(title, author, warnings, fixture, {
+    const structuredCheck = await confirmViaNdlOpenSearch(title, author, fixture, {
       timeoutMs: options.timeoutMs,
     });
     executedQueries.push(...structuredCheck.queries);
@@ -705,18 +873,15 @@ async function confirmPair(
     executedQueries.push(`direct:${direct.label}:${direct.url}`);
 
     try {
-      const page = resolveFixturePage(fixture, direct.url) ?? (await fetchText(direct.url, options.timeoutMs));
-      const evaluation = evaluatePage(page.finalUrl, page.body, title, author);
-      if (!evaluation.matchedTitle || !evaluation.matchedAuthor) {
-        continue;
-      }
-
-      corroboratingSources.set(`${evaluation.domain}:${evaluation.title}`, evaluation);
-      if (isConfirmedBySources([...corroboratingSources.values()])) {
-        return {
-          queries: executedQueries,
-          sources: [...corroboratingSources.values()],
-        };
+      const evaluations = await fetchAndEvaluatePageCandidate(direct.url, direct.label);
+      for (const evaluation of evaluations) {
+        corroboratingSources.set(`${evaluation.domain}:${evaluation.title}`, evaluation);
+        if (isConfirmedBySources([...corroboratingSources.values()])) {
+          return {
+            queries: executedQueries,
+            sources: [...corroboratingSources.values()],
+          };
+        }
       }
     } catch (error) {
       warnings.push(`web fact-check direct fetch failed: ${direct.url} (${String(error)})`);
@@ -741,18 +906,15 @@ async function confirmPair(
       seenUrls.add(result.url);
 
       try {
-        const page = resolveFixturePage(fixture, result.url) ?? (await fetchText(result.url, options.timeoutMs));
-        const evaluation = evaluatePage(page.finalUrl, page.body, title, author);
-        if (!evaluation.matchedTitle || !evaluation.matchedAuthor) {
-          continue;
-        }
-
-        corroboratingSources.set(`${evaluation.domain}:${evaluation.title}`, evaluation);
-        if (isConfirmedBySources([...corroboratingSources.values()])) {
-          return {
-            queries: executedQueries,
-            sources: [...corroboratingSources.values()],
-          };
+        const evaluations = await fetchAndEvaluatePageCandidate(result.url, query);
+        for (const evaluation of evaluations) {
+          corroboratingSources.set(`${evaluation.domain}:${evaluation.title}`, evaluation);
+          if (isConfirmedBySources([...corroboratingSources.values()])) {
+            return {
+              queries: executedQueries,
+              sources: [...corroboratingSources.values()],
+            };
+          }
         }
       } catch (error) {
         warnings.push(`web fact-check page fetch failed: ${result.url} (${String(error)})`);
