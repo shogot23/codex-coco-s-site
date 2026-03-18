@@ -25,7 +25,7 @@ const GALLERY_DIR = path.resolve('src/content/gallery');
 const REVIEWS_DIR = path.resolve('src/content/reviews');
 const REPORT_PATH = path.resolve('reports/gallery-import-report.md');
 const SUPPORTED_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp']);
-const GALLERY_GENRES = ['小説', 'ビジネス', '歴史'] as const;
+const GALLERY_GENRES = ['小説', 'ビジネス', '歴史', 'エッセイ'] as const;
 const MATCH_RULES = {
   import: {
     title: 0.72,
