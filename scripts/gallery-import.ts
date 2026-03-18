@@ -1705,8 +1705,53 @@ async function analyzeImage(
     : selectedAuthor === visionAuthor.value
       ? visionAuthor.confidence
       : roundConfidence(manifest.author_confidence ?? 0);
-  const selectedTitle = overrideTitle ?? tesseractTitle;
-  const titleConfidence = overrideTitle ? 1 : selectedTitle ? roundConfidence(manifest.title_confidence ?? 0.62) : 0;
+  // OCR 由来の初期タイトル決定
+  let selectedTitle = overrideTitle ?? tesseractTitle;
+  let titleConfidence = overrideTitle ? 1 : selectedTitle ? roundConfidence(manifest.title_confidence ?? 0.62) : 0;
+
+  // gallery 由来の高スコア候補を条件付きで採用
+  // 条件1: OCR 信頼度が低い、または OCR タイトルが短すぎる、または OCR タイトルが不自然（空白が多い）
+  // 条件2: gallery 候補が OCR 文字列の多くと一致
+  // 条件3: author と矛盾しない
+  const isOcrTitleShort = selectedTitle && selectedTitle.replace(/\s/g, '').length < 6;
+  const isOcrTitleNoisy = selectedTitle && (selectedTitle.match(/\s/g)?.length ?? 0) >= 3;
+  if (!overrideTitle && (titleConfidence < MATCH_RULES.import.title || isOcrTitleShort || isOcrTitleNoisy)) {
+    // OCR 候補文字列（vision lines）を使って gallery 候補を評価
+    const ocrSignals = visionLines.map((line) => line.text).filter((text) => text.length >= 3);
+    let bestGalleryCandidate: { title: string; score: number; matchCount: number } | null = null;
+
+    for (const entry of existingGalleryEntries) {
+      const authorMatch =
+        !selectedAuthor ||
+        !entry.author ||
+        normalizeForComparison(selectedAuthor) === normalizeForComparison(entry.author);
+      if (!authorMatch) continue;
+
+      // OCR 文字列と gallery タイトルのマッチ数をカウント
+      let matchCount = 0;
+      let bestScore = 0;
+      for (const signal of ocrSignals) {
+        const score = calculateSimilarity(signal, entry.title);
+        if (score >= MATCH_RULES.duplicate.titleCandidateScore) {
+          matchCount++;
+          bestScore = Math.max(bestScore, score);
+        }
+      }
+
+      // 1つ以上の OCR 文字列と高スコアでマッチすれば候補
+      if (matchCount >= 1 && bestScore >= MATCH_RULES.duplicate.titleCandidateScore) {
+        if (!bestGalleryCandidate || matchCount > bestGalleryCandidate.matchCount ||
+            (matchCount === bestGalleryCandidate.matchCount && bestScore > bestGalleryCandidate.score)) {
+          bestGalleryCandidate = { title: entry.title, score: bestScore, matchCount };
+        }
+      }
+    }
+
+    if (bestGalleryCandidate) {
+      selectedTitle = bestGalleryCandidate.title;
+      titleConfidence = bestGalleryCandidate.score;
+    }
+  }
   const genreCandidate = overrideGenre
     ? { genre: overrideGenre, confidence: 1 }
     : inferGenreCandidate(manifest.genre, selectedAuthor, authorGenreMap);
