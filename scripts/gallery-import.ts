@@ -48,11 +48,12 @@ const MATCH_RULES = {
   },
   duplicate: {
     minOcrConfidence: 0.35,
-    authorCandidateScore: 0.82,
-    authorLedTitleBigramRatio: 0.35,
+    authorCandidateScore: 0.88, // 0.82 -> 0.88 に引き上げ
+    authorLedTitleBigramRatio: 0.45, // 0.35 -> 0.45 に引き上げ
     titleCandidateScore: 0.86,
     titleLedSimilarityScore: 0.86,
     titleLedOverallConfidence: 0.3,
+    authorLedMinTitleCandidateScore: 0.45, // 新規追加: author-led でも title 候補スコアの条件
   },
   webFactCheck: {
     minOcrConfidence: 0.35,
@@ -64,6 +65,20 @@ const MATCH_RULES = {
     exactSimilarAuthorCandidateScore: 0.62,
   },
 } as const;
+
+// OCR ノイズ語パターン（帯や宣伝文などの減点用）
+const OCR_NOISE_PATTERNS: Array<{ pattern: RegExp; penalty: number; reason: string }> = [
+  { pattern: /^(配信|独占|先行|限定|特別)/, penalty: 0.5, reason: 'promo-prefix' },
+  { pattern: /(ドラマ化|映像化|映画化|アニメ化)$/, penalty: 0.4, reason: 'adaptation-suffix' },
+  { pattern: /(ノミネート|受賞|大賞|賞)\S*$/, penalty: 0.4, reason: 'award-suffix' },
+  { pattern: /^(公開|発売|好評|絶賛)/, penalty: 0.5, reason: 'release-prefix' },
+  { pattern: /シリーズ累計\d+万部/, penalty: 0.6, reason: 'sales-claim' },
+  { pattern: /ベストセラー/, penalty: 0.5, reason: 'bestseller' },
+  { pattern: /^(文庫|単行本|新書|選書)/, penalty: 0.3, reason: 'format-info' },
+  { pattern: /^(著|作者|監修|イラスト|挿絵)[:：]/, penalty: 0.8, reason: 'author-label' },
+];
+
+const NOISE_EXCLUSION_THRESHOLD = 0.7; // penalty 合計がこの値以上なら除外
 
 type GalleryGenre = (typeof GALLERY_GENRES)[number];
 type OverrideField = 'title' | 'author' | 'genre';
@@ -153,6 +168,7 @@ type MetadataCandidate = {
   similarEntries: SimilarEntryCandidate[];
   overrideFields: OverrideField[];
   webFactCheck?: WebFactCheckResult;
+  multiBookIndicators?: string[]; // 複数冊検出の指標
 };
 
 type ImportPlan = {
@@ -537,7 +553,8 @@ function findProbableDuplicateEntry(
 
     const authorLed =
       authorCandidateScore >= MATCH_RULES.duplicate.authorCandidateScore &&
-      titleBigramRatio >= MATCH_RULES.duplicate.authorLedTitleBigramRatio;
+      titleBigramRatio >= MATCH_RULES.duplicate.authorLedTitleBigramRatio &&
+      titleCandidateScore >= (MATCH_RULES.duplicate.authorLedMinTitleCandidateScore ?? 0.45);
     const titleLed =
       titleCandidateScore >= MATCH_RULES.duplicate.titleCandidateScore &&
       (similarGalleryEntry?.titleScore ?? 0) >= MATCH_RULES.duplicate.titleLedSimilarityScore &&
@@ -717,6 +734,11 @@ function computeOverallConfidence(candidate: {
 }
 
 function isImportable(candidate: MetadataCandidate): boolean {
+  // 複数冊の可能性がある場合は自動確定しない → manual-review へ
+  if (candidate.multiBookIndicators && candidate.multiBookIndicators.length > 0) {
+    return false;
+  }
+
   return (
     Boolean(candidate.title) &&
     Boolean(candidate.author) &&
@@ -845,6 +867,54 @@ function isLikelyCandidateText(value: string): boolean {
   }
 
   return true;
+}
+
+// OCR ノイズ語の減点計算
+function calculateNoisePenalty(text: string): { penalty: number; reasons: string[] } {
+  const reasons: string[] = [];
+  let totalPenalty = 0;
+
+  for (const { pattern, penalty, reason } of OCR_NOISE_PATTERNS) {
+    if (pattern.test(text)) {
+      totalPenalty += penalty;
+      reasons.push(reason);
+    }
+  }
+
+  return { penalty: Math.min(totalPenalty, 1.0), reasons };
+}
+
+// 複数冊画像の検出
+function detectMultipleBooksIndicators(visionLines: VisionOcrLine[]): {
+  detected: boolean;
+  indicators: string[];
+} {
+  const indicators: string[] = [];
+  const combinedText = visionLines.map((line) => normalizeForComparison(line.text)).join(' ');
+
+  const multiBookPatterns = [/上巻|下巻|中巻/, /全\d巻/, /\d冊セット/, /セット販売/, /合本|合本版/];
+
+  for (const pattern of multiBookPatterns) {
+    if (pattern.test(combinedText)) {
+      indicators.push(`pattern: ${pattern.source}`);
+    }
+  }
+
+  // タイトルらしきテキストが多数ある場合（normalized text でユニーク化してから判定）
+  const titleLikeTexts = new Set(
+    visionLines
+      .filter(
+        (line) =>
+          line.confidence >= 0.65 && line.text.length >= 4 && !/^(著者|作者|著|作|監修)/.test(line.text)
+      )
+      .map((line) => normalizeForComparison(line.text))
+  );
+
+  if (titleLikeTexts.size >= 6) {
+    indicators.push(`many unique title-like texts: ${titleLikeTexts.size}`);
+  }
+
+  return { detected: indicators.length > 0, indicators };
 }
 
 function addRankedCandidate(
@@ -1004,7 +1074,16 @@ function buildTitleCandidates(params: {
       continue;
     }
 
-    addRankedCandidate(store, line.text, line.confidence * 0.74, 'vision');
+    // ノイズ減点を適用
+    const { penalty } = calculateNoisePenalty(line.text);
+
+    // penalty 合計が閾値以上なら除外
+    if (penalty >= NOISE_EXCLUSION_THRESHOLD) {
+      continue;
+    }
+
+    const adjustedScore = line.confidence * 0.74 * (1 - penalty);
+    addRankedCandidate(store, line.text, adjustedScore, 'vision');
   }
 
   for (const entry of params.existingGalleryEntries) {
@@ -1626,8 +1705,53 @@ async function analyzeImage(
     : selectedAuthor === visionAuthor.value
       ? visionAuthor.confidence
       : roundConfidence(manifest.author_confidence ?? 0);
-  const selectedTitle = overrideTitle ?? tesseractTitle;
-  const titleConfidence = overrideTitle ? 1 : selectedTitle ? roundConfidence(manifest.title_confidence ?? 0.62) : 0;
+  // OCR 由来の初期タイトル決定
+  let selectedTitle = overrideTitle ?? tesseractTitle;
+  let titleConfidence = overrideTitle ? 1 : selectedTitle ? roundConfidence(manifest.title_confidence ?? 0.62) : 0;
+
+  // gallery 由来の高スコア候補を条件付きで採用
+  // 条件1: OCR 信頼度が低い、または OCR タイトルが短すぎる、または OCR タイトルが不自然（空白が多い）
+  // 条件2: gallery 候補が OCR 文字列の多くと一致
+  // 条件3: author と矛盾しない
+  const isOcrTitleShort = selectedTitle && selectedTitle.replace(/\s/g, '').length < 6;
+  const isOcrTitleNoisy = selectedTitle && (selectedTitle.match(/\s/g)?.length ?? 0) >= 3;
+  if (!overrideTitle && (titleConfidence < MATCH_RULES.import.title || isOcrTitleShort || isOcrTitleNoisy)) {
+    // OCR 候補文字列（vision lines）を使って gallery 候補を評価
+    const ocrSignals = visionLines.map((line) => line.text).filter((text) => text.length >= 3);
+    let bestGalleryCandidate: { title: string; score: number; matchCount: number } | null = null;
+
+    for (const entry of existingGalleryEntries) {
+      const authorMatch =
+        !selectedAuthor ||
+        !entry.author ||
+        normalizeForComparison(selectedAuthor) === normalizeForComparison(entry.author);
+      if (!authorMatch) continue;
+
+      // OCR 文字列と gallery タイトルのマッチ数をカウント
+      let matchCount = 0;
+      let bestScore = 0;
+      for (const signal of ocrSignals) {
+        const score = calculateSimilarity(signal, entry.title);
+        if (score >= MATCH_RULES.duplicate.titleCandidateScore) {
+          matchCount++;
+          bestScore = Math.max(bestScore, score);
+        }
+      }
+
+      // 1つ以上の OCR 文字列と高スコアでマッチすれば候補
+      if (matchCount >= 1 && bestScore >= MATCH_RULES.duplicate.titleCandidateScore) {
+        if (!bestGalleryCandidate || matchCount > bestGalleryCandidate.matchCount ||
+            (matchCount === bestGalleryCandidate.matchCount && bestScore > bestGalleryCandidate.score)) {
+          bestGalleryCandidate = { title: entry.title, score: bestScore, matchCount };
+        }
+      }
+    }
+
+    if (bestGalleryCandidate) {
+      selectedTitle = bestGalleryCandidate.title;
+      titleConfidence = bestGalleryCandidate.score;
+    }
+  }
   const genreCandidate = overrideGenre
     ? { genre: overrideGenre, confidence: 1 }
     : inferGenreCandidate(manifest.genre, selectedAuthor, authorGenreMap);
@@ -1707,6 +1831,12 @@ async function analyzeImage(
     );
   }
 
+  // 複数冊検出
+  const multiBookDetection = detectMultipleBooksIndicators(visionLines);
+  if (multiBookDetection.detected) {
+    warnings.push(`複数冊の可能性: ${multiBookDetection.indicators.join(', ')}`);
+  }
+
   return {
     title: selectedTitle,
     titleConfidence,
@@ -1737,6 +1867,7 @@ async function analyzeImage(
     authorCandidates,
     similarEntries,
     overrideFields,
+    multiBookIndicators: multiBookDetection.detected ? multiBookDetection.indicators : undefined,
   };
 }
 
@@ -1874,6 +2005,47 @@ function buildReport(context: ReportContext): string {
           lines.push(`- ${candidate}`);
         }
         lines.push('');
+      }
+
+      // 複数冊検出情報
+      if (result.metadata.multiBookIndicators && result.metadata.multiBookIndicators.length > 0) {
+        lines.push('#### Multiple Books Detection', '');
+        lines.push('この画像は複数冊の書籍が含まれている可能性があります。', '');
+        for (const indicator of result.metadata.multiBookIndicators) {
+          lines.push(`- ${indicator}`);
+        }
+        lines.push('', '**推奨アクション**: 各書籍を個別に切り抜いてインポートしてください。', '');
+      }
+
+      // duplicate 判定の詳細
+      if (result.status === 'duplicate' && result.duplicatePath) {
+        lines.push('#### Duplicate Detection Details', '');
+        const duplicateMatch = result.metadata.similarEntries.find((e) => e.path === result.duplicatePath);
+        if (duplicateMatch) {
+          lines.push(`- Match type: ${duplicateMatch.exact ? 'exact' : 'fuzzy'}`);
+          lines.push(`- Title score: ${duplicateMatch.titleScore.toFixed(3)}`);
+          lines.push(`- Author score: ${duplicateMatch.authorScore.toFixed(3)}`);
+          lines.push(`- Overall score: ${duplicateMatch.score.toFixed(3)}`);
+        }
+        lines.push('');
+      }
+
+      // 判定理由の要約
+      lines.push('#### Decision Summary', '');
+      if (result.status === 'manual-review') {
+        const reasons: string[] = [];
+        if (!result.metadata.title) reasons.push('タイトル未確定');
+        if (!result.metadata.author) reasons.push('著者未確定');
+        if (result.metadata.titleConfidence < MATCH_RULES.import.title)
+          reasons.push(`タイトル信頼度不足 (${result.metadata.titleConfidence.toFixed(3)} < ${MATCH_RULES.import.title})`);
+        if (result.metadata.authorConfidence < MATCH_RULES.import.author)
+          reasons.push(`著者信頼度不足 (${result.metadata.authorConfidence.toFixed(3)} < ${MATCH_RULES.import.author})`);
+        if (result.metadata.multiBookIndicators?.length) reasons.push('複数冊の可能性');
+        lines.push(`手動レビュー理由: ${reasons.length > 0 ? reasons.join(', ') : '不明'}`, '');
+      } else if (result.status === 'duplicate') {
+        lines.push(`既存エントリとの重複として処理されました。`, '');
+      } else if (result.status === 'imported') {
+        lines.push(`自動インポートされました。`, '');
       }
 
       lines.push('#### Suggested Override Command', '', '```sh', buildSuggestedOverrideCommand(result), '```', '');
