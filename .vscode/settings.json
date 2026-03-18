@@ -1,0 +1,10 @@
+{
+  "git.confirmSync": true,
+  "git.autofetch": true,
+  "git.enableSmartCommit": false,
+  "git.postCommitCommand": "none",
+  "git.openRepositoryInParentFolders": "always",
+  "git-graph.retainContextWhenHidden": true,
+  "gitlens.currentLine.enabled": false,
+  "gitlens.hovers.currentLine.over": "line"
+}
