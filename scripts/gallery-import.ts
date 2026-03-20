@@ -25,7 +25,20 @@ const GALLERY_DIR = path.resolve('src/content/gallery');
 const REVIEWS_DIR = path.resolve('src/content/reviews');
 const REPORT_PATH = path.resolve('reports/gallery-import-report.md');
 const SUPPORTED_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp']);
-const GALLERY_GENRES = ['小説', 'ビジネス', '歴史', 'エッセイ'] as const;
+const GALLERY_GENRES = [
+  '現代文学',
+  '歴史小説',
+  '漫画',
+  'ノンフィクション',
+  '歴史教養',
+  '心理学',
+  '健康',
+  'ホビー',
+  '新書',
+  '自伝',
+  'ビジネス',
+  'エッセイ',
+] as const;
 const MATCH_RULES = {
   import: {
     title: 0.72,
@@ -697,11 +710,29 @@ function inferGenreCandidate(
 
 function buildDescription(title: string, author: string, genre?: GalleryGenre): { value: string; confidence: number } {
   const genreDescription =
-    genre === 'ビジネス'
-      ? '視点や行動を整えるヒントを受け取れそうな一冊'
-      : genre === '歴史'
-        ? '歴史の流れや人物像をたどる入口になりそうな一冊'
-        : '物語の余韻をゆっくり味わえそうな一冊';
+    genre === '歴史小説'
+      ? '歴史のうねりと人物の生を物語でたどれそうな一冊'
+      : genre === '漫画'
+        ? '絵とコマ運びで世界観に没入できそうな一冊'
+        : genre === 'ノンフィクション'
+          ? '実在の出来事や人物に深く触れられそうな一冊'
+          : genre === '歴史教養'
+            ? '歴史の流れや人物像を学び直す入口になりそうな一冊'
+            : genre === '心理学'
+              ? '心や行動の仕組みを知る手がかりになりそうな一冊'
+              : genre === '健康'
+                ? '日々の身体づくりや休息を見直すヒントを得られそうな一冊'
+                : genre === 'ホビー'
+                  ? '趣味や日々の楽しみを広げるきっかけになりそうな一冊'
+                  : genre === '新書'
+                    ? '社会や時代を手早く考える視点をくれそうな一冊'
+                    : genre === '自伝'
+                      ? '本人の歩みや選択から人生を見つめ直せそうな一冊'
+                      : genre === 'ビジネス'
+                        ? '視点や行動を整えるヒントを受け取れそうな一冊'
+                        : genre === 'エッセイ'
+                          ? '個人的な観察や語り口をゆっくり味わえそうな一冊'
+                          : '現代の感情や関係性を映す物語の余韻を味わえそうな一冊';
 
   return {
     value: `『${title}』は、${author}による${genreDescription}。`,
@@ -1481,7 +1512,7 @@ function buildCliOptions(args: string[]): CliOptions {
 
     if (current === '--help') {
       throw new Error(
-        'Usage: npm run gallery:import -- [--dry-run] [--report-json <path>] [--file <path>] [--title <title>] [--author <author>] [--genre <小説|ビジネス|歴史>]'
+        'Usage: npm run gallery:import -- [--dry-run] [--report-json <path>] [--file <path>] [--title <title>] [--author <author>] [--genre <現代文学|歴史小説|漫画|ノンフィクション|歴史教養|心理学|健康|ホビー|新書|自伝|ビジネス|エッセイ>]'
       );
     }
 
@@ -1642,7 +1673,7 @@ function buildFrontmatterTemplate(result: ProcessedImageResult): string {
     `title: ${result.metadata.title ? quote(result.metadata.title) : '"<タイトルを入力>"'}`,
     `image: ${quote(imagePublicPath)}`,
     `alt: ${result.metadata.alt ? quote(result.metadata.alt) : '"<alt を入力>"'}`,
-    `genre: ${result.metadata.genre ? quote(result.metadata.genre) : '"<小説 | ビジネス | 歴史>"'}`,
+    `genre: ${result.metadata.genre ? quote(result.metadata.genre) : '"<現代文学 | 歴史小説 | 漫画 | ノンフィクション | 歴史教養 | 心理学 | 健康 | ホビー | 新書 | 自伝 | ビジネス | エッセイ>"'}`,
     `author: ${result.metadata.author ? quote(result.metadata.author) : '"<著者を入力>"'}`,
     `description: ${result.metadata.description ? quote(result.metadata.description) : '"<紹介文を入力>"'}`,
     'needs_review: true',

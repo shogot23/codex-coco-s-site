@@ -1,7 +1,7 @@
 ---
 title: "歴史思考"
 image: "/uploads/gallery/books/Historical_Thinking_Fukai_Ryunosuke.jpeg"
-genre: "歴史"
+genre: "歴史教養"
 author: "深井龍之介"
 description: "歴史のくり返しに人間の行動原理を見つけ、いまを見るための視座を広げてくれる一冊。"
 needs_review: false

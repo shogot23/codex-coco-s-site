@@ -1,7 +1,19 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 
-type GalleryGenre = '小説' | 'ビジネス' | '歴史';
+type GalleryGenre =
+  | '現代文学'
+  | '歴史小説'
+  | '漫画'
+  | 'ノンフィクション'
+  | '歴史教養'
+  | '心理学'
+  | '健康'
+  | 'ホビー'
+  | '新書'
+  | '自伝'
+  | 'ビジネス'
+  | 'エッセイ';
 type GalleryManifestEntry = {
   title: string;
   image: string;
@@ -21,7 +33,20 @@ type CorrectionPatch = Partial<Pick<GalleryManifestEntry, 'title' | 'author' | '
 const MANIFEST_PATH = path.resolve('data/gallery-manifest.json');
 const CORRECTIONS_PATH = path.resolve('data/gallery-corrections.json');
 const ALLOWED_FIELDS = new Set<keyof CorrectionPatch>(['title', 'author', 'genre']);
-const ALLOWED_GENRES = new Set<GalleryGenre>(['小説', 'ビジネス', '歴史']);
+const ALLOWED_GENRES = new Set<GalleryGenre>([
+  '現代文学',
+  '歴史小説',
+  '漫画',
+  'ノンフィクション',
+  '歴史教養',
+  '心理学',
+  '健康',
+  'ホビー',
+  '新書',
+  '自伝',
+  'ビジネス',
+  'エッセイ',
+]);
 
 function fail(message: string): never {
   throw new Error(`[gallery:apply-corrections] ${message}`);

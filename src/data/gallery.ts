@@ -17,10 +17,10 @@ export type GalleryGenre = {
 
 export const galleryGenres: GalleryGenre[] = [
   {
-    name: "小説",
+    name: "現代文学",
     items: [
-      { title: "サンプル小説A", image: "/placeholder-1.jpg", genre: "小説", note: "あとで差し替え" },
-      { title: "サンプル小説B", image: "/placeholder-2.jpg", genre: "小説" },
+      { title: "サンプル小説A", image: "/placeholder-1.jpg", genre: "現代文学", note: "あとで差し替え" },
+      { title: "サンプル小説B", image: "/placeholder-2.jpg", genre: "現代文学" },
     ],
   },
   {
@@ -31,10 +31,10 @@ export const galleryGenres: GalleryGenre[] = [
     ],
   },
   {
-    name: "歴史",
+    name: "歴史教養",
     items: [
-      { title: "サンプル歴史A", image: "/placeholder-5.jpg", genre: "歴史" },
-      { title: "サンプル歴史B", image: "/placeholder-6.jpg", genre: "歴史" },
+      { title: "サンプル歴史A", image: "/placeholder-5.jpg", genre: "歴史教養" },
+      { title: "サンプル歴史B", image: "/placeholder-6.jpg", genre: "歴史教養" },
     ],
   },
 ];
