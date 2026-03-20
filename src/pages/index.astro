@@ -178,17 +178,6 @@ const latestVideos = [...videoEntries]
 
       {heroGalleryImages.length > 0 && <div class="hero-overlay" aria-hidden="true"></div>}
 
-      <div class="hero-coco-badge">
-        <img
-          src={avatarUrl}
-          alt="ココちゃん"
-          width="80"
-          height="80"
-          loading="eager"
-          decoding="async"
-        />
-      </div>
-
       <div class="hero-visual">
         <img
           class="main-image"
@@ -385,26 +374,6 @@ const latestVideos = [...videoEntries]
     .hero-overlay {
       z-index: 1;
       background: linear-gradient(145deg, rgba(9, 24, 50, 0.72), rgba(20, 46, 86, 0.66));
-    }
-
-    .hero-coco-badge {
-      position: absolute;
-      top: 16px;
-      left: 16px;
-      z-index: 3;
-      width: 80px;
-      height: 80px;
-      overflow: hidden;
-      border-radius: 50%;
-      border: 2px solid rgba(255, 255, 255, 0.3);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    }
-
-    .hero-coco-badge img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
     }
 
     .eyebrow {
@@ -830,13 +799,6 @@ const latestVideos = [...videoEntries]
       .hero-bg-slideshow,
       .hero-overlay {
         border-radius: 20px;
-      }
-
-      .hero-coco-badge {
-        top: 12px;
-        left: 12px;
-        width: 56px;
-        height: 56px;
       }
 
       .hero-visual {
