@@ -126,11 +126,7 @@ const heroGalleryCandidates = galleryEntries
   })
   .filter((entry): entry is string => entry !== null);
 
-const heroGalleryImages = heroGalleryCandidates.length >= 3
-  ? [...heroGalleryCandidates]
-      .sort(() => Math.random() - 0.5)
-      .slice(0, 3)
-  : [];
+const hasHeroSlideshow = heroGalleryCandidates.length >= 3;
 
 const latestGallery = [...galleryEntries]
   .sort((a, b) => getGalleryTimestamp(b.data.generated_at) - getGalleryTimestamp(a.data.generated_at))
@@ -162,21 +158,30 @@ const latestVideos = [...videoEntries]
 >
   <section class="home-shell">
     <section class="hero">
-      {heroGalleryImages.length > 0 && (
-        <div class="hero-bg-slideshow" aria-hidden="true">
-          {heroGalleryImages.map((imageSrc) => (
-            <img
-              class="hero-bg-slide"
-              src={imageSrc}
-              alt=""
-              loading="lazy"
-              decoding="async"
-            />
-          ))}
+      {hasHeroSlideshow && (
+        <div
+          class="hero-bg-slideshow"
+          aria-hidden="true"
+          data-slideshow-candidates={JSON.stringify(heroGalleryCandidates)}
+        >
+          <img class="hero-bg-slide" alt="" />
+          <img class="hero-bg-slide" alt="" />
+          <img class="hero-bg-slide" alt="" />
+          <noscript>
+            {heroGalleryCandidates.slice(0, 3).map((imageSrc) => (
+              <img
+                class="hero-bg-slide"
+                src={imageSrc}
+                alt=""
+                loading="lazy"
+                decoding="async"
+              />
+            ))}
+          </noscript>
         </div>
       )}
 
-      {heroGalleryImages.length > 0 && <div class="hero-overlay" aria-hidden="true"></div>}
+      {hasHeroSlideshow && <div class="hero-overlay" aria-hidden="true"></div>}
 
       <div class="hero-visual">
         <img
@@ -204,6 +209,52 @@ const latestVideos = [...videoEntries]
         </div>
       </div>
     </section>
+
+    <script is:inline>
+      (function () {
+        const container = document.querySelector('.hero-bg-slideshow');
+        if (!container) return;
+
+        const candidatesJson = container.getAttribute('data-slideshow-candidates');
+        if (!candidatesJson) return;
+
+        let candidates;
+        try {
+          candidates = JSON.parse(candidatesJson);
+        } catch (error) {
+          return;
+        }
+
+        if (
+          !Array.isArray(candidates) ||
+          candidates.length < 3 ||
+          !candidates.every(function (value) { return typeof value === 'string'; })
+        ) {
+          return;
+        }
+
+        const shuffled = candidates.slice();
+        for (let index = shuffled.length - 1; index > 0; index -= 1) {
+          const swapIndex = Math.floor(Math.random() * (index + 1));
+          const current = shuffled[index];
+          shuffled[index] = shuffled[swapIndex];
+          shuffled[swapIndex] = current;
+        }
+
+        const slides = Array.from(container.children).filter(function (element) {
+          return element.tagName === 'IMG' && element.classList.contains('hero-bg-slide');
+        });
+        if (slides.length !== 3) return;
+
+        slides.forEach(function (slide, index) {
+          slide.setAttribute('src', shuffled[index]);
+          slide.setAttribute('loading', 'lazy');
+          slide.setAttribute('decoding', 'async');
+        });
+
+        container.removeAttribute('data-slideshow-candidates');
+      })();
+    </script>
 
     <section class="paths" aria-label="主要コンテンツへの導線">
       {pathCards.map((card) => (
