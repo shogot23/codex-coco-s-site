@@ -1,7 +1,7 @@
 ---
 title: "君のクイズ"
 image: "/uploads/gallery/books/Your_Quiz_Ogawa_Satoshi.jpeg"
-genre: "小説"
+genre: "現代文学"
 author: "小川哲"
 description: "問いが読まれる前の正解という謎から、人が考える過程と確信の揺らぎを静かに掘る小説。"
 needs_review: false

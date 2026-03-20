@@ -1,5 +1,5 @@
 ---
 title: "サンプル小説B"
 image: "/placeholder-2.jpg"
-genre: "小説"
+genre: "現代文学"
 ---

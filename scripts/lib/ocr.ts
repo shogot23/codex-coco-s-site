@@ -4,7 +4,20 @@ import { basename, extname } from 'node:path';
 
 const OCR_LANGS = 'jpn';
 const CONFIDENCE_REVIEW_THRESHOLD = 0.8;
-const GALLERY_GENRES = ['小説', 'ビジネス', '歴史'] as const;
+const GALLERY_GENRES = [
+  '現代文学',
+  '歴史小説',
+  '漫画',
+  'ノンフィクション',
+  '歴史教養',
+  '心理学',
+  '健康',
+  'ホビー',
+  '新書',
+  '自伝',
+  'ビジネス',
+  'エッセイ',
+] as const;
 const OCR_CACHE_PATH = path.resolve('.cache/tesseract');
 
 type GalleryGenre = typeof GALLERY_GENRES[number];

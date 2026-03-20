@@ -1,7 +1,7 @@
 ---
 title: "死ぬ瞬間の5つの後悔"
 image: "/uploads/gallery/books/Top_Five_Regrets_of_the_Dying_Bronnie_Ware.jpeg"
-genre: "ビジネス"
+genre: "自伝"
 author: "ブロニー・ウェア"
 description: "人生の終わりに語られた後悔を手がかりに、いまの選択と生き方を静かに問い直す一冊。"
 needs_review: false

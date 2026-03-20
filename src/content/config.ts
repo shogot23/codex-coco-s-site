@@ -80,7 +80,20 @@ const reviews = defineCollection({
 });
 
 // Gallery genres - fixed list for filtering
-export const GALLERY_GENRES = ['小説', 'ビジネス', '歴史', 'エッセイ'] as const;
+export const GALLERY_GENRES = [
+  '現代文学',
+  '歴史小説',
+  '漫画',
+  'ノンフィクション',
+  '歴史教養',
+  '心理学',
+  '健康',
+  'ホビー',
+  '新書',
+  '自伝',
+  'ビジネス',
+  'エッセイ',
+] as const;
 export type GalleryGenre = typeof GALLERY_GENRES[number];
 
 const gallery = defineCollection({

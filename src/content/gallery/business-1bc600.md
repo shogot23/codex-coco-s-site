@@ -1,7 +1,7 @@
 ---
 title: "働くということ 「能力主義」を超えて"
 image: "/uploads/gallery/books/Working_Beyond_Meritocracy_Teshigawara_Mai.png"
-genre: "ビジネス"
+genre: "新書"
 author: "勅使川原真衣"
 description: "働くことをめぐる前提を見つめ直したくなる一冊。"
 needs_review: false

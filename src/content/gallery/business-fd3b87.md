@@ -1,7 +1,7 @@
 ---
 title: "「怠惰」なんて存在しない"
 image: "/uploads/gallery/books/Laziness_Does_Not_Exist_Devon_Price.png"
-genre: "ビジネス"
+genre: "心理学"
 author: "デヴォン・プライス"
 description: "「怠惰」と呼ばれるものの見え方を問い直したくなる一冊。"
 needs_review: false
