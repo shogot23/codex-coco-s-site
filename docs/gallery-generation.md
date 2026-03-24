@@ -208,6 +208,12 @@ npm run gallery:pipeline -- --apply --pr
 - `genre` は自動抽出に依存しない
 - `genre` 未設定の entry は `/gallery` に出ないため、manifest 確認時または CMS で必ず手動補正する
 
+## 説明文（description）のルール
+
+- 説明文には本の題名を含めない（『タイトル』形式も不可）
+- 書籍の魅力や特徴を簡潔に表現する
+- 30〜50文字程度を目安とする
+
 ## Cleanup
 
 - 現在の OCR キャッシュは `.cache/tesseract/` を使う
