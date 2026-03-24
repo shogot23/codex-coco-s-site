@@ -8,5 +8,5 @@ description: "人生の後半に向けた幸福と成功の道筋を、科学的
 needs_review: false
 generated_at: "2026-03-24T04:57:37.656Z"
 source_file: "gallery/books/LifeStrategyForSecondHalf_ArthurCBrooks.png"
-published: false
+published: true
 ---
