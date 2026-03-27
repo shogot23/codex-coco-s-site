@@ -1,5 +1,6 @@
 ---
 import SeoHead from '../components/SeoHead.astro';
+import '../styles/theme.css';
 
 interface Props {
   title: string;
@@ -39,16 +40,38 @@ const navItems = [
     <title>{title}</title>
     <SeoHead title={title} description={description} image={image} type={type} jsonLd={jsonLd} />
     <style>
-      :root { color-scheme: light; }
-      body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", "Segoe UI", sans-serif; background: #fafafa; color: #111; }
-      a { color: inherit; text-decoration: none; }
       .container { max-width: 980px; margin: 0 auto; padding: 0 16px; }
-      header { position: sticky; top: 0; background: rgba(250,250,250,.9); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(0,0,0,.06); }
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: color-mix(in srgb, var(--color-surface) 84%, transparent);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--color-border);
+      }
       .nav { display: flex; align-items: center; justify-content: space-between; height: 58px; min-width: 0; }
-      .brand { font-weight: 800; letter-spacing: .2px; max-width: 100%; min-width: 0; }
+      .brand {
+        font-family: var(--font-display);
+        font-size: 1.1rem;
+        font-weight: 700;
+        letter-spacing: .03em;
+        max-width: 100%;
+        min-width: 0;
+      }
       .links { display: flex; gap: 14px; font-size: .95rem; min-width: 0; }
-      .link { padding: 8px 10px; border-radius: 10px; max-width: 100%; min-width: 0; white-space: normal; overflow-wrap: anywhere; box-sizing: border-box; text-align: center; }
-      .link:hover { background: rgba(0,0,0,.05); }
+      .link {
+        padding: 8px 10px;
+        border-radius: 10px;
+        max-width: 100%;
+        min-width: 0;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        box-sizing: border-box;
+        text-align: center;
+        color: var(--color-muted);
+        transition: background-color 0.2s ease, color 0.2s ease;
+      }
+      .link:hover { background: rgba(255,255,255,.55); color: var(--color-text); }
       main { padding: 28px 0 40px; }
       footer { padding: 28px 0 40px; opacity: .7; font-size: .9rem; }
 
