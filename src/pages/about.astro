@@ -1,14 +1,9 @@
 ---
-import { getCollection } from "astro:content";
+import { getCollection, getEntry } from "astro:content";
 import Layout from "../layouts/Layout.astro";
 
 const items = await getCollection("about");
 const entry = items[0] ?? null;
-
-let Content = null;
-if (entry) {
-  ({ Content } = await entry.render());
-}
 
 const base = import.meta.env.BASE_URL.endsWith("/")
   ? import.meta.env.BASE_URL
@@ -23,9 +18,34 @@ const withBase = (path: string) => {
   return `${base}${path.replace(/^\/+/, "")}`;
 };
 
-const heroImage = "/uploads/about-hero.png";
+const stripMarkdown = (value: string) =>
+  value
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replace(/[*_`>-]/g, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 
-const heroImageUrl = withBase(heroImage);
+const getParagraphs = (value: string) =>
+  stripMarkdown(value)
+    .split(/\n\s*\n/)
+    .map((paragraph) => paragraph.replace(/\s*\n\s*/g, " ").trim())
+    .filter(Boolean);
+
+let profileEntry = null;
+
+try {
+  profileEntry = await getEntry("profile", "profile");
+} catch {
+  // Profile content is optional during local content setup.
+}
+
+const aboutParagraphs = entry ? getParagraphs(entry.body) : [];
+const profileParagraphs = profileEntry ? getParagraphs(profileEntry.body) : [];
+
+const heroImageUrl = withBase("/uploads/about-hero.png");
+const avatarUrl = withBase(profileEntry?.data?.avatar ?? "/uploads/bc1bf64b-abcd-4e08-80ff-870c34201abf.png");
+
 const updatedAtLabel = entry?.data?.updatedAt
   ? new Intl.DateTimeFormat("ja-JP", {
       year: "numeric",
@@ -35,41 +55,62 @@ const updatedAtLabel = entry?.data?.updatedAt
     }).format(entry.data.updatedAt)
   : null;
 
-const storyBeats = [
+const reviewsUrl = withBase("reviews/");
+const galleryUrl = withBase("gallery/");
+const videosUrl = withBase("videos/");
+const homeUrl = withBase("");
+
+const aboutLead =
+  aboutParagraphs[0] ??
+  "読書 with Coco は、本を読み終えたあとに静かに残る気配を、もう一度見つめ直すための場所です。";
+const aboutBridge =
+  aboutParagraphs[1] ??
+  "読んで終わりにしない。本のそばにココちゃんがいることで、言葉だけでは届かない景色や学びに、やわらかな呼吸を与えます。";
+const pathLead =
+  aboutParagraphs[2] ??
+  "レビューでは言葉の輪郭を、ギャラリーでは景色の記憶を、動画では余韻の流れを、ゆっくりたどります。";
+const closingLead =
+  aboutParagraphs[3] ??
+  "ここで見せたいのは要約や正解ではなく、本を閉じたあとに世界の見え方が少し変わる、その小さな瞬間です。";
+const profileLead =
+  profileParagraphs[0] ??
+  "ココちゃんは、この場所で読後の景色にやわらかな呼吸を入れる案内役です。";
+
+const manifestoItems = [
   {
-    label: "Read",
-    title: "読む",
-    description: "感想を短く残しながら、本から受け取った視点を言葉にします。",
+    prompt: "なぜ本を読むのか",
+    text: "まだうまく言葉にできない気持ちに、そっと輪郭を与えてもらうため。",
   },
   {
-    label: "Imagine",
-    title: "ひらく",
-    description: "読後に残った景色や空気を、ココちゃんと一緒にビジュアルへ広げます。",
+    prompt: "なぜココちゃんと一緒なのか",
+    text: "まじめな感想だけでは少し硬くなる世界に、やわらかな体温を戻すため。",
   },
   {
-    label: "Revisit",
-    title: "たどる",
-    description: "レビュー、ギャラリー、動画を行き来しながら余韻をゆっくり深めます。",
+    prompt: "この場所で見せたいもの",
+    text: "本を閉じたあと、景色の見え方がほんの少し変わる瞬間の静かな手ざわり。",
   },
 ];
 
-const guideCards = [
+const bridgeSteps = [
   {
-    title: "Reviews",
-    description: "本の感想と学びを、短く整理して読み返せる入口です。",
-    href: withBase("reviews/"),
+    label: "Review",
+    title: "読後の輪郭を、まず言葉で拾う。",
+    description: "主役はレビューです。一冊から受け取った感情や学びを、短くても逃がさずに残します。",
+    href: reviewsUrl,
     cta: "レビューを見る",
   },
   {
-    title: "Gallery",
-    description: "読書から立ち上がった情景を、ココちゃんと一緒に眺められます。",
-    href: withBase("gallery/"),
-    cta: "ギャラリーへ進む",
+    label: "Gallery",
+    title: "言葉の外にある景色を、ココちゃんと見返す。",
+    description: "文字のあいだに立ち上がった空気や色を、読後の景色としてそっと確かめ直します。",
+    href: galleryUrl,
+    cta: "ギャラリーを見る",
   },
   {
-    title: "Videos",
-    description: "物語の温度やスピードを、短い映像でもう一度たどれます。",
-    href: withBase("videos/"),
+    label: "Video",
+    title: "余韻に、少しだけ時間の流れを戻す。",
+    description: "映像は派手な主役ではなく、読書のあとに残るテンポや呼吸を補うために置いています。",
+    href: videosUrl,
     cta: "動画を見る",
   },
 ];
@@ -80,363 +121,489 @@ const guideCards = [
   description={entry?.data?.description}
   image={heroImageUrl}
 >
-  <section class="about-shell">
-    <section class="hero-card" aria-labelledby="about-title">
+  <div class="about-world">
+    <section class="about-hero" aria-labelledby="about-title">
       <div class="hero-copy">
-        <p class="eyebrow">{entry?.data?.title ?? "About"}</p>
-        <h1 id="about-title">ココちゃんと、本の余韻をもう一度ひらく場所。</h1>
-        <p class="lead">
-          読書で受け取った気配を、言葉とイメージと映像で静かに確かめるためのサイトです。
-        </p>
+        <p class="section-label">About / World Bridge</p>
+        <p class="hero-brand">読書 with Coco</p>
+        <h1 id="about-title">本を閉じたあとも、ココちゃんと世界はつづいていく。</h1>
+        <p class="hero-lead">{aboutLead}</p>
+        <p class="hero-bridge">{aboutBridge}</p>
 
-        <div class="hero-pills" aria-label="ページの主題">
-          <span>本の感想を残す</span>
-          <span>景色をビジュアルにする</span>
-          <span>ココちゃんが案内役</span>
+        <div class="hero-actions ui-action-group ui-action-group--stack">
+          <a class="hero-link hero-link-primary ui-action" href={reviewsUrl}>レビューを見る</a>
+          <a class="hero-link hero-link-secondary ui-action" href={galleryUrl}>ギャラリーを見る</a>
         </div>
 
-        <div class="hero-note">
-          <p>{entry?.data?.description ?? "読書 with Cocoについて"}</p>
+        <div class="hero-footnote">
+          <p>{entry?.data?.description ?? "読書 with Coco について"}</p>
           {updatedAtLabel && <span>更新: {updatedAtLabel}</span>}
         </div>
       </div>
 
       <div class="hero-visual">
-        <div class="hero-image-frame">
+        <figure class="hero-image-frame">
           <img
             src={heroImageUrl}
             alt="本に囲まれたココちゃん"
-            width="768"
-            height="768"
+            width="960"
+            height="960"
             loading="eager"
             decoding="async"
           />
-        </div>
-        <div class="visual-caption">
-          <strong>読書の入口に、ココちゃん。</strong>
-          <p>案内役の小さな相棒と一緒に、本の記憶を別の角度から開いていきます。</p>
-        </div>
+        </figure>
+
+        <aside class="hero-note">
+          <div class="hero-note-avatar">
+            <img
+              src={avatarUrl}
+              alt="読書 with Coco の案内役、ココちゃん"
+              width="160"
+              height="160"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+          <div class="hero-note-copy">
+            <p class="hero-note-label">Coco&apos;s Presence</p>
+            <p>{profileLead}</p>
+          </div>
+        </aside>
       </div>
     </section>
 
-    <section class="story-grid" aria-label="読書 with Coco の見どころ">
-      {storyBeats.map((beat) => (
-        <article class="story-card">
-          <p class="story-label">{beat.label}</p>
-          <h2>{beat.title}</h2>
-          <p>{beat.description}</p>
-        </article>
-      ))}
+    <section class="manifesto-room" aria-labelledby="manifesto-title">
+      <div class="manifesto-intro">
+        <p class="section-label">Quiet Manifesto</p>
+        <h2 id="manifesto-title">説明より先に、この場所のまなざしを置く。</h2>
+      </div>
+
+      <div class="manifesto-lines">
+        {manifestoItems.map((item) => (
+          <article class="manifesto-line">
+            <p class="manifesto-prompt">{item.prompt}</p>
+            <p class="manifesto-text">{item.text}</p>
+          </article>
+        ))}
+      </div>
     </section>
 
-    <section class="info-grid">
-      <section class="panel prose-panel" aria-labelledby="concept-title">
-        <div class="panel-head">
-          <p class="panel-label">Site Concept</p>
-          <h2 id="concept-title">このサイトについて</h2>
-        </div>
+    <section class="bridge-room" aria-labelledby="bridge-title">
+      <div class="bridge-intro">
+        <p class="section-label">World Bridge</p>
+        <h2 id="bridge-title">本 × ココちゃん × 学び は、余韻のなかでゆっくり交わる。</h2>
+        <p>{pathLead}</p>
+      </div>
 
-        <div class="body-prose">
-          {Content ? <Content /> : <p>about コンテンツが見つかりません（src/content/about/about.md を確認）</p>}
-        </div>
-      </section>
-
-      <aside class="panel guide-panel" aria-labelledby="guide-title">
-        <div class="panel-head">
-          <p class="panel-label">Explore</p>
-          <h2 id="guide-title">3つの入り口</h2>
-        </div>
-
-        <div class="guide-list">
-          {guideCards.map((card) => (
-            <a class="guide-card" href={card.href}>
-              <h3>{card.title}</h3>
-              <p>{card.description}</p>
-              <span>{card.cta}</span>
-            </a>
-          ))}
-        </div>
-      </aside>
+      <div class="bridge-steps">
+        {bridgeSteps.map((step, index) => (
+          <article class="bridge-step">
+            <p class="bridge-count">{String(index + 1).padStart(2, "0")}</p>
+            <div class="bridge-body">
+              <p class="bridge-label">{step.label}</p>
+              <h3>{step.title}</h3>
+              <p>{step.description}</p>
+            </div>
+            <a class="bridge-link ui-action" href={step.href}>{step.cta}</a>
+          </article>
+        ))}
+      </div>
     </section>
-  </section>
+
+    <section class="closing-room" aria-labelledby="closing-title">
+      <div class="closing-copy">
+        <p class="section-label">A Small Promise</p>
+        <h2 id="closing-title">ここは、読後の景色を急がずに確かめるための場所です。</h2>
+        <p>{closingLead}</p>
+        <p class="closing-note">
+          派手に説明する代わりに、言葉と景色とココちゃんで、少しずつ読み返せる場所にしていきます。
+        </p>
+      </div>
+
+      <div class="closing-links ui-action-group ui-action-group--stack">
+        <a class="hero-link hero-link-primary ui-action" href={reviewsUrl}>レビューを見る</a>
+        <a class="hero-link hero-link-secondary ui-action" href={homeUrl}>Home へ戻る</a>
+      </div>
+    </section>
+  </div>
 </Layout>
 
 <style>
-  .about-shell {
+  .about-world {
     display: grid;
-    gap: 24px;
-    max-width: 980px;
-    margin: 0 auto;
+    gap: clamp(1.5rem, 4vw, 3rem);
   }
 
-  .hero-card,
-  .panel,
-  .story-card {
-    border: 1px solid var(--color-border);
-    box-shadow: var(--shadow-soft);
+  .about-hero,
+  .manifesto-room,
+  .bridge-room,
+  .closing-room {
+    position: relative;
+    overflow: clip;
+    border: 1px solid rgba(100, 76, 42, 0.14);
+    border-radius: clamp(26px, 4vw, 40px);
+    box-shadow: 0 24px 70px rgba(83, 55, 28, 0.1);
   }
 
-  .hero-card {
+  .about-hero {
     display: grid;
-    grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
-    gap: 28px;
-    padding: 30px;
-    border-radius: 28px;
+    grid-template-columns: minmax(0, 1.02fr) minmax(320px, 0.98fr);
+    gap: clamp(1.5rem, 3vw, 3rem);
+    padding: clamp(1.6rem, 4vw, 3rem);
     background:
-      radial-gradient(circle at top left, rgba(247, 214, 176, 0.46), transparent 32%),
-      linear-gradient(135deg, var(--color-surface) 0%, #fff4e5 46%, #f8ede2 100%);
+      radial-gradient(circle at top left, rgba(247, 214, 176, 0.84), transparent 30%),
+      radial-gradient(circle at bottom right, rgba(62, 93, 139, 0.18), transparent 32%),
+      linear-gradient(135deg, rgba(255, 250, 243, 0.98), rgba(236, 242, 248, 0.92));
   }
 
-  .hero-copy {
-    display: grid;
-    align-content: center;
-    gap: 16px;
+  .manifesto-room,
+  .bridge-room,
+  .closing-room {
+    padding: clamp(1.35rem, 3vw, 2.3rem);
+    background:
+      linear-gradient(180deg, rgba(255, 253, 249, 0.98), rgba(247, 240, 230, 0.88));
   }
 
-  .eyebrow,
-  .panel-label,
-  .story-label {
+  .hero-copy,
+  .hero-visual,
+  .bridge-intro,
+  .closing-copy {
+    position: relative;
+    z-index: 1;
+  }
+
+  .section-label,
+  .hero-note-label,
+  .manifesto-prompt,
+  .bridge-label,
+  .bridge-count {
     margin: 0;
-    font-size: 0.8rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: #8d5b2a;
   }
 
-  .hero-copy h1,
-  .panel-head h2,
-  .story-card h2,
-  .guide-card h3 {
+  .section-label,
+  .hero-note-label,
+  .bridge-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--color-accent);
+  }
+
+  .hero-brand {
+    margin: 0.85rem 0 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.45rem, 2vw, 1.9rem);
+    color: #1f2430;
+  }
+
+  .about-hero h1,
+  .manifesto-intro h2,
+  .bridge-intro h2,
+  .bridge-body h3,
+  .closing-copy h2 {
     margin: 0;
-    color: #2e1e12;
-    font-family: var(--font-headline);
-  }
-
-  .hero-copy h1 {
-    font-size: clamp(2.2rem, 4vw, 3.45rem);
+    font-family: var(--font-display);
     line-height: 1.1;
-    max-width: 10ch;
+    letter-spacing: 0.02em;
+    color: #1b2330;
   }
 
-  .lead,
-  .hero-note p,
-  .story-card p,
-  .guide-card p,
-  .body-prose :global(p),
-  .body-prose :global(li) {
-    color: #5a4431;
+  .about-hero h1 {
+    margin-top: 1rem;
+    font-size: clamp(2.6rem, 5vw, 4.7rem);
+    max-width: 9ch;
+    text-wrap: balance;
   }
 
-  .lead {
-    margin: 0;
-    font-size: 1.02rem;
-    line-height: 1.8;
-    max-width: 32rem;
+  .hero-lead,
+  .hero-bridge,
+  .bridge-intro p,
+  .bridge-body p,
+  .closing-copy p,
+  .hero-note-copy p {
+    color: rgba(33, 23, 16, 0.78);
   }
 
-  .hero-pills {
+  .hero-lead,
+  .hero-bridge {
+    margin: 1.2rem 0 0;
+    max-width: 34rem;
+    line-height: 1.9;
+    font-size: clamp(1rem, 1.3vw, 1.1rem);
+  }
+
+  .hero-actions,
+  .closing-links {
     display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
+    gap: 0.9rem;
+    margin-top: 1.8rem;
   }
 
-  .hero-pills span,
-  .hero-note,
-  .visual-caption {
-    background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: blur(8px);
-  }
-
-  .hero-pills span {
-    padding: 9px 14px;
-    border: 1px solid rgba(141, 91, 42, 0.16);
-    border-radius: 999px;
-    font-size: 0.9rem;
-    color: #694726;
-  }
-
-  .hero-note {
-    display: flex;
-    flex-wrap: wrap;
+  .hero-link,
+  .bridge-link {
+    display: inline-flex;
     align-items: center;
-    gap: 10px 16px;
+    justify-content: center;
+    border-radius: 999px;
+    font-weight: 700;
+    text-decoration: none;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease,
+      border-color 0.2s ease,
+      background-color 0.2s ease;
+  }
+
+  .hero-link {
+    min-height: 48px;
+    padding: 0.85rem 1.3rem;
+  }
+
+  .hero-link:hover,
+  .bridge-link:hover {
+    transform: translateY(-1px);
+  }
+
+  .hero-link-primary {
+    background: #1f2430;
+    color: #fffaf1;
+    box-shadow: 0 18px 34px rgba(31, 36, 48, 0.18);
+  }
+
+  .hero-link-secondary,
+  .bridge-link {
+    border: 1px solid rgba(100, 76, 42, 0.16);
+    background: rgba(255, 255, 255, 0.72);
+    color: #5d3c20;
+  }
+
+  .hero-footnote,
+  .hero-note {
+    border: 1px solid rgba(100, 76, 42, 0.12);
+    background: rgba(255, 255, 255, 0.68);
+    backdrop-filter: blur(10px);
+  }
+
+  .hero-footnote {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1rem;
+    align-items: center;
     width: fit-content;
-    padding: 12px 16px;
+    margin-top: 1.5rem;
+    padding: 0.8rem 1rem;
     border-radius: 18px;
-    border: 1px solid rgba(141, 91, 42, 0.14);
   }
 
-  .hero-note p,
-  .visual-caption p {
+  .hero-footnote p,
+  .hero-footnote span {
     margin: 0;
-    line-height: 1.7;
-  }
-
-  .hero-note span {
+    color: rgba(33, 23, 16, 0.7);
     font-size: 0.9rem;
-    color: #7d5f45;
   }
 
   .hero-visual {
-    position: relative;
     display: grid;
     align-items: end;
   }
 
   .hero-image-frame {
-    position: relative;
+    margin: 0;
     overflow: hidden;
-    border-radius: 26px;
-    background: linear-gradient(160deg, rgba(255, 255, 255, 0.58), rgba(237, 212, 184, 0.72));
+    border-radius: clamp(24px, 3vw, 34px);
     min-height: 100%;
-  }
-
-  .hero-image-frame::after {
-    content: "";
-    position: absolute;
-    inset: auto 18px 18px auto;
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.36) 0%, rgba(255, 255, 255, 0) 70%);
-    pointer-events: none;
+    background: linear-gradient(160deg, rgba(255, 255, 255, 0.64), rgba(237, 212, 184, 0.76));
   }
 
   .hero-image-frame img {
     display: block;
     width: 100%;
     height: 100%;
-    min-height: 420px;
+    min-height: 460px;
     object-fit: cover;
   }
 
-  .visual-caption {
+  .hero-note {
     position: absolute;
-    right: 18px;
-    bottom: 18px;
-    max-width: 280px;
-    padding: 16px 18px;
-    border-radius: 20px;
-    border: 1px solid rgba(141, 91, 42, 0.16);
-  }
-
-  .visual-caption strong {
-    display: block;
-    margin-bottom: 6px;
-    color: #3a2617;
-  }
-
-  .story-grid {
+    right: clamp(1rem, 2vw, 1.4rem);
+    bottom: clamp(1rem, 2vw, 1.4rem);
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 16px;
-  }
-
-  .story-card {
-    padding: 22px 20px;
+    grid-template-columns: auto 1fr;
+    gap: 0.9rem;
+    align-items: center;
+    max-width: 320px;
+    padding: 0.95rem 1rem;
     border-radius: 22px;
-    background: #fff;
   }
 
-  .story-card h2 {
-    margin-top: 6px;
-    font-size: 1.3rem;
+  .hero-note-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 22px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.82);
+    box-shadow: 0 12px 24px rgba(83, 55, 28, 0.12);
   }
 
-  .story-card p {
-    margin: 10px 0 0;
-    line-height: 1.75;
+  .hero-note-avatar img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
-  .info-grid {
+  .hero-note-copy {
     display: grid;
-    grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
-    gap: 18px;
-    align-items: start;
+    gap: 0.35rem;
   }
 
-  .panel {
-    padding: 24px;
-    border-radius: 24px;
-    background: #fffdfa;
+  .hero-note-copy p {
+    margin: 0;
+    line-height: 1.7;
+    font-size: 0.93rem;
   }
 
-  .panel-head {
+  .manifesto-room {
     display: grid;
-    gap: 8px;
-    margin-bottom: 18px;
+    gap: 1.4rem;
   }
 
-  .panel-head h2 {
-    font-size: 1.55rem;
-    line-height: 1.25;
+  .manifesto-intro {
+    display: grid;
+    gap: 0.65rem;
+    max-width: 44rem;
   }
 
-  .body-prose {
+  .manifesto-intro h2,
+  .bridge-intro h2,
+  .closing-copy h2 {
+    font-size: clamp(2rem, 3vw, 2.8rem);
+    text-wrap: balance;
+  }
+
+  .manifesto-lines {
+    display: grid;
+    gap: 0.9rem;
+  }
+
+  .manifesto-line {
+    display: grid;
+    gap: 0.55rem;
+    padding: 1rem 0;
+    border-top: 1px solid rgba(100, 76, 42, 0.12);
+  }
+
+  .manifesto-line:first-child {
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .manifesto-prompt {
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: #8d5b2a;
+  }
+
+  .manifesto-text {
+    margin: 0;
+    max-width: 40rem;
+    font-family: var(--font-headline);
+    font-size: clamp(1.15rem, 1.8vw, 1.45rem);
+    line-height: 1.65;
+    color: #2c2017;
+  }
+
+  .bridge-room {
+    display: grid;
+    gap: 1.5rem;
+    background:
+      radial-gradient(circle at top right, rgba(244, 219, 186, 0.45), transparent 24%),
+      linear-gradient(180deg, rgba(255, 252, 247, 0.98), rgba(244, 238, 229, 0.9));
+  }
+
+  .bridge-intro {
+    display: grid;
+    gap: 0.75rem;
+    max-width: 42rem;
+  }
+
+  .bridge-intro p,
+  .closing-copy p {
+    margin: 0;
     line-height: 1.85;
   }
 
-  .body-prose :global(p) {
-    margin: 0 0 1rem;
-  }
-
-  .body-prose :global(h2) {
-    margin: 1.8rem 0 0.8rem;
-    font-size: 1.08rem;
-    color: #332216;
-  }
-
-  .body-prose :global(ul) {
+  .bridge-steps {
     display: grid;
-    gap: 10px;
-    margin: 0;
-    padding-left: 1.1rem;
+    gap: 0.95rem;
   }
 
-  .body-prose :global(li strong) {
-    color: #2d2016;
-  }
-
-  .guide-list {
+  .bridge-step {
     display: grid;
-    gap: 12px;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 1rem 1.2rem;
+    align-items: center;
+    padding: 1rem 1.1rem;
+    border: 1px solid rgba(100, 76, 42, 0.12);
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.66);
   }
 
-  .guide-card {
+  .bridge-count {
     display: grid;
-    gap: 10px;
-    padding: 18px;
-    border-radius: 20px;
-    border: 1px solid rgba(141, 91, 42, 0.12);
-    background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(250, 244, 235, 0.96));
-    transition:
-      transform 0.2s ease,
-      box-shadow 0.2s ease,
-      border-color 0.2s ease;
-  }
-
-  .guide-card:hover {
-    transform: translateY(-2px);
-    border-color: rgba(141, 91, 42, 0.24);
-    box-shadow: 0 14px 28px rgba(83, 55, 28, 0.08);
-  }
-
-  .guide-card p {
-    margin: 0;
-    line-height: 1.7;
-  }
-
-  .guide-card span {
-    font-size: 0.93rem;
-    font-weight: 700;
+    place-items: center;
+    width: 54px;
+    height: 54px;
+    border-radius: 18px;
+    background: rgba(247, 214, 176, 0.42);
     color: #7d4c22;
+    font-weight: 700;
+    font-size: 0.82rem;
+  }
+
+  .bridge-body {
+    display: grid;
+    gap: 0.45rem;
+  }
+
+  .bridge-body h3 {
+    font-size: clamp(1.2rem, 2vw, 1.6rem);
+  }
+
+  .bridge-body p {
+    margin: 0;
+    line-height: 1.8;
+  }
+
+  .bridge-link {
+    min-height: 44px;
+    padding: 0.8rem 1.1rem;
+  }
+
+  .closing-room {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 1.2rem;
+    align-items: end;
+    background:
+      radial-gradient(circle at bottom left, rgba(62, 93, 139, 0.08), transparent 28%),
+      linear-gradient(180deg, rgba(255, 253, 248, 0.98), rgba(246, 238, 226, 0.92));
+  }
+
+  .closing-copy {
+    display: grid;
+    gap: 0.8rem;
+    max-width: 42rem;
+  }
+
+  .closing-note {
+    color: #6d4e34;
   }
 
   @media (max-width: 920px) {
-    .hero-card,
-    .info-grid {
+    .about-hero,
+    .closing-room {
       grid-template-columns: 1fr;
     }
 
@@ -444,57 +611,61 @@ const guideCards = [
       order: -1;
     }
 
-    .hero-copy h1 {
+    .about-hero h1 {
       max-width: none;
-    }
-
-    .story-grid {
-      grid-template-columns: 1fr;
     }
   }
 
   @media (max-width: 720px) {
-    .about-shell {
-      gap: 18px;
+    .about-world {
+      gap: 1.15rem;
     }
 
-    .hero-card,
-    .panel {
-      padding: 22px;
-      border-radius: 24px;
+    .about-hero,
+    .manifesto-room,
+    .bridge-room,
+    .closing-room {
+      border-radius: 28px;
+      padding: 1.15rem;
     }
 
     .hero-image-frame img {
       min-height: 320px;
     }
 
-    .visual-caption {
+    .hero-note {
       position: static;
-      margin-top: 14px;
       max-width: none;
+      margin-top: 0.9rem;
+    }
+
+    .bridge-step {
+      grid-template-columns: 1fr;
+      align-items: start;
+    }
+
+    .bridge-link,
+    .bridge-count {
+      justify-self: start;
     }
   }
 
   @media (max-width: 520px) {
-    .hero-card,
-    .panel,
-    .story-card {
-      padding: 18px;
-      border-radius: 20px;
-    }
-
-    .hero-copy h1 {
+    .about-hero h1,
+    .manifesto-intro h2,
+    .bridge-intro h2,
+    .closing-copy h2 {
       font-size: 2rem;
     }
 
-    .hero-note {
-      width: 100%;
+    .manifesto-text {
+      font-size: 1.05rem;
     }
 
-    .hero-pills span {
+    .hero-footnote,
+    .hero-note {
       width: 100%;
       box-sizing: border-box;
-      text-align: center;
     }
   }
 </style>
