@@ -68,7 +68,7 @@
 - typography / color / spacing を先に決め、component 分割は後から行う。
 - 既存の Astro 構成、content collections、brand tone を壊さない。
 - 新規 UI 案は「整っているか」ではなく「読書 with Coco らしいか」を先に評価する。
-- 実装判断に迷ったら、この doctrine と `docs/frontend-playbook.md` の両方を見て、ブランド優先で決める。
+- 実装判断に迷ったら、この doctrine と `frontend-playbook.md` の両方を見て、ブランド優先で決める。
 
 ## 11. Verify Rules
 
