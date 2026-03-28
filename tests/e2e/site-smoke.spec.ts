@@ -45,6 +45,25 @@ test('primary navigation reaches reviews and videos without layout breakage', as
   await expectNoHorizontalOverflow(page);
 });
 
+test('review detail keeps the reading flow and afterglow link intact', async ({ page }) => {
+  await page.goto(`${SITE_BASE}reviews/seiten/`);
+
+  await expect(page.locator('#review-title')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'ページに入る前の、短い手がかり。' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'ことばの散歩道' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '言葉を読み終えたあと、景色のほうへ。' })).toBeVisible();
+  await expect(page.getByText('「青天」とはアメフト用語で')).toBeVisible();
+
+  await expectNoHorizontalOverflow(page);
+
+  const galleryBridgeLink = page.getByRole('link', { name: 'この本から広がる景色へ' });
+  await expect(galleryBridgeLink).toBeVisible();
+  await galleryBridgeLink.click();
+  await expect(page).toHaveURL(/\/codex-coco-s-site\/gallery\/novel-seiten\/$/);
+  await expect(page.getByRole('heading', { name: '青天', exact: true }).first()).toBeVisible();
+  await expectNoHorizontalOverflow(page);
+});
+
 test('about page remains readable on small and large viewports', async ({ page }) => {
   await page.goto(`${SITE_BASE}about/`);
 
