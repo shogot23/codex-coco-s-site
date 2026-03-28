@@ -1,6 +1,6 @@
 /**
- * @deprecated Use Content Collection (src/content/videos/) instead.
- * This file will be removed in a future update.
+ * Legacy sample data kept temporarily during the Content Collection migration.
+ * Prefer src/content/videos/ for current video content.
  */
 
 export type VideoItem = {
