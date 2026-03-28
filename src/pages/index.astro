@@ -38,6 +38,20 @@ const clampText = (value: string, maxLength: number) => {
   return `${normalized.slice(0, maxLength).trimEnd()}…`;
 };
 
+const stripMarkdown = (value: string) =>
+  value
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/[*_`>-]/g, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+
+const getParagraphs = (value: string) =>
+  stripMarkdown(value)
+    .split(/\n\s*\n/)
+    .map((paragraph) => paragraph.replace(/\s*\n\s*/g, ' ').trim())
+    .filter(Boolean);
+
 const reviewDetailRoutePath = join(process.cwd(), 'src/pages/reviews/[slug].astro');
 const hasReviewDetailRoute = existsSync(reviewDetailRoutePath);
 
@@ -49,39 +63,11 @@ const formatReviewDate = (value: Date) =>
     timeZone: 'UTC',
   }).format(value);
 
-// Format video date in YYYY-MM-DD format (same as videos.astro)
-const formatVideoDate = (value: Date) =>
-  new Intl.DateTimeFormat('ja-JP', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    timeZone: 'UTC',
-  }).format(value).replace(/\//g, '-');
-
 const reviewsUrl = withBase('reviews/');
 const galleryUrl = withBase('gallery/');
 const videosUrl = withBase('videos/');
-
-const pathCards = [
-  {
-    title: 'Reviews',
-    description: '読んだ本の感想と学びを記録。',
-    href: reviewsUrl,
-    jumpLabel: 'レビューを読む',
-  },
-  {
-    title: 'Gallery',
-    description: '本の情景をビジュアルで再現。',
-    href: galleryUrl,
-    jumpLabel: 'ギャラリーを見る',
-  },
-  {
-    title: 'Videos',
-    description: '読書の世界観を動画で体験。',
-    href: videosUrl,
-    jumpLabel: '動画を見る',
-  },
-];
+const aboutUrl = withBase('about/');
+const profileUrl = withBase('profile/');
 
 let avatar = '/uploads/img_6088.png';
 
@@ -95,23 +81,64 @@ try {
 const avatarUrl = withBase(avatar);
 const previewFallbackImage = resolvePublicAsset('/uploads/img_6088.png', avatarUrl);
 
-const reviewEntries = await getPublishedReviews();
-const latestReviews = [...reviewEntries]
-  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
-  .slice(0, 3)
-  .map((entry) => {
-    const slug = entry.id.replace(/\.md$/, '');
-    const summarySource = entry.data.excerpt ?? entry.data.description ?? entry.body ?? '';
-    return {
-      title: entry.data.title,
-      summary: clampText(summarySource, 84),
-      dateLabel: formatReviewDate(entry.data.date),
-      href: hasReviewDetailRoute ? withBase(`reviews/${slug}/`) : reviewsUrl,
-      linkLabel: hasReviewDetailRoute ? '詳細を読む' : 'レビュー一覧で読む',
-    };
-  });
+let aboutEntry = null;
+let profileEntry = null;
 
-// Fetch gallery from Content Collection
+try {
+  aboutEntry = await getEntry('about', 'about');
+} catch {
+  // About content is optional during local content setup.
+}
+
+try {
+  profileEntry = await getEntry('profile', 'profile');
+} catch {
+  // Profile content is optional during local content setup.
+}
+const aboutParagraphs = aboutEntry ? getParagraphs(aboutEntry.body) : [];
+const profileParagraphs = profileEntry ? getParagraphs(profileEntry.body) : [];
+
+const reviewEntries = await getPublishedReviews();
+const sortedReviews = [...reviewEntries].sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+const featuredReviewEntry = sortedReviews[0];
+const supportingReviewEntries = sortedReviews.slice(1, 3);
+
+const featuredReview = featuredReviewEntry
+  ? {
+      title: featuredReviewEntry.data.title,
+      bookTitle: featuredReviewEntry.data.bookTitle ?? featuredReviewEntry.data.title,
+      author: featuredReviewEntry.data.author,
+      summary: clampText(
+        featuredReviewEntry.data.description ??
+          featuredReviewEntry.data.excerpt ??
+          featuredReviewEntry.body ??
+          '',
+        140
+      ),
+      excerpt: clampText(
+        featuredReviewEntry.data.excerpt ?? featuredReviewEntry.body ?? '',
+        84
+      ),
+      dateLabel: formatReviewDate(featuredReviewEntry.data.date),
+      image: resolvePublicAsset(
+        featuredReviewEntry.data.infographic ?? featuredReviewEntry.data.cover ?? '',
+        previewFallbackImage
+      ),
+      href: hasReviewDetailRoute
+        ? withBase(`reviews/${featuredReviewEntry.id.replace(/\.md$/, '')}/`)
+        : reviewsUrl,
+      linkLabel: hasReviewDetailRoute ? 'このレビューを読む' : 'レビュー一覧へ',
+      tags: featuredReviewEntry.data.tags ?? [],
+      recommendedFor: featuredReviewEntry.data.recommendedFor ?? [],
+    }
+  : null;
+
+const supportingReviews = supportingReviewEntries.map((entry) => ({
+  title: entry.data.title,
+  dateLabel: formatReviewDate(entry.data.date),
+  href: hasReviewDetailRoute ? withBase(`reviews/${entry.id.replace(/\.md$/, '')}/`) : reviewsUrl,
+}));
+
 const galleryEntries = await getPublishedGallery();
 const getGalleryTimestamp = (generatedAt?: string) => {
   if (!generatedAt) return 0;
@@ -119,820 +146,1038 @@ const getGalleryTimestamp = (generatedAt?: string) => {
   return Number.isNaN(timestamp) ? 0 : timestamp;
 };
 
-const heroGalleryCandidates = galleryEntries
-  .filter((entry) => entry.data.image && !entry.data.image.startsWith('/placeholder-'))
-  .map((entry) => {
-    const src = resolvePublicAsset(entry.data.image, '');
-    if (!src) return null;
-    return src;
-  })
-  .filter((entry): entry is string => entry !== null);
-
-const hasHeroSlideshow = heroGalleryCandidates.length >= 3;
-
-const latestGallery = [...galleryEntries]
+const galleryHighlights = [...galleryEntries]
   .sort((a, b) => getGalleryTimestamp(b.data.generated_at) - getGalleryTimestamp(a.data.generated_at))
   .slice(0, 3)
   .map((entry) => ({
     title: entry.data.title,
-    description: entry.data.description ?? entry.data.note ?? `${entry.data.genre}ジャンルのビジュアル`,
+    author: entry.data.author,
+    description: clampText(
+      entry.data.description ?? entry.data.note ?? `${entry.data.genre ?? '読書'}の情景`,
+      90
+    ),
     image: resolvePublicAsset(entry.data.image, previewFallbackImage),
     href: hasDetailContent(entry) ? withBase(`gallery/${entry.slug}/`) : galleryUrl,
   }));
 
-// Fetch videos from Content Collection
+const heroPostcards = galleryHighlights.slice(0, 2);
+const galleryLead = galleryHighlights[0] ?? null;
+const galleryTrail = galleryHighlights.slice(1, 3);
+
 const videoEntries = await getCollection('videos');
-const latestVideos = [...videoEntries]
-  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
-  .slice(0, 3)
-  .map((entry) => ({
-    title: entry.data.title,
-    description: `公開日: ${formatVideoDate(entry.data.date)}`,
-    image: resolvePublicAsset(entry.data.thumbnail, previewFallbackImage),
+const publishedVideoCount = videoEntries.length;
+
+const supportItems = [
+  {
+    label: 'Review',
+    title: '読後の手ざわりを、言葉で残す。',
+    body: '本を閉じたあとに残る感情や学びを、短く深くたどる主導線です。',
+  },
+  {
+    label: 'Gallery',
+    title: '読書からこぼれた景色を、そっと見返す。',
+    body: '気になった一冊の空気を、ココちゃんと一緒にビジュアルで確かめます。',
+  },
+  {
+    label: 'Video',
+    title: '物語の余韻を、少しだけ動かしてみる。',
+    body: `${publishedVideoCount}本の短編映像で、読書の空気を静かに補います。`,
     href: videosUrl,
-  }));
+  },
+];
+
+const aboutLead =
+  aboutParagraphs[0] ??
+  '「読書 with Coco」は、読み終えた本の余韻を別の角度から深めるための個人サイトです。';
+const aboutBridge =
+  aboutParagraphs[1] ??
+  '本の感想を言葉で残し、読書から生まれた情景をビジュアルにし、物語の空気をもう一度ゆっくり味わいます。';
+const profileLead =
+  profileParagraphs[0] ??
+  'ココちゃんは、このサイトで読書の余韻を一緒にたどる案内役です。';
 ---
 
 <Layout
   title="読書 with Coco - 読書で生まれた世界を、ココちゃんが旅する"
-  description="読書 with Cocoは、レビュー、ギャラリー、動画を通じて、本から生まれた景色と学びをココちゃんとたどる読書体験のアーカイブです。"
+  description="レビューを主導線に、ギャラリーと映像で読書の余韻を深める『読書 with Coco』のトップページ。"
   image={avatarUrl}
 >
-  <section class="home-shell">
-    <section class="hero">
-      {hasHeroSlideshow && (
-        <div
-          class="hero-bg-slideshow"
-          aria-hidden="true"
-          data-slideshow-candidates={JSON.stringify(heroGalleryCandidates)}
-        >
-          <img class="hero-bg-slide" alt="" />
-          <img class="hero-bg-slide" alt="" />
-          <img class="hero-bg-slide" alt="" />
-          <noscript>
-            {heroGalleryCandidates.slice(0, 3).map((imageSrc) => (
-              <img
-                class="hero-bg-slide"
-                src={imageSrc}
-                alt=""
-                loading="lazy"
-                decoding="async"
-              />
-            ))}
-          </noscript>
+  <div class="home-story">
+    <section class="hero" aria-labelledby="home-hero-heading">
+      <div class="hero-copy">
+        <p class="hero-kicker">本 × ココちゃん × 学び</p>
+        <p class="hero-brand">読書 with Coco</p>
+        <h1 id="home-hero-heading">読書で生まれた世界を、ココちゃんが旅する。</h1>
+        <p class="hero-lead">
+          一冊の余韻をレビューで言葉に、ギャラリーで景色に。読み終えたあとにもう一度ひらく、
+          静かな読書の入口です。
+        </p>
+
+        {featuredReview && (
+          <p class="hero-note">
+            今ひらける一冊は <span>{featuredReview.title}</span>。まずは言葉の窓からどうぞ。
+          </p>
+        )}
+
+        <div class="hero-actions ui-action-group ui-action-group--stack">
+          <a class="hero-button hero-button-primary ui-action" href={reviewsUrl}>レビューを見る</a>
+          <a class="hero-button hero-button-secondary ui-action" href={galleryUrl}>ギャラリーを見る</a>
         </div>
+      </div>
+
+      <section class="hero-visual" aria-label="ココちゃんと読書の世界">
+        <div class="hero-visual-stage">
+          <div class="hero-orbit hero-orbit-left">
+            {heroPostcards[0] && (
+              <figure class="hero-postcard">
+                <img
+                  src={heroPostcards[0].image}
+                  alt={`${heroPostcards[0].title}のギャラリーイメージ`}
+                  loading="lazy"
+                  decoding="async"
+                  width="232"
+                  height="232"
+                />
+                <figcaption>{heroPostcards[0].title}</figcaption>
+              </figure>
+            )}
+          </div>
+
+          <figure class="hero-portrait">
+            <img
+              class="hero-avatar"
+              src={avatarUrl}
+              alt="読書 with Coco の案内役、ココちゃん"
+              width="560"
+              height="560"
+              loading="eager"
+              decoding="async"
+            />
+            <figcaption>読書の余韻を案内する、ココちゃん</figcaption>
+          </figure>
+
+          <div class="hero-orbit hero-orbit-right">
+            {heroPostcards[1] && (
+              <figure class="hero-postcard hero-postcard-tilt">
+                <img
+                  src={heroPostcards[1].image}
+                  alt={`${heroPostcards[1].title}のギャラリーイメージ`}
+                  loading="lazy"
+                  decoding="async"
+                  width="232"
+                  height="232"
+                />
+                <figcaption>{heroPostcards[1].title}</figcaption>
+              </figure>
+            )}
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <section class="support-section" aria-labelledby="support-heading">
+      <div class="section-intro">
+        <p class="section-label">Support Section</p>
+        <h2 id="support-heading">一冊の余韻を、三つの窓でひらく。</h2>
+        <p>
+          主役はいつもレビューです。そのまわりでギャラリーと映像が、本から広がった景色を静かに支えます。
+        </p>
+      </div>
+
+      <div class="support-list">
+        {supportItems.map((item, index) => (
+          <article class="support-item">
+            <p class="support-index">{String(index + 1).padStart(2, '0')}</p>
+            <div class="support-body">
+              <p class="support-label">{item.label}</p>
+              <h3>{item.title}</h3>
+              <p>{item.body}</p>
+            </div>
+            {item.href && (
+              <a class="support-link ui-action" href={item.href}>
+                映像を見る
+              </a>
+            )}
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section class="reviews-section" aria-labelledby="featured-reviews-heading">
+      <div class="section-head">
+        <div>
+          <p class="section-label">Featured Reviews</p>
+          <h2 id="featured-reviews-heading">まずは、言葉の入口から。</h2>
+        </div>
+        <a class="section-link ui-action" href={reviewsUrl}>レビュー一覧へ</a>
+      </div>
+
+      {featuredReview ? (
+        <div class="review-feature">
+          <div class="review-image-wrap">
+            <img
+              class="review-image"
+              src={featuredReview.image}
+              alt={`${featuredReview.title}のレビューイメージ`}
+              loading="lazy"
+              decoding="async"
+              width="720"
+              height="920"
+            />
+          </div>
+
+          <div class="review-copy">
+            <p class="review-date">{featuredReview.dateLabel}</p>
+            <h3>{featuredReview.title}</h3>
+            {featuredReview.author && <p class="review-author">著者: {featuredReview.author}</p>}
+            <p class="review-summary">{featuredReview.summary}</p>
+            <blockquote>{featuredReview.excerpt}</blockquote>
+
+            {featuredReview.tags.length > 0 && (
+              <ul class="review-tags" aria-label="注目レビューのタグ">
+                {featuredReview.tags.map((tag) => (
+                  <li>{tag}</li>
+                ))}
+              </ul>
+            )}
+
+            {featuredReview.recommendedFor.length > 0 && (
+              <div class="review-for">
+                <p class="review-for-label">こんな読後感が好きな人へ</p>
+                <ul>
+                  {featuredReview.recommendedFor.slice(0, 3).map((item) => (
+                    <li>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <div class="review-actions ui-action-group ui-action-group--stack">
+              <a class="inline-button inline-button-primary ui-action" href={featuredReview.href}>
+                {featuredReview.linkLabel}
+              </a>
+              <a class="inline-button inline-button-secondary ui-action" href={reviewsUrl}>
+                すべてのレビューを見る
+              </a>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <p class="empty-state">レビューは準備中です。最初の一冊が公開されるまで、しばらくお待ちください。</p>
       )}
 
-      {hasHeroSlideshow && <div class="hero-overlay" aria-hidden="true"></div>}
+      {supportingReviews.length > 0 && (
+        <div class="review-rail" aria-label="最近のレビュー">
+          {supportingReviews.map((review) => (
+            <a class="review-rail-item ui-action" href={review.href}>
+              <span>{review.dateLabel}</span>
+              <strong>{review.title}</strong>
+            </a>
+          ))}
+        </div>
+      )}
+    </section>
 
-      <div class="hero-visual">
-        <img
-          class="main-image"
-          src={avatarUrl}
-          alt="ココちゃんのメインビジュアル"
-          width="560"
-          height="560"
-          loading="eager"
-          decoding="async"
-        />
-        <div class="hero-glow"></div>
-        <div class="hero-particles"></div>
+    <section class="gallery-section" aria-labelledby="featured-gallery-heading">
+      <div class="section-head">
+        <div>
+          <p class="section-label">Featured Gallery</p>
+          <h2 id="featured-gallery-heading">景色は、副旋律として寄り添う。</h2>
+        </div>
+        <a class="section-link ui-action" href={galleryUrl}>ギャラリー一覧へ</a>
       </div>
 
-      <div class="hero-copy">
-        <p class="eyebrow">読書 with Coco</p>
-        <h1>読書で生まれた世界を、ココちゃんが旅する。</h1>
-        <p class="lead">
-          レビュー、ギャラリー、動画を通じて、本から受け取った景色と学びをもう一度ひらきます。
-        </p>
-        <div class="hero-cta ui-action-group ui-action-group--stack">
-          <a class="btn btn-primary ui-action" href={galleryUrl}>ギャラリーを見る</a>
-          <a class="btn btn-secondary ui-action" href={reviewsUrl}>レビューを読む</a>
+      {galleryLead ? (
+        <div class="gallery-feature">
+          <a class="gallery-lead ui-action" href={galleryLead.href}>
+            <div class="gallery-lead-media">
+              <img
+                src={galleryLead.image}
+                alt={`${galleryLead.title}のギャラリーイメージ`}
+                loading="lazy"
+                decoding="async"
+                width="980"
+                height="720"
+              />
+            </div>
+            <div class="gallery-lead-copy">
+              <p class="gallery-kicker">Gallery Lead</p>
+              <h3>{galleryLead.title}</h3>
+              {galleryLead.author && <p class="gallery-author">{galleryLead.author}</p>}
+              <p>{galleryLead.description}</p>
+            </div>
+          </a>
+
+          <div class="gallery-trail">
+            {galleryTrail.map((item) => (
+              <a class="gallery-trail-item ui-action" href={item.href}>
+                <div class="gallery-trail-media">
+                  <img
+                    src={item.image}
+                    alt={`${item.title}のギャラリーイメージ`}
+                    loading="lazy"
+                    decoding="async"
+                    width="420"
+                    height="320"
+                  />
+                </div>
+                <div class="gallery-trail-copy">
+                  <h3>{item.title}</h3>
+                  <p>{item.description}</p>
+                </div>
+              </a>
+            ))}
+          </div>
         </div>
+      ) : (
+        <p class="empty-state">ギャラリーは準備中です。</p>
+      )}
+    </section>
+
+    <section class="world-bridge" aria-labelledby="world-bridge-heading">
+      <div class="world-copy">
+        <p class="section-label">About / World Bridge</p>
+        <h2 id="world-bridge-heading">読んだあとに残る景色を、もう一度たしかめるために。</h2>
+        <p>{aboutLead}</p>
+        <p>{aboutBridge}</p>
       </div>
+
+      <aside class="world-aside">
+        <p class="world-aside-label">Coco&apos;s Note</p>
+        <p class="world-aside-copy">{profileLead}</p>
+        <div class="world-links ui-action-group ui-action-group--stack">
+          <a class="inline-button inline-button-secondary ui-action" href={aboutUrl}>About を読む</a>
+          <a class="inline-button inline-button-secondary ui-action" href={profileUrl}>ココちゃんを見る</a>
+        </div>
+      </aside>
     </section>
 
-    <script is:inline>
-      (function () {
-        const container = document.querySelector('.hero-bg-slideshow');
-        if (!container) return;
-
-        const candidatesJson = container.getAttribute('data-slideshow-candidates');
-        if (!candidatesJson) return;
-
-        let candidates;
-        try {
-          candidates = JSON.parse(candidatesJson);
-        } catch {
-          return;
-        }
-
-        if (
-          !Array.isArray(candidates) ||
-          candidates.length < 3 ||
-          !candidates.every(function (value) { return typeof value === 'string'; })
-        ) {
-          return;
-        }
-
-        const shuffled = candidates.slice();
-        for (let index = shuffled.length - 1; index > 0; index -= 1) {
-          const swapIndex = Math.floor(Math.random() * (index + 1));
-          const current = shuffled[index];
-          shuffled[index] = shuffled[swapIndex];
-          shuffled[swapIndex] = current;
-        }
-
-        const slides = Array.from(container.children).filter(function (element) {
-          return element.tagName === 'IMG' && element.classList.contains('hero-bg-slide');
-        });
-        if (slides.length !== 3) return;
-
-        slides.forEach(function (slide, index) {
-          slide.setAttribute('src', shuffled[index]);
-          slide.setAttribute('loading', 'lazy');
-          slide.setAttribute('decoding', 'async');
-        });
-
-        container.removeAttribute('data-slideshow-candidates');
-      })();
-    </script>
-
-    <section class="paths" aria-label="主要コンテンツへの導線">
-      {pathCards.map((card) => (
-        <a class="path-card ui-action" href={card.href}>
-          <h2>{card.title}</h2>
-          <p>{card.description}</p>
-          <span class="jump">{card.jumpLabel}</span>
-        </a>
-      ))}
-    </section>
-
-    <section class="latest-stack" aria-label="最新コンテンツ">
-      <section class="latest-section">
-        <div class="latest-head ui-action-group">
-          <h2>Latest Reviews</h2>
-          <a class="latest-more ui-action" href={reviewsUrl}>すべてのレビューを見る</a>
-        </div>
-        {latestReviews.length ? (
-          <div class="preview-grid reviews-grid">
-            {latestReviews.map((review) => (
-              <article class="preview-card text-card">
-                <div class="card-meta">{review.dateLabel}</div>
-                <h3>{review.title}</h3>
-                <p>{review.summary || 'レビュー本文を公開しています。'}</p>
-                <a class="card-link" href={review.href}>{review.linkLabel}</a>
-              </article>
-            ))}
-          </div>
-        ) : (
-          <p class="preview-empty">レビューがまだありません。最初の1冊を公開予定です。</p>
-        )}
-      </section>
-
-      <section class="latest-section">
-        <div class="latest-head ui-action-group">
-          <h2>Latest Gallery</h2>
-          <a class="latest-more ui-action" href={galleryUrl}>ギャラリーをもっと見る</a>
-        </div>
-        {latestGallery.length ? (
-          <div class="preview-grid media-grid">
-            {latestGallery.map((item) => (
-              <article class="preview-card media-card">
-                <a class="media-link" href={item.href}>
-                  <div class="media-thumb">
-                    <img src={item.image} alt={item.title} loading="lazy" decoding="async" width="400" height="300" />
-                  </div>
-                  <div class="media-body">
-                    <h3>{item.title}</h3>
-                    <p>{item.description}</p>
-                  </div>
-                </a>
-              </article>
-            ))}
-          </div>
-        ) : (
-          <p class="preview-empty">ギャラリーは準備中です。</p>
-        )}
-      </section>
-
-      <section class="latest-section">
-        <div class="latest-head ui-action-group">
-          <h2>Latest Videos</h2>
-          <a class="latest-more ui-action" href={videosUrl}>動画をもっと見る</a>
-        </div>
-        {latestVideos.length ? (
-          <div class="preview-grid media-grid video-grid">
-            {latestVideos.map((item) => (
-              <article class="preview-card media-card">
-                <a class="media-link" href={item.href}>
-                  <div class="media-thumb video-thumb">
-                    <img src={item.image} alt={item.title} loading="lazy" decoding="async" width="400" height="225" />
-                  </div>
-                  <div class="media-body">
-                    <h3>{item.title}</h3>
-                    <p>{item.description}</p>
-                  </div>
-                </a>
-              </article>
-            ))}
-          </div>
-        ) : (
-          <p class="preview-empty">動画は準備中です。</p>
-        )}
-      </section>
-    </section>
-
-    <section class="about">
-      <h2>About</h2>
+    <section class="final-cta" aria-labelledby="final-cta-heading">
+      <p class="section-label">Final CTA</p>
+      <h2 id="final-cta-heading">次にひらくのは、言葉の景色。</h2>
       <p>
-        ココちゃんが案内する、読書体験のアーカイブ。レビュー、ビジュアル、動画を通じて、本の世界を再び訪れます。
+        最短の入口はレビューです。気になった一冊の余韻を言葉でたどり、そのあとでギャラリーへ寄り道できます。
       </p>
+      <div class="final-actions ui-action-group ui-action-group--stack">
+        <a class="hero-button hero-button-primary ui-action" href={reviewsUrl}>レビューを見る</a>
+        <a class="hero-button hero-button-secondary ui-action" href={galleryUrl}>ギャラリーを見る</a>
+      </div>
     </section>
-  </section>
+  </div>
 
   <style>
-    .home-shell {
-      position: relative;
-      overflow: hidden;
-      padding: clamp(20px, 4vw, 32px);
-      border-radius: 32px;
-      background: linear-gradient(155deg, #060f23 0%, var(--color-hero-deep) 48%, #17396d 100%);
-      color: #f8f7f1;
-      box-shadow: 0 24px 56px rgba(2, 8, 23, 0.35);
+    .home-story {
       display: grid;
-      gap: clamp(24px, 3vw, 34px);
+      gap: clamp(2.5rem, 6vw, 5rem);
+      padding-bottom: clamp(1rem, 2vw, 2rem);
     }
 
-    .home-shell::before {
-      content: '';
-      position: absolute;
-      top: -120px;
-      right: -90px;
-      width: 360px;
-      height: 360px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(255, 232, 186, 0.3) 0%, rgba(255, 232, 186, 0) 72%);
-      pointer-events: none;
+    .hero,
+    .support-section,
+    .reviews-section,
+    .gallery-section,
+    .world-bridge,
+    .final-cta {
+      position: relative;
     }
 
     .hero {
+      overflow: clip;
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+      gap: clamp(2rem, 4vw, 4rem);
+      align-items: center;
+      padding: clamp(2rem, 5vw, 4rem);
+      border-radius: clamp(28px, 4vw, 44px);
+      background:
+        radial-gradient(circle at top left, rgba(252, 241, 214, 0.95), transparent 34%),
+        radial-gradient(circle at bottom right, rgba(49, 76, 118, 0.18), transparent 36%),
+        linear-gradient(135deg, rgba(255, 251, 244, 0.98), rgba(236, 242, 248, 0.94));
+      border: 1px solid rgba(100, 76, 42, 0.14);
+      box-shadow: 0 32px 80px rgba(83, 55, 28, 0.12);
+    }
+
+    .hero::before,
+    .hero::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      filter: blur(6px);
+    }
+
+    .hero::before {
+      inset: auto auto -120px -80px;
+      width: 260px;
+      height: 260px;
+      background: rgba(243, 223, 180, 0.34);
+    }
+
+    .hero::after {
+      inset: -120px -80px auto auto;
+      width: 300px;
+      height: 300px;
+      background: rgba(29, 58, 102, 0.12);
+    }
+
+    .hero-copy,
+    .hero-visual {
       position: relative;
       z-index: 1;
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: clamp(24px, 4vw, 36px);
-      align-items: center;
-      background: linear-gradient(145deg, rgba(9, 24, 50, 0.95), rgba(20, 46, 86, 0.9));
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 26px;
-      padding: clamp(22px, 4vw, 40px);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 18px 40px rgba(5, 14, 33, 0.35);
     }
 
-    .hero-bg-slideshow,
-    .hero-overlay {
-      position: absolute;
-      inset: 0;
-      border-radius: 26px;
-    }
-
-    .hero-bg-slideshow {
-      z-index: 0;
-      overflow: hidden;
-    }
-
-    .hero-bg-slide {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      opacity: 0;
-      animation: slideFade 15s infinite;
-    }
-
-    .hero-bg-slide:nth-child(1) {
-      animation-delay: 0s;
-    }
-
-    .hero-bg-slide:nth-child(2) {
-      animation-delay: 5s;
-    }
-
-    .hero-bg-slide:nth-child(3) {
-      animation-delay: 10s;
-    }
-
-    .hero-overlay {
-      z-index: 1;
-      background: linear-gradient(145deg, rgba(9, 24, 50, 0.62), rgba(20, 46, 86, 0.56));
-    }
-
-    .eyebrow {
+    .hero-kicker,
+    .hero-brand,
+    .hero-note,
+    .section-label,
+    .support-label,
+    .support-index,
+    .review-date,
+    .gallery-kicker,
+    .world-aside-label {
       margin: 0;
-      font-size: 0.9rem;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: #f5dfad;
+    }
+
+    .hero-kicker,
+    .section-label,
+    .support-label,
+    .review-date,
+    .gallery-kicker,
+    .world-aside-label {
+      font-size: 0.78rem;
       font-weight: 700;
+      color: var(--color-accent);
+    }
+
+    .hero-brand {
+      margin-top: 0.8rem;
+      font-family: var(--font-display);
+      font-size: clamp(1.5rem, 2vw, 1.9rem);
+      font-weight: 700;
+      color: #1f2430;
+    }
+
+    .hero h1,
+    .section-intro h2,
+    .section-head h2,
+    .world-copy h2,
+    .final-cta h2 {
+      margin: 0;
+      font-family: var(--font-display);
+      line-height: 1.08;
+      letter-spacing: 0.02em;
+      color: #1b2330;
     }
 
     .hero h1 {
-      margin: 10px 0 0;
-      font-size: clamp(2.2rem, 5vw, 3.2rem);
-      line-height: 1.2;
-      letter-spacing: 0.02em;
-      font-family: var(--font-display);
-      max-width: 16ch;
+      margin-top: 1rem;
+      font-size: clamp(2.8rem, 6vw, 5rem);
+      max-width: 10ch;
+      text-wrap: balance;
     }
 
-    .lead {
-      margin: 18px 0 0;
-      color: rgba(248, 247, 241, 0.9);
-      line-height: 1.75;
-      max-width: 38ch;
+    .hero-lead {
+      margin: 1.35rem 0 0;
+      max-width: 34rem;
+      line-height: 1.9;
+      color: rgba(32, 22, 15, 0.82);
+      font-size: clamp(1rem, 1.4vw, 1.1rem);
     }
 
-    .hero-cta {
-      margin-top: 24px;
+    .hero-note {
+      margin-top: 1.2rem;
+      color: rgba(32, 22, 15, 0.7);
+      font-size: 0.86rem;
+    }
+
+    .hero-note span {
+      color: #1f2430;
+      font-weight: 700;
+    }
+
+    .hero-actions,
+    .review-actions,
+    .final-actions,
+    .world-links {
       display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
+      gap: 0.9rem;
+      margin-top: 1.8rem;
     }
 
-    .btn {
+    .hero-button,
+    .inline-button,
+    .section-link,
+    .support-link,
+    .review-rail-item,
+    .gallery-lead,
+    .gallery-trail-item {
+      transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background-color 0.2s ease,
+        border-color 0.2s ease;
+    }
+
+    .hero-button,
+    .inline-button,
+    .section-link,
+    .support-link {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      padding: 11px 18px;
+      min-height: 48px;
+      padding: 0.85rem 1.35rem;
       border-radius: 999px;
       font-weight: 700;
-      font-size: 0.95rem;
-      transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
     }
 
-    .btn:hover {
+    .hero-button-primary,
+    .inline-button-primary {
+      background: linear-gradient(135deg, #8f5b2f, #ae7443);
+      color: #fffaf2;
+      box-shadow: 0 20px 34px rgba(141, 91, 42, 0.22);
+    }
+
+    .hero-button-secondary,
+    .inline-button-secondary,
+    .section-link,
+    .support-link {
+      background: rgba(255, 255, 255, 0.64);
+      color: #2b3240;
+      border: 1px solid rgba(100, 76, 42, 0.16);
+      box-shadow: 0 16px 28px rgba(28, 32, 40, 0.08);
+    }
+
+    .hero-button:hover,
+    .inline-button:hover,
+    .section-link:hover,
+    .support-link:hover,
+    .review-rail-item:hover,
+    .gallery-lead:hover,
+    .gallery-trail-item:hover {
       transform: translateY(-2px);
     }
 
-    .btn-primary {
-      background: linear-gradient(135deg, #f3e0b4, #e5c982);
-      color: #172742;
-      box-shadow: 0 10px 24px rgba(237, 205, 133, 0.28);
+    .hero-visual-stage {
+      position: relative;
+      min-height: clamp(360px, 48vw, 620px);
+      display: grid;
+      place-items: center;
     }
 
-    .btn-primary:hover {
-      box-shadow: 0 14px 28px rgba(237, 205, 133, 0.38);
-    }
-
-    .btn-secondary {
-      border: 1px solid rgba(243, 224, 180, 0.65);
-      color: #f8f7f1;
-      background: rgba(255, 255, 255, 0.06);
-    }
-
-    .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.14);
-    }
-
-    .hero-visual {
+    .hero-portrait {
       position: relative;
       z-index: 2;
-      justify-self: center;
-      width: min(100%, 420px);
-      aspect-ratio: 1 / 1;
-      border-radius: 28px;
-      padding: 10px;
-      background: linear-gradient(145deg, rgba(245, 223, 173, 0.5), rgba(250, 244, 232, 0.15));
-      box-shadow: 0 16px 40px rgba(3, 10, 25, 0.45);
+      width: min(100%, 30rem);
+      margin: 0;
+      padding: clamp(1rem, 2vw, 1.35rem);
+      border-radius: 38px;
+      background:
+        linear-gradient(160deg, rgba(255, 255, 255, 0.68), rgba(255, 249, 238, 0.3)),
+        rgba(255, 255, 255, 0.38);
+      box-shadow: 0 34px 70px rgba(18, 33, 58, 0.2);
+      backdrop-filter: blur(8px);
     }
 
-    .main-image {
-      width: 100%;
-      height: 100%;
-      display: block;
-      object-fit: cover;
-      border-radius: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.35);
-      background: rgba(255, 255, 255, 0.08);
-    }
-
-    .hero-glow {
-      position: absolute;
-      inset: -20px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(245, 223, 173, 0.25) 0%, rgba(245, 223, 173, 0) 70%);
-      pointer-events: none;
-      z-index: -1;
-    }
-
-    .hero-copy {
-      position: relative;
-      z-index: 2;
-    }
-
-    .hero-particles {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      overflow: hidden;
-      border-radius: 28px;
-    }
-
-    .hero-particles::before,
-    .hero-particles::after {
+    .hero-portrait::before {
       content: '';
       position: absolute;
-      width: 3px;
-      height: 3px;
-      background: rgba(245, 223, 173, 0.6);
-      border-radius: 50%;
-      animation: float 8s ease-in-out infinite;
+      inset: 10% 12%;
+      border-radius: 32px;
+      background: radial-gradient(circle, rgba(243, 223, 180, 0.38), transparent 70%);
+      z-index: 0;
     }
 
-    .hero-particles::before {
-      top: 20%;
-      left: 15%;
-      box-shadow:
-        40px 80px 0 rgba(245, 223, 173, 0.4),
-        120px 40px 0 rgba(245, 223, 173, 0.3),
-        200px 100px 0 rgba(245, 223, 173, 0.5),
-        80px 150px 0 rgba(245, 223, 173, 0.35),
-        160px 200px 0 rgba(245, 223, 173, 0.45),
-        30px 180px 0 rgba(245, 223, 173, 0.25),
-        220px 60px 0 rgba(245, 223, 173, 0.4);
-    }
-
-    .hero-particles::after {
-      top: 60%;
-      left: 25%;
-      animation-delay: -4s;
-      box-shadow:
-        60px 40px 0 rgba(245, 223, 173, 0.35),
-        140px 90px 0 rgba(245, 223, 173, 0.45),
-        20px 120px 0 rgba(245, 223, 173, 0.3),
-        180px 30px 0 rgba(245, 223, 173, 0.4),
-        100px 160px 0 rgba(245, 223, 173, 0.25);
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
-    }
-
-    @keyframes slideFade {
-      0%, 27% { opacity: 0.42; }
-      7%, 20% { opacity: 0.58; }
-      33%, 100% { opacity: 0; }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .hero-bg-slide {
-        animation: none;
-        opacity: 0;
-      }
-
-      .hero-bg-slide:first-child {
-        opacity: 0.2;
-      }
-
-      .hero-particles::before,
-      .hero-particles::after {
-        animation: none;
-      }
-    }
-
-    .paths {
+    .hero-avatar {
       position: relative;
       z-index: 1;
-      display: grid;
-      gap: 14px;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      display: block;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      border-radius: 28px;
+      background: linear-gradient(180deg, rgba(246, 235, 214, 0.42), rgba(255, 255, 255, 0.7));
     }
 
-    .path-card {
-      display: grid;
-      gap: 10px;
-      padding: 20px;
-      border-radius: 18px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      box-shadow: 0 14px 30px rgba(4, 11, 26, 0.32);
-      transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
-      min-height: 176px;
-    }
-
-    .path-card:hover {
-      transform: translateY(-5px);
-      background: rgba(255, 255, 255, 0.12);
-      border-color: rgba(243, 224, 180, 0.52);
-    }
-
-    .path-card h2 {
-      margin: 0;
-      font-size: 1.25rem;
-      color: #fff9e7;
-    }
-
-    .path-card p {
-      margin: 0;
-      color: rgba(248, 247, 241, 0.85);
-      line-height: 1.65;
-    }
-
-    .jump {
-      margin-top: auto;
-      color: #f3dfb2;
-      font-weight: 700;
-      font-size: 0.93rem;
-    }
-
-    .latest-stack {
+    .hero-portrait figcaption {
       position: relative;
       z-index: 1;
-      display: grid;
-      gap: 16px;
-    }
-
-    .latest-section {
-      padding: clamp(18px, 2.6vw, 24px);
-      border-radius: 22px;
-      background: rgba(6, 16, 36, 0.55);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      box-shadow: 0 12px 28px rgba(2, 9, 22, 0.28);
-    }
-
-    .latest-head {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-bottom: 14px;
-    }
-
-    .latest-head h2 {
-      margin: 0;
-      color: #f7e3b4;
-      font-size: clamp(1.15rem, 2.3vw, 1.4rem);
-    }
-
-    .latest-more {
-      color: rgba(248, 247, 241, 0.9);
-      font-size: 0.9rem;
-      font-weight: 700;
-      padding: 7px 11px;
-      border-radius: 999px;
-      border: 1px solid rgba(248, 247, 241, 0.28);
-      background: rgba(255, 255, 255, 0.05);
-      transition: background-color 0.2s ease, border-color 0.2s ease;
-    }
-
-    .latest-more:hover {
-      background: rgba(255, 255, 255, 0.12);
-      border-color: rgba(243, 224, 180, 0.62);
-    }
-
-    .preview-grid {
-      display: grid;
-      gap: 12px;
-    }
-
-    .reviews-grid,
-    .media-grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-
-    .video-grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-
-    .preview-card {
-      border-radius: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      background: rgba(255, 255, 255, 0.06);
-      box-shadow: 0 10px 24px rgba(3, 9, 21, 0.3);
-      overflow: hidden;
-    }
-
-    .text-card {
-      display: grid;
-      gap: 8px;
-      padding: 16px;
-    }
-
-    .card-meta {
-      color: rgba(243, 224, 180, 0.9);
-      font-size: 0.8rem;
-      letter-spacing: 0.02em;
-    }
-
-    .text-card h3,
-    .media-body h3 {
-      margin: 0;
-      font-size: 1.02rem;
-      line-height: 1.45;
-      color: #fff9ea;
-    }
-
-    .text-card p,
-    .media-body p {
-      margin: 0;
-      color: rgba(248, 247, 241, 0.84);
-      line-height: 1.6;
+      margin-top: 0.9rem;
+      text-align: center;
+      color: rgba(32, 22, 15, 0.72);
       font-size: 0.92rem;
     }
 
-    .card-link {
-      margin-top: 2px;
-      color: #f3dfb2;
-      font-weight: 700;
-      font-size: 0.9rem;
+    .hero-orbit {
+      position: absolute;
+      z-index: 1;
     }
 
-    .media-link {
+    .hero-orbit-left {
+      inset: 1rem auto auto 0;
+    }
+
+    .hero-orbit-right {
+      inset: auto 0 1.5rem auto;
+    }
+
+    .hero-postcard {
+      width: clamp(8.75rem, 18vw, 12.5rem);
+      margin: 0;
+      padding: 0.75rem;
+      border-radius: 26px;
+      background: rgba(255, 252, 247, 0.82);
+      box-shadow: 0 22px 48px rgba(24, 34, 52, 0.14);
+      backdrop-filter: blur(10px);
+    }
+
+    .hero-postcard-tilt {
+      transform: rotate(5deg);
+    }
+
+    .hero-postcard img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      border-radius: 18px;
+    }
+
+    .hero-postcard figcaption {
+      margin-top: 0.6rem;
+      font-size: 0.82rem;
+      color: rgba(32, 22, 15, 0.72);
+    }
+
+    .support-section,
+    .reviews-section,
+    .gallery-section,
+    .world-bridge,
+    .final-cta {
       display: grid;
-      color: inherit;
-      height: 100%;
-      transition: transform 0.2s ease;
+      gap: clamp(1.4rem, 2vw, 2rem);
     }
 
-    .media-link:hover {
-      transform: translateY(-3px);
+    .support-section,
+    .reviews-section,
+    .gallery-section,
+    .world-bridge {
+      padding-inline: clamp(0.25rem, 1vw, 0.75rem);
     }
 
-    .media-thumb {
-      aspect-ratio: 4 / 3;
-      background: rgba(0, 0, 0, 0.28);
+    .section-intro,
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 1.5rem;
     }
 
-    .video-thumb {
-      aspect-ratio: 16 / 9;
+    .section-intro {
+      align-items: start;
+      flex-wrap: wrap;
     }
 
-    .media-thumb img {
+    .section-intro h2,
+    .section-head h2,
+    .world-copy h2,
+    .final-cta h2 {
+      font-size: clamp(2rem, 3.6vw, 3.1rem);
+      text-wrap: balance;
+    }
+
+    .section-intro p:last-child,
+    .world-copy p,
+    .final-cta p {
+      margin: 0;
+      max-width: 42rem;
+      line-height: 1.85;
+      color: rgba(32, 22, 15, 0.76);
+    }
+
+    .support-list {
+      display: grid;
+      border-top: 1px solid rgba(100, 76, 42, 0.16);
+    }
+
+    .support-item {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 1.25rem;
+      align-items: start;
+      padding: 1.35rem 0;
+      border-bottom: 1px solid rgba(100, 76, 42, 0.16);
+    }
+
+    .support-index {
+      font-family: var(--font-display);
+      font-size: clamp(1.2rem, 2vw, 1.55rem);
+      color: rgba(141, 91, 42, 0.64);
+    }
+
+    .support-body {
+      display: grid;
+      gap: 0.35rem;
+    }
+
+    .support-body h3,
+    .review-copy h3,
+    .gallery-lead-copy h3,
+    .gallery-trail-copy h3 {
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: clamp(1.35rem, 2vw, 1.9rem);
+      line-height: 1.2;
+      color: #1b2330;
+    }
+
+    .support-body p:last-child,
+    .gallery-lead-copy p,
+    .gallery-trail-copy p {
+      margin: 0;
+      line-height: 1.8;
+      color: rgba(32, 22, 15, 0.72);
+    }
+
+    .review-feature {
+      display: grid;
+      grid-template-columns: minmax(250px, 0.82fr) minmax(0, 1.18fr);
+      gap: clamp(1.5rem, 3vw, 3rem);
+      align-items: center;
+      padding: clamp(1.5rem, 3vw, 2.25rem);
+      border-radius: 34px;
+      background:
+        radial-gradient(circle at top right, rgba(243, 223, 180, 0.32), transparent 26%),
+        rgba(255, 251, 244, 0.78);
+      border: 1px solid rgba(100, 76, 42, 0.14);
+      box-shadow: 0 24px 52px rgba(83, 55, 28, 0.08);
+    }
+
+    .review-image-wrap {
+      position: relative;
+      max-width: 28rem;
+      margin: 0 auto;
+      border-radius: 26px;
+      overflow: hidden;
+      box-shadow: 0 26px 48px rgba(18, 33, 58, 0.18);
+    }
+
+    .review-image {
+      display: block;
+      width: 100%;
+      aspect-ratio: 4 / 5;
+      object-fit: cover;
+    }
+
+    .review-copy {
+      display: grid;
+      gap: 0.95rem;
+    }
+
+    .review-author,
+    .review-summary {
+      margin: 0;
+      line-height: 1.8;
+      color: rgba(32, 22, 15, 0.78);
+    }
+
+    .review-copy blockquote {
+      margin: 0;
+      padding-left: 1rem;
+      border-left: 2px solid rgba(141, 91, 42, 0.3);
+      font-family: var(--font-display);
+      font-size: clamp(1.2rem, 2vw, 1.45rem);
+      line-height: 1.6;
+      color: #2c3644;
+    }
+
+    .review-tags,
+    .review-for ul {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .review-tags li {
+      padding: 0.45rem 0.8rem;
+      border-radius: 999px;
+      background: rgba(243, 223, 180, 0.52);
+      color: #6d5846;
+      font-size: 0.86rem;
+      font-weight: 700;
+    }
+
+    .review-for {
+      display: grid;
+      gap: 0.8rem;
+      padding-top: 0.25rem;
+    }
+
+    .review-for-label {
+      margin: 0;
+      font-size: 0.9rem;
+      color: rgba(32, 22, 15, 0.68);
+    }
+
+    .review-for ul li {
+      padding: 0.6rem 0.85rem;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.74);
+      border: 1px solid rgba(100, 76, 42, 0.1);
+      line-height: 1.55;
+      color: #3b3128;
+    }
+
+    .review-rail {
+      display: grid;
+      gap: 0.85rem;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+
+    .review-rail-item {
+      display: grid;
+      gap: 0.35rem;
+      padding: 1rem 1.1rem;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(100, 76, 42, 0.12);
+      box-shadow: 0 14px 28px rgba(83, 55, 28, 0.06);
+    }
+
+    .review-rail-item span {
+      font-size: 0.78rem;
+      color: rgba(32, 22, 15, 0.6);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .review-rail-item strong {
+      color: #2b3240;
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      line-height: 1.35;
+    }
+
+    .gallery-feature {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(260px, 0.95fr);
+      gap: clamp(1rem, 2vw, 1.5rem);
+      align-items: stretch;
+    }
+
+    .gallery-lead,
+    .gallery-trail-item {
+      overflow: hidden;
+      border-radius: 28px;
+      border: 1px solid rgba(100, 76, 42, 0.14);
+      background: rgba(255, 251, 244, 0.82);
+      box-shadow: 0 22px 48px rgba(83, 55, 28, 0.08);
+    }
+
+    .gallery-lead {
+      display: grid;
+      min-height: 100%;
+    }
+
+    .gallery-lead-media {
+      aspect-ratio: 7 / 5;
+    }
+
+    .gallery-lead-media img,
+    .gallery-trail-media img {
+      display: block;
       width: 100%;
       height: 100%;
       object-fit: cover;
-      display: block;
     }
 
-    .media-body {
+    .gallery-lead-copy,
+    .gallery-trail-copy {
       display: grid;
-      gap: 7px;
-      padding: 12px 14px 14px;
+      gap: 0.5rem;
+      padding: 1.25rem 1.35rem 1.45rem;
     }
 
-    .preview-empty {
+    .gallery-author {
       margin: 0;
-      color: rgba(248, 247, 241, 0.78);
-      font-size: 0.93rem;
+      color: rgba(32, 22, 15, 0.6);
+      font-size: 0.92rem;
     }
 
-    .about {
-      position: relative;
-      z-index: 1;
-      padding: clamp(20px, 3vw, 28px);
+    .gallery-trail {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .gallery-trail-item {
+      display: grid;
+      grid-template-columns: minmax(140px, 0.9fr) minmax(0, 1.1fr);
+      min-height: 12.5rem;
+    }
+
+    .gallery-trail-media {
+      height: 100%;
+    }
+
+    .world-bridge {
+      grid-template-columns: minmax(0, 1.1fr) minmax(260px, 0.9fr);
+      display: grid;
+      gap: clamp(1.5rem, 3vw, 3rem);
+      align-items: start;
+      padding: clamp(1.8rem, 4vw, 2.8rem);
+      border-radius: 34px;
+      background:
+        radial-gradient(circle at bottom left, rgba(243, 223, 180, 0.22), transparent 34%),
+        rgba(255, 251, 244, 0.72);
+      border: 1px solid rgba(100, 76, 42, 0.12);
+    }
+
+    .world-copy {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .world-aside {
+      display: grid;
+      gap: 1rem;
+      padding: 1.35rem;
       border-radius: 24px;
-      background: rgba(4, 12, 29, 0.5);
-      border: 1px solid rgba(255, 255, 255, 0.13);
-      box-shadow: 0 14px 34px rgba(2, 8, 20, 0.33);
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(100, 76, 42, 0.12);
+      box-shadow: 0 16px 28px rgba(83, 55, 28, 0.06);
     }
 
-    .about h2 {
-      margin: 0 0 12px;
-      color: #f3dfb2;
-      font-size: clamp(1.4rem, 3vw, 1.8rem);
-    }
-
-    .about p {
+    .world-aside-copy {
       margin: 0;
-      color: rgba(248, 247, 241, 0.9);
-      line-height: 1.85;
+      line-height: 1.8;
+      color: rgba(32, 22, 15, 0.78);
     }
 
-    .about p + p {
-      margin-top: 0.75rem;
+    .final-cta {
+      justify-items: start;
+      padding: clamp(2rem, 4vw, 3rem);
+      border-radius: 34px;
+      background:
+        linear-gradient(135deg, rgba(255, 249, 240, 0.9), rgba(238, 244, 249, 0.92)),
+        rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(100, 76, 42, 0.14);
+      box-shadow: 0 24px 48px rgba(83, 55, 28, 0.08);
     }
 
-    @media (max-width: 900px) {
-      .hero {
+    .empty-state {
+      margin: 0;
+      padding: 1.4rem 1.5rem;
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.7);
+      color: rgba(32, 22, 15, 0.72);
+    }
+
+    @media (max-width: 960px) {
+      .hero,
+      .review-feature,
+      .gallery-feature,
+      .world-bridge {
         grid-template-columns: 1fr;
       }
 
-      .lead {
-        max-width: none;
-      }
-
-      .hero-visual {
-        width: min(100%, 280px);
-      }
-
-      .paths {
-        grid-template-columns: 1fr;
-      }
-
-      .reviews-grid,
-      .media-grid,
-      .video-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-    }
-
-    @media (max-width: 600px) {
-      .home-shell {
-        border-radius: 20px;
-        padding: 14px;
-      }
-
       .hero {
-        border-radius: 20px;
-        padding: 20px;
-        gap: 20px;
+        padding-top: clamp(2rem, 6vw, 3rem);
       }
 
-      .hero-bg-slideshow,
-      .hero-overlay {
-        border-radius: 20px;
+      .hero-copy {
+        order: 1;
       }
 
       .hero-visual {
-        width: min(100%, 260px);
+        order: 2;
       }
 
-      .lead {
-        font-size: 0.95rem;
-        line-height: 1.75;
-      }
-
-      .hero-cta .btn {
-        min-height: 44px;
-      }
-
-      .hero-particles::before,
-      .hero-particles::after {
-        display: none;
-      }
-
-      .paths {
-        gap: 16px;
-      }
-
-      .path-card {
-        border-radius: 16px;
-        min-height: auto;
-        padding: 16px;
-      }
-
-      .latest-section {
-        border-radius: 16px;
-        padding: 16px;
-      }
-
-      .latest-head {
+      .section-intro,
+      .section-head {
+        align-items: start;
         flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .hero {
+        padding: 1.5rem;
       }
 
-      .latest-more {
-        display: inline-flex;
-        align-items: center;
-        min-height: 44px;
-        padding: 10px 14px;
+      .hero h1 {
+        max-width: 11ch;
+        font-size: clamp(2.45rem, 10vw, 3.5rem);
       }
 
-      .preview-grid {
-        gap: 16px;
+      .hero-lead {
+        line-height: 1.8;
       }
 
-      .reviews-grid,
-      .media-grid,
-      .video-grid {
+      .hero-portrait {
+        width: min(100%, 21rem);
+        padding: 0.85rem;
+      }
+
+      .hero-orbit {
+        position: static;
+      }
+
+      .hero-postcard,
+      .hero-postcard-tilt {
+        transform: none;
+      }
+
+      .hero-visual-stage {
+        min-height: 24rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.9rem;
+      }
+
+      .support-item,
+      .gallery-trail-item {
         grid-template-columns: 1fr;
       }
 
-      .preview-card {
-        border-radius: 14px;
+      .support-link {
+        width: fit-content;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .home-story {
+        gap: 2.5rem;
       }
 
-      .text-card p,
-      .media-body p {
-        font-size: 0.95rem;
-        line-height: 1.65;
+      .hero,
+      .review-feature,
+      .world-bridge,
+      .final-cta {
+        border-radius: 26px;
       }
 
-      .card-link {
-        display: inline-flex;
-        align-items: center;
-        min-height: 44px;
-        padding: 8px 0;
+      .hero-actions,
+      .review-actions,
+      .final-actions,
+      .world-links {
+        width: 100%;
       }
 
-      .about {
-        border-radius: 16px;
-        padding: 18px;
+      .hero-button,
+      .inline-button {
+        width: 100%;
+      }
+
+      .gallery-lead,
+      .gallery-trail-item,
+      .review-rail-item,
+      .world-aside {
+        border-radius: 22px;
       }
     }
   </style>
