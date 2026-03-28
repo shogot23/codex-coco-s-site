@@ -6,7 +6,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  frontend-verify:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -26,8 +26,8 @@ jobs:
             npm install
           fi
 
-      - name: Typecheck
-        run: npm run typecheck
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
 
-      - name: Build
-        run: npm run build
+      - name: Verify frontend foundation
+        run: npm run verify:frontend

@@ -1,0 +1,44 @@
+[profiles.frontend]
+description = "読書 with Coco frontend implementation profile"
+reasoning_effort = "medium"
+fallback_reasoning_effort = "low"
+default_workspace = "."
+preferred_model_family = "gpt-5"
+preflight = [
+  "State a brief visual thesis before editing.",
+  "State a brief content plan before editing.",
+  "State a brief interaction thesis before editing.",
+  "Treat the first viewport as one composition anchored by the 読書 with Coco brand.",
+  "Avoid generic SaaS layouts and unnecessary card grids.",
+  "Prefer real copy and real assets over placeholders when available."
+]
+verify = [
+  "npm run lint",
+  "npm run typecheck",
+  "npm run build",
+  "npm run test:e2e"
+]
+done = [
+  "Desktop and mobile checks passed.",
+  "Primary CTA path was verified in Playwright.",
+  "Brand, hero, and section narrative remain aligned with 読書 with Coco."
+]
+
+[profiles.frontend.playwright]
+enabled = true
+command = "npm run test:e2e"
+dev_command = "npm run dev -- --host 127.0.0.1 --port 4321"
+base_url = "http://127.0.0.1:4321/codex-coco-s-site/"
+projects = ["chromium", "mobile-chrome"]
+
+[profiles.frontend.paths]
+layout = "src/layouts"
+pages = "src/pages"
+content = "src/content"
+styles = "src/styles"
+docs = "docs"
+tests = "tests/e2e"
+
+[profiles.frontend.output]
+implementation_brief = "visual_thesis + content_plan + interaction_thesis"
+verification_summary = "lint + typecheck + build + playwright"

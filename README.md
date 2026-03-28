@@ -1,45 +1,45 @@
-# Astro Starter Kit: Basics
+# 読書 with Coco
 
-```sh
-npm create astro@latest -- --template basics
-```
+Astro で構築した「読書 with Coco」のサイトです。読書レビュー、ギャラリー、動画を通じて、本から生まれた世界をココちゃんと一緒にたどります。
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Frontend Workflow
 
-## 🚀 Project Structure
+- frontend 実装前に `visual thesis` / `content plan` / `interaction thesis` を必ず短く決める
+- first viewport は 1 composition として扱い、brand と主要CTA を同時に読める状態にする
+- generic SaaS 風のUIや、目的の薄い cards の乱立を避ける
+- 実装後は `npm run verify:frontend` で desktop / mobile を含む確認を通す
 
-Inside of your Astro project, you'll see the following folders and files:
+詳細は [docs/frontend-playbook.md](docs/frontend-playbook.md) と [AGENTS.md](AGENTS.md) を参照。
+
+## Project Structure
 
 ```text
 /
-├── public/
-│   └── favicon.svg
-├── src
-│   ├── assets
-│   │   └── astro.svg
-│   ├── components
-│   │   └── Welcome.astro
-│   ├── layouts
-│   │   └── Layout.astro
-│   └── pages
-│       └── index.astro
+├── public/                 # 固定アセット
+├── src/
+│   ├── components/         # 共通コンポーネント
+│   ├── content/            # Astro content collections
+│   ├── layouts/            # 共通レイアウト
+│   ├── pages/              # 各ページ
+│   ├── styles/             # 共通トークンとベーススタイル
+│   └── utils/              # 整形ロジック
+├── tests/e2e/              # Playwright smoke tests
+├── docs/                   # 運用メモ
 └── package.json
 ```
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
+## Commands
 
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+| Command | Action |
+| :--- | :--- |
+| `npm install` | 依存関係をインストール |
+| `npm run dev` | 開発サーバー起動 |
+| `npm run lint` | ESLint |
+| `npm run typecheck` | Astro type check |
+| `npm run build` | 本番ビルド |
+| `npm run test` | Playwright smoke test |
+| `npm run test:e2e:headed` | Playwright を headed で実行 |
+| `npm run verify:frontend` | lint + typecheck + build + e2e を一括実行 |
 
 ## Gallery Import
 
@@ -71,7 +71,3 @@ npm run gallery:import -- --file inbox/gallery/sample.png --title "青天" --aut
 - `--genre` is optional
 - override mode still performs duplicate checks, writes the report, and runs `npm run typecheck` / `npm run build`
 - override-generated drafts stay on the safe side with `published: false` and `needs_review: true`
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).

@@ -17,7 +17,6 @@ const withBase = (assetPath: string) => {
   return `${baseWithSlash}${assetPath.replace(/^\/+/, "")}`;
 };
 
-const reviewsUrl = `${baseWithSlash}reviews/`;
 const galleryEntries = await getPublishedGallery();
 
 const galleryByGenre = GALLERY_GENRES.map((genre) => ({
@@ -183,7 +182,7 @@ const galleryByGenre = GALLERY_GENRES.map((genre) => ({
   }
 
   .lead {
-    opacity: 0.82;
+    color: var(--color-muted);
     margin: 10px 0 0;
     max-width: 42rem;
     line-height: 1.7;
@@ -192,7 +191,7 @@ const galleryByGenre = GALLERY_GENRES.map((genre) => ({
   .total-count {
     margin: 0 0 12px;
     font-size: 0.92rem;
-    color: rgba(17, 17, 17, 0.6);
+    color: var(--color-muted);
   }
 
   .filters {
@@ -204,8 +203,8 @@ const galleryByGenre = GALLERY_GENRES.map((genre) => ({
 
   .filter-button {
     appearance: none;
-    border: 1px solid rgba(0, 0, 0, 0.12);
-    background: #fff;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface-strong);
     color: inherit;
     border-radius: 999px;
     padding: 8px 14px;
@@ -215,13 +214,13 @@ const galleryByGenre = GALLERY_GENRES.map((genre) => ({
   }
 
   .filter-button:hover {
-    border-color: rgba(0, 0, 0, 0.28);
+    border-color: var(--color-border-strong);
   }
 
   .filter-button.is-active {
-    background: #111;
-    color: #fff;
-    border-color: #111;
+    background: var(--color-text);
+    color: var(--color-surface-strong);
+    border-color: var(--color-text);
   }
 
   .filter-button .count {
@@ -230,7 +229,7 @@ const galleryByGenre = GALLERY_GENRES.map((genre) => ({
   }
 
   .filter-button:focus-visible {
-    outline: 2px solid #0a5fcc;
+    outline: 2px solid var(--color-focus);
     outline-offset: 2px;
   }
 

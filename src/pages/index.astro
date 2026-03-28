@@ -88,7 +88,9 @@ let avatar = '/uploads/img_6088.png';
 try {
   const entry = await getEntry('profile', 'profile');
   avatar = entry?.data?.avatar ?? avatar;
-} catch (e) {}
+} catch {
+  // Profile content is optional during local content setup.
+}
 
 const avatarUrl = withBase(avatar);
 const previewFallbackImage = resolvePublicAsset('/uploads/img_6088.png', avatarUrl);
@@ -152,8 +154,8 @@ const latestVideos = [...videoEntries]
 ---
 
 <Layout
-  title="読書 with Coco - 本の記憶を、イメージで深める"
-  description="読書 with Cocoは、レビュー、ギャラリー、動画を通じて本の世界を再び楽しむサイト。ココちゃんが案内する読書体験のアーカイブ。"
+  title="読書 with Coco - 読書で生まれた世界を、ココちゃんが旅する"
+  description="読書 with Cocoは、レビュー、ギャラリー、動画を通じて、本から生まれた景色と学びをココちゃんとたどる読書体験のアーカイブです。"
   image={avatarUrl}
 >
   <section class="home-shell">
@@ -198,10 +200,10 @@ const latestVideos = [...videoEntries]
       </div>
 
       <div class="hero-copy">
-        <p class="eyebrow">読書体験を、イメージで広げる</p>
-        <h1>本の記憶を、イメージで深める。</h1>
+        <p class="eyebrow">読書 with Coco</p>
+        <h1>読書で生まれた世界を、ココちゃんが旅する。</h1>
         <p class="lead">
-          レビュー、ギャラリー、動画を通じて、読んだ本の世界を再び訪れます。
+          レビュー、ギャラリー、動画を通じて、本から受け取った景色と学びをもう一度ひらきます。
         </p>
         <div class="hero-cta ui-action-group ui-action-group--stack">
           <a class="btn btn-primary ui-action" href={galleryUrl}>ギャラリーを見る</a>
@@ -221,7 +223,7 @@ const latestVideos = [...videoEntries]
         let candidates;
         try {
           candidates = JSON.parse(candidatesJson);
-        } catch (error) {
+        } catch {
           return;
         }
 
@@ -355,7 +357,7 @@ const latestVideos = [...videoEntries]
       overflow: hidden;
       padding: clamp(20px, 4vw, 32px);
       border-radius: 32px;
-      background: linear-gradient(155deg, #060f23 0%, #0a1d3f 48%, #17396d 100%);
+      background: linear-gradient(155deg, #060f23 0%, var(--color-hero-deep) 48%, #17396d 100%);
       color: #f8f7f1;
       box-shadow: 0 24px 56px rgba(2, 8, 23, 0.35);
       display: grid;
@@ -430,9 +432,10 @@ const latestVideos = [...videoEntries]
     .eyebrow {
       margin: 0;
       font-size: 0.9rem;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
       color: #f5dfad;
-      font-weight: 600;
+      font-weight: 700;
     }
 
     .hero h1 {
@@ -440,6 +443,8 @@ const latestVideos = [...videoEntries]
       font-size: clamp(2.2rem, 5vw, 3.2rem);
       line-height: 1.2;
       letter-spacing: 0.02em;
+      font-family: var(--font-display);
+      max-width: 16ch;
     }
 
     .lead {

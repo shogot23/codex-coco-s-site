@@ -27,3 +27,5 @@ pnpm-debug.log*
 # Local planning and report artifacts
 plans/
 reports/
+playwright-report/
+test-results/
