@@ -33,21 +33,29 @@
 ## Frontend Hard Rules
 
 - 実装前に必ず `visual thesis` / `content plan` / `interaction thesis` を短く定義してから着手する。
+- `site core` は常に「本 × ココちゃん × 学び」。この3要素のうち1つでも欠ける構成にしない。
 - first viewport は 1つの composition として扱い、brand name `読書 with Coco` を hero-level の強さで見せる。
 - first viewport では “読書で生まれた世界を、ココちゃんが旅する。” の体験価値を最優先する。
 - generic SaaS 風レイアウト、過剰なカード分割、意味の薄い KPI セクションを増やさない。
+- トップページは機能一覧ではなく「物語の表紙」として設計し、整っていることより「このサイトらしさ」を優先する。
 - typography / color / spacing を先に決め、component は後から組む。
 - 実コピー・実コンテンツ・実画像がある場合はダミーより優先する。
+- ココちゃん関連ビジュアルは最重要アセットとして扱い、読書から広がる景色が見える構図を優先する。
 - 既存の Astro 構成、コンテンツコレクション、ブランドトーンを壊さない。
 - 本 × ココちゃん × 学び の世界観を守り、余白・構図・タイポで物語性を出す。
 
 ## Section Principles
 
 - Hero は brand、世界観、主要CTA を一画面で読める密度に保つ。
-- 主CTA は「本 × ココちゃん × 学び」を最短で体験できる導線に置き、副CTA は補助導線として優先度を一段下げる。
+- CTA priority は `docs/reading-with-coco-design-doctrine.md` を正本とし、主CTA を最短の読書体験導線、副CTA を補助導線として設計する。
 - Section は narrative でつなぐ。情報の羅列より「読後の余韻が深まる順番」を優先する。
 - Cards は一覧や比較に必要な場面だけで使う。安易に `card` を量産しない。
 - Desktop / mobile の両方で視認性、余白、CTA 到達性を確認する。
+
+## Design Doctrine Reference
+
+- ブランド固有の design doctrine / copy / layout / implementation rules は `docs/reading-with-coco-design-doctrine.md` を正本として参照する。
+- `docs/frontend-playbook.md` は着手前チェックと実装の進め方、doctrine 文書はブランド判断基準として使い分ける。
 
 ## Verify
 
