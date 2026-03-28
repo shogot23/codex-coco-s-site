@@ -19,6 +19,7 @@
 ## 3. Real Copy First
 
 - `src/content/` や既存ページの文言があるなら、ダミーテキストより先に使う。
+- `読書 with Coco` は「本 × ココちゃん × 学び」の体験として扱い、3要素のどれかが欠ける構成にしない。
 - hero では brand name `読書 with Coco` を明示し、読書とココちゃんの関係が一目で伝わる文にする。
 - first viewport では “読書で生まれた世界を、ココちゃんが旅する。” を損なう情報過多を避ける。
 
@@ -26,6 +27,7 @@
 
 - first viewport は one composition。主役は 1つに絞る。
 - hero は「brand」「世界観」「最重要CTA」を同時に読める密度で設計する。
+- primary CTA は最も世界観が伝わる入口に置き、secondary CTA は補助導線として視覚的にも一段弱く設計する。
 - section はカードを足す前に、余白、見出し、画像の比率、順番で差を出す。
 - cards は一覧整理に必要な場面だけで使う。物語導線を card grid に逃がさない。
 

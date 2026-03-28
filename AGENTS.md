@@ -44,6 +44,7 @@
 ## Section Principles
 
 - Hero は brand、世界観、主要CTA を一画面で読める密度に保つ。
+- 主CTA は「本 × ココちゃん × 学び」を最短で体験できる導線に置き、副CTA は補助導線として優先度を一段下げる。
 - Section は narrative でつなぐ。情報の羅列より「読後の余韻が深まる順番」を優先する。
 - Cards は一覧や比較に必要な場面だけで使う。安易に `card` を量産しない。
 - Desktop / mobile の両方で視認性、余白、CTA 到達性を確認する。
