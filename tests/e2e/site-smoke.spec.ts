@@ -24,7 +24,9 @@ test('home first viewport shows brand and review-led hero CTA flow', async ({ pa
 
   await hero.getByRole('link', { name: 'レビューを見る', exact: true }).click();
   await expect(page).toHaveURL(/\/codex-coco-s-site\/reviews\/$/);
-  await expect(page.getByRole('heading', { name: 'Reviews' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '次の一冊をひらく前に、言葉の余韻をひとくち。' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'まずは、この一冊から。' })).toBeVisible();
+  await expect(page.locator('#review-stream')).toBeVisible();
 });
 
 test('primary navigation reaches reviews and videos without layout breakage', async ({ page }) => {
@@ -34,7 +36,7 @@ test('primary navigation reaches reviews and videos without layout breakage', as
 
   await primaryNav.getByRole('link', { name: 'Reviews', exact: true }).click();
   await expect(page).toHaveURL(/\/codex-coco-s-site\/reviews\/$/);
-  await expect(page.getByRole('heading', { name: 'Reviews' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '次の一冊をひらく前に、言葉の余韻をひとくち。' })).toBeVisible();
 
   await primaryNav.getByRole('link', { name: 'Videos', exact: true }).click();
   await expect(page).toHaveURL(/\/codex-coco-s-site\/videos\/$/);

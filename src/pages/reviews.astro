@@ -1,12 +1,12 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import { getPublishedReviews } from '../utils/reviews';
+import { getPublishedReviews } from "../utils/reviews";
 
 const reviews = await getPublishedReviews();
 const sortedReviews = [...reviews].sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 
 const base = import.meta.env.BASE_URL;
-const baseWithSlash = base.endsWith('/') ? base : `${base}/`;
+const baseWithSlash = base.endsWith("/") ? base : `${base}/`;
 
 const isAbsoluteUrl = (value: string) =>
   /^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(value);
@@ -15,185 +15,698 @@ const withBase = (assetPath: string) => {
   if (!assetPath) return baseWithSlash;
   if (isAbsoluteUrl(assetPath)) return assetPath;
   if (assetPath.startsWith(baseWithSlash)) return assetPath;
-  return `${baseWithSlash}${assetPath.replace(/^\/+/, '')}`;
+  return `${baseWithSlash}${assetPath.replace(/^\/+/, "")}`;
 };
 
 const formatDate = (value: Date) =>
-  new Intl.DateTimeFormat('ja-JP', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    timeZone: 'UTC',
+  new Intl.DateTimeFormat("ja-JP", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
   }).format(value);
 
-const getExcerpt = (text: string, maxLength: number = 120): string => {
-  const normalized = text.replace(/\s+/g, ' ').trim();
-  if (!normalized) return '';
+const stripMarkdown = (value: string) =>
+  value
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/!\[([^\]]*)\]\([^)]+\)/g, "$1")
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replace(/[*_`>#-]/g, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+
+const clampText = (text: string, maxLength: number): string => {
+  const normalized = stripMarkdown(text).replace(/\s+/g, " ").trim();
+  if (!normalized) return "";
   if (normalized.length <= maxLength) return normalized;
-  return `${normalized.slice(0, maxLength).trimEnd()}...`;
+  return `${normalized.slice(0, maxLength).trimEnd()}…`;
 };
+
+const reviewCards = sortedReviews.map((review) => {
+  const href = `${baseWithSlash}reviews/${review.slug}/`;
+  const summarySource = review.data.description ?? review.data.excerpt ?? review.body ?? "";
+  const quoteSource = review.data.excerpt ?? review.body ?? review.data.description ?? "";
+  const thumbnail = review.data.cover ?? review.data.infographic;
+  const supplementalTitle =
+    review.data.bookTitle && review.data.bookTitle !== review.data.title
+      ? review.data.bookTitle
+      : null;
+
+  return {
+    slug: review.slug,
+    title: review.data.title,
+    supplementalTitle,
+    author: review.data.author,
+    date: review.data.date,
+    dateLabel: formatDate(review.data.date),
+    href,
+    thumbnail,
+    summary: clampText(summarySource, 120),
+    quote: clampText(quoteSource, 88),
+    tags: review.data.tags ?? [],
+    recommendedFor: review.data.recommendedFor ?? [],
+  };
+});
+
+const featuredReview = reviewCards[0] ?? null;
+const remainingReviews = reviewCards.slice(1);
+
+const themeCounts = reviewCards.reduce<Record<string, number>>((acc, review) => {
+  for (const tag of review.tags) {
+    acc[tag] = (acc[tag] ?? 0) + 1;
+  }
+  return acc;
+}, {});
+
+const spotlightThemes = Object.entries(themeCounts)
+  .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "ja"))
+  .slice(0, 4)
+  .map(([name]) => name);
+
+const readingCues = Array.from(
+  new Set(reviewCards.flatMap((review) => review.recommendedFor))
+).slice(0, 3);
+
+const galleryUrl = `${baseWithSlash}gallery/`;
+const reviewCountLabel = `${reviewCards.length}冊のレビュー`;
+const latestReviewLabel = featuredReview ? featuredReview.dateLabel : null;
 ---
 
-<Layout title="Reviews | 読書 with Coco">
-  <section class="wrap" aria-labelledby="reviews-heading">
-    <h1 id="reviews-heading">Reviews</h1>
-    <p class="lead">読んだ本の感想と学びを記録しています。</p>
+<Layout
+  title="Reviews | 読書 with Coco"
+  description="次に読みたくなる一冊へ向かうための、読書 with Coco のレビュー一覧ページ。"
+>
+  <div class="reviews-story">
+    <section class="hero" aria-labelledby="reviews-heading">
+      <div class="hero-copy">
+        <p class="hero-kicker">読書 with Coco / Reviews</p>
+        <h1 id="reviews-heading">次の一冊をひらく前に、言葉の余韻をひとくち。</h1>
+        <p class="hero-lead">
+          トップページから続く主導線の先で、本を閉じたあとに残る感情や学びを、ココちゃんと一緒に静かにたどります。
+          まずは今いちばん手前にある一冊からどうぞ。
+        </p>
 
-    {sortedReviews.length === 0 ? (
-      <p class="empty">レビューがまだありません。最初のレビューを公開予定です。</p>
-    ) : (
-      <div class="grid">
-        {sortedReviews.map((review) => {
-          const href = `${baseWithSlash}reviews/${review.slug}/`;
-          const summary = review.data.excerpt
-            ? getExcerpt(review.data.excerpt, 100)
-            : review.data.description
-            ? getExcerpt(review.data.description, 100)
-            : getExcerpt(review.body || '', 120);
-          const thumbnail = review.data.cover ?? review.data.infographic;
-          const supplementalTitle =
-            review.data.bookTitle && review.data.bookTitle !== review.data.title
-              ? review.data.bookTitle
-              : null;
+        {featuredReview && (
+          <p class="hero-note">
+            いま前にあるのは <span>{featuredReview.title}</span>。読む理由が先に見えるように、
+            余韻の輪郭を添えて並べています。
+          </p>
+        )}
 
-          return (
-            <a href={href} class="card-link" aria-label={`${review.data.title}の詳細を見る`}>
-              <article class="card">
-                <div class="thumb">
-                  {thumbnail ? (
-                    <img
-                      src={withBase(thumbnail)}
-                      alt={`${review.data.title}のインフォグラフィック`}
-                      loading="lazy"
-                      decoding="async"
-                      width="412"
-                      height="512"
-                    />
-                  ) : (
-                    <div class="thumb-fallback" aria-hidden="true">
-                      <span class="thumb-fallback-label">Review</span>
-                      <strong>{review.data.title}</strong>
-                    </div>
-                  )}
+        <div class="hero-actions ui-action-group ui-action-group--stack">
+          <a
+            class="hero-button hero-button-primary ui-action"
+            href={featuredReview ? featuredReview.href : "#review-stream"}
+          >
+            {featuredReview ? "最新レビューを読む" : "一覧を見る"}
+          </a>
+          {featuredReview && (
+            <a class="hero-button hero-button-secondary ui-action" href="#review-stream">
+              {remainingReviews.length > 0 ? "一覧から選ぶ" : "読む前のしおりを見る"}
+            </a>
+          )}
+        </div>
+      </div>
+
+      <aside class="hero-panel" aria-label="レビューのしおり">
+        <p class="panel-label">Reading Notes</p>
+
+        <dl class="panel-stats">
+          <div>
+            <dt>棚にある言葉</dt>
+            <dd>{reviewCountLabel}</dd>
+          </div>
+          {latestReviewLabel && (
+            <div>
+              <dt>いちばん新しい一冊</dt>
+              <dd>{latestReviewLabel}</dd>
+            </div>
+          )}
+        </dl>
+
+        {spotlightThemes.length > 0 && (
+          <div class="panel-block">
+            <p>このページでめぐれるテーマ</p>
+            <ul class="theme-list" aria-label="テーマ">
+              {spotlightThemes.map((theme) => (
+                <li>{theme}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {readingCues.length > 0 && (
+          <div class="panel-block">
+            <p>こんな気分の日に</p>
+            <ul class="cue-list">
+              {readingCues.map((cue) => (
+                <li>{cue}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </aside>
+    </section>
+
+    {featuredReview ? (
+      <>
+        <section class="featured-section" aria-labelledby="featured-review-heading">
+          <div class="section-header">
+            <div>
+              <p class="section-label">Featured Review</p>
+              <h2 id="featured-review-heading">まずは、この一冊から。</h2>
+            </div>
+            <p class="section-copy">
+              一覧の先頭は、トップページの余韻をそのまま受け止める入口です。タイトルだけでなく、
+              短い抜粋とおすすめ対象から読みはじめられるようにしています。
+            </p>
+          </div>
+
+          <article class="featured-review">
+            <a
+              class="featured-media"
+              href={featuredReview.href}
+              aria-label={`${featuredReview.title}のレビューを読む`}
+            >
+              {featuredReview.thumbnail ? (
+                <img
+                  src={withBase(featuredReview.thumbnail)}
+                  alt={`${featuredReview.title}のレビューイメージ`}
+                  loading="eager"
+                  decoding="async"
+                  width="520"
+                  height="640"
+                />
+              ) : (
+                <div class="media-fallback" aria-hidden="true">
+                  <span>Review</span>
+                  <strong>{featuredReview.title}</strong>
                 </div>
+              )}
+            </a>
 
-                <div class="card-body">
-                  {review.data.tags && review.data.tags.length > 0 && (
-                    <ul class="tags" aria-label="タグ">
-                      {review.data.tags.map((tag) => (
-                        <li>{tag}</li>
+            <div class="featured-body">
+              <p class="featured-eyebrow">Latest Arrival</p>
+              <h3 class="featured-title">
+                <a href={featuredReview.href}>{featuredReview.title}</a>
+              </h3>
+              {featuredReview.supplementalTitle && (
+                <p class="featured-book-title">{featuredReview.supplementalTitle}</p>
+              )}
+
+              <div class="featured-meta">
+                {featuredReview.author && <span>著者: {featuredReview.author}</span>}
+                <time datetime={featuredReview.date.toISOString()}>{featuredReview.dateLabel}</time>
+              </div>
+
+              {featuredReview.summary && <p class="featured-summary">{featuredReview.summary}</p>}
+              {featuredReview.quote && <blockquote>{featuredReview.quote}</blockquote>}
+
+              <div class="featured-details">
+                {featuredReview.tags.length > 0 && (
+                  <ul class="tag-list" aria-label="タグ">
+                    {featuredReview.tags.map((tag) => (
+                      <li>{tag}</li>
+                    ))}
+                  </ul>
+                )}
+
+                {featuredReview.recommendedFor.length > 0 && (
+                  <div class="reader-note">
+                    <p class="reader-note-label">こんな人に</p>
+                    <ul>
+                      {featuredReview.recommendedFor.slice(0, 3).map((item) => (
+                        <li>{item}</li>
                       ))}
                     </ul>
-                  )}
+                  </div>
+                )}
+              </div>
 
-                  <h2 class="title">{review.data.title}</h2>
-                  {supplementalTitle && <p class="book-title">{supplementalTitle}</p>}
+              <div class="review-actions ui-action-group ui-action-group--stack">
+                <a class="hero-button hero-button-primary ui-action" href={featuredReview.href}>
+                  このレビューを読む
+                </a>
+                <a class="hero-button hero-button-secondary ui-action" href="#review-stream">
+                  {remainingReviews.length > 0 ? "他のレビューを見る" : "読む前のしおりを見る"}
+                </a>
+              </div>
+            </div>
+          </article>
+        </section>
 
-                  <div class="meta">
-                    {review.data.author && <span>著者: {review.data.author}</span>}
-                    <time class="date" datetime={review.data.date.toISOString()}>
-                      {formatDate(review.data.date)}
-                    </time>
+        {remainingReviews.length > 0 ? (
+          <section class="stream-section" id="review-stream" aria-labelledby="review-stream-heading">
+            <div class="section-header">
+              <div>
+                <p class="section-label">Review Stream</p>
+                <h2 id="review-stream-heading">気になる余韻から、次の一冊へ。</h2>
+              </div>
+              <p class="section-copy">
+                すべてを同じ強さでは並べず、テーマ、抜粋、おすすめ対象のどこからでも入れる流れにしています。
+              </p>
+            </div>
+
+            <ol class="review-stream">
+              {remainingReviews.map((review, index) => (
+                <li class="stream-item">
+                  <div class="stream-aside">
+                    <p class="stream-order">{String(index + 2).padStart(2, "0")}</p>
+                    <time class="stream-date" datetime={review.date.toISOString()}>{review.dateLabel}</time>
+                    <a
+                      class="stream-media"
+                      href={review.href}
+                      aria-label={`${review.title}のレビューを読む`}
+                    >
+                      {review.thumbnail ? (
+                        <img
+                          src={withBase(review.thumbnail)}
+                          alt={`${review.title}のレビューイメージ`}
+                          loading="lazy"
+                          decoding="async"
+                          width="260"
+                          height="320"
+                        />
+                      ) : (
+                        <div class="media-fallback media-fallback-small" aria-hidden="true">
+                          <span>Review</span>
+                          <strong>{review.title}</strong>
+                        </div>
+                      )}
+                    </a>
                   </div>
 
-                  {summary && <p class="summary">{summary}</p>}
-                  <span class="read-more">詳細を読む</span>
-                </div>
-              </article>
-            </a>
-          );
-        })}
-      </div>
+                  <div class="stream-body">
+                    <p class="stream-theme">
+                      {review.tags.length > 0 ? review.tags.slice(0, 2).join(" / ") : "Review"}
+                    </p>
+                    <h3>
+                      <a href={review.href}>{review.title}</a>
+                    </h3>
+                    {review.supplementalTitle && <p class="stream-book-title">{review.supplementalTitle}</p>}
+
+                    <div class="stream-meta">
+                      {review.author && <span>著者: {review.author}</span>}
+                    </div>
+
+                    {review.summary && <p class="stream-summary">{review.summary}</p>}
+                    {review.quote && <p class="stream-quote">“{review.quote}”</p>}
+
+                    <div class="stream-footer">
+                      {review.recommendedFor[0] && (
+                        <p class="stream-cue">
+                          <span>こんな人に</span>
+                          {review.recommendedFor[0]}
+                        </p>
+                      )}
+
+                      <a class="stream-link ui-action" href={review.href}>レビューを読む</a>
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </section>
+        ) : (
+          <section class="compass-section" id="review-stream" aria-labelledby="compass-heading">
+            <div class="section-header">
+              <div>
+                <p class="section-label">Reading Compass</p>
+                <h2 id="compass-heading">いまは、この一冊をじっくりどうぞ。</h2>
+              </div>
+              <p class="section-copy">
+                公開中のレビューがまだ少ないぶん、最初の一冊を深く読めるように入口を厚くしています。
+              </p>
+            </div>
+
+            <div class="compass-card">
+              <div>
+                <p class="compass-lead">
+                  読みはじめる前に、テーマとおすすめ対象を先に見ておくと、その一冊が今の自分に合うかを判断しやすくなります。
+                </p>
+
+                {featuredReview.tags.length > 0 && (
+                  <ul class="tag-list" aria-label="注目テーマ">
+                    {featuredReview.tags.map((tag) => (
+                      <li>{tag}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+              {featuredReview.recommendedFor.length > 0 && (
+                <ul class="compass-list">
+                  {featuredReview.recommendedFor.map((item) => (
+                    <li>{item}</li>
+                  ))}
+                </ul>
+              )}
+
+              <a class="hero-button hero-button-primary ui-action" href={featuredReview.href}>
+                {featuredReview.title}を読む
+              </a>
+            </div>
+          </section>
+        )}
+      </>
+    ) : (
+      <section class="empty-state" id="review-stream" aria-labelledby="empty-heading">
+        <p class="section-label">Reviews</p>
+        <h2 id="empty-heading">レビューを準備中です。</h2>
+        <p>
+          いまはまだ一覧がありません。公開されたら、ここが次に読みたくなる入口になります。
+        </p>
+      </section>
     )}
-  </section>
+
+    <section class="afterword" aria-labelledby="afterword-heading">
+      <div>
+        <p class="section-label">After Reading</p>
+        <h2 id="afterword-heading">言葉の次は、ココちゃんと景色へ。</h2>
+      </div>
+      <p>
+        レビューで輪郭をつかんだあとに、読書から広がる景色も見たいときはギャラリーへ。
+        同じ一冊の空気を、別の入口からたどれます。
+      </p>
+      <a class="hero-button hero-button-secondary ui-action" href={galleryUrl}>ギャラリーを見る</a>
+    </section>
+  </div>
 </Layout>
 
 <style>
-  .wrap {
-    max-width: 980px;
-    margin: 0 auto;
-    padding: 32px 16px;
-  }
-
-  h1 {
-    margin: 0 0 8px;
-  }
-
-  .lead {
-    color: var(--color-muted);
-    margin: 8px 0 24px;
-  }
-
-  .empty {
-    color: var(--color-muted);
-    text-align: center;
-    padding: 40px 20px;
-    background: rgba(255, 255, 255, 0.55);
-    border-radius: 14px;
-  }
-
-  .grid {
+  .reviews-story {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
+    gap: clamp(2rem, 4vw, 3.5rem);
+    padding: clamp(0.5rem, 1vw, 1rem) 0 clamp(2rem, 4vw, 3rem);
   }
 
-  .card-link {
-    color: inherit;
-    text-decoration: none;
+  .hero,
+  .featured-section,
+  .stream-section,
+  .compass-section,
+  .empty-state,
+  .afterword {
+    position: relative;
   }
 
-  .card {
+  .hero {
     display: grid;
-    height: 100%;
-    border: 1px solid var(--color-border);
-    border-radius: 14px;
+    grid-template-columns: minmax(0, 1.25fr) minmax(18rem, 0.75fr);
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+    padding: clamp(1.5rem, 4vw, 3rem);
+    border: 1px solid rgba(99, 66, 32, 0.12);
+    border-radius: 2.3rem;
+    background:
+      radial-gradient(circle at top left, rgba(243, 223, 180, 0.55), transparent 38%),
+      linear-gradient(145deg, rgba(255, 250, 243, 0.98), rgba(248, 240, 229, 0.9));
+    box-shadow: var(--shadow-soft);
     overflow: hidden;
-    background: var(--color-surface-strong);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
 
-  .card-link:hover .card {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+  .hero::after {
+    content: "";
+    position: absolute;
+    inset: auto -6rem -6rem auto;
+    width: 15rem;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(141, 91, 42, 0.16), transparent 68%);
+    pointer-events: none;
   }
 
-  .card-link:focus-visible {
-    outline: none;
+  .hero-copy,
+  .hero-panel,
+  .featured-body,
+  .compass-card {
+    position: relative;
+    z-index: 1;
   }
 
-  .card-link:focus-visible .card {
+  .hero-kicker,
+  .section-label,
+  .featured-eyebrow,
+  .panel-label,
+  .stream-theme,
+  .reader-note-label {
+    margin: 0;
+    color: var(--color-accent);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .hero-copy {
+    display: grid;
+    align-content: center;
+    gap: 1rem;
+  }
+
+  .hero h1 {
+    margin: 0;
+    max-width: 11ch;
+    font-size: clamp(2.4rem, 5vw, 4.4rem);
+    line-height: 1.05;
+  }
+
+  .hero-lead,
+  .hero-note,
+  .section-copy,
+  .featured-summary,
+  .stream-summary,
+  .compass-lead,
+  .afterword p,
+  .empty-state p {
+    margin: 0;
+    color: rgba(32, 22, 15, 0.82);
+    line-height: 1.8;
+  }
+
+  .hero-note span {
+    font-weight: 700;
+    color: #6b4020;
+  }
+
+  .hero-actions,
+  .review-actions {
+    display: flex;
+    gap: 0.9rem;
+    margin-top: 0.5rem;
+  }
+
+  .hero-button,
+  .stream-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: 0.85rem 1.35rem;
+    border-radius: 999px;
+    font-weight: 700;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease,
+      background-color 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  .hero-button-primary {
+    background: linear-gradient(135deg, #8f5b2f, #ae7443);
+    color: #fffaf2;
+    box-shadow: 0 20px 34px rgba(141, 91, 42, 0.22);
+  }
+
+  .hero-button-secondary,
+  .stream-link {
+    background: rgba(255, 255, 255, 0.7);
+    color: #2b3240;
+    border: 1px solid rgba(100, 76, 42, 0.16);
+    box-shadow: 0 16px 28px rgba(28, 32, 40, 0.08);
+  }
+
+  .hero-button:hover,
+  .stream-link:hover,
+  .featured-media:hover,
+  .stream-media:hover {
+    transform: translateY(-2px);
+  }
+
+  .hero-button:focus-visible,
+  .stream-link:focus-visible,
+  .featured-media:focus-visible,
+  .stream-media:focus-visible {
     outline: 2px solid var(--color-focus);
-    outline-offset: 2px;
+    outline-offset: 3px;
   }
 
-  .thumb {
-    aspect-ratio: 16 / 10;
-    background: linear-gradient(160deg, rgba(10, 74, 139, 0.08), rgba(122, 92, 23, 0.12));
+  .hero-panel {
+    align-self: stretch;
+    display: grid;
+    align-content: start;
+    gap: 1.2rem;
+    padding: clamp(1.25rem, 2vw, 1.8rem);
+    border-radius: 1.8rem;
+    background: rgba(255, 255, 255, 0.62);
+    border: 1px solid rgba(99, 66, 32, 0.1);
+    backdrop-filter: blur(8px);
   }
 
-  .thumb img {
+  .panel-stats {
+    display: grid;
+    gap: 0.9rem;
+    margin: 0;
+  }
+
+  .panel-stats div {
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  .panel-stats dt {
+    color: var(--color-muted);
+    font-size: 0.9rem;
+  }
+
+  .panel-stats dd {
+    margin: 0;
+    font-family: var(--font-headline);
+    font-size: clamp(1.25rem, 2vw, 1.7rem);
+    line-height: 1.2;
+  }
+
+  .panel-block {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .panel-block p {
+    margin: 0;
+    font-weight: 700;
+    color: #493221;
+  }
+
+  .theme-list,
+  .cue-list,
+  .tag-list,
+  .reader-note ul,
+  .compass-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .theme-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+  }
+
+  .theme-list li,
+  .tag-list li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.55rem 0.85rem;
+    border-radius: 999px;
+    background: rgba(141, 91, 42, 0.1);
+    color: #6b4020;
+    font-size: 0.88rem;
+    font-weight: 700;
+  }
+
+  .cue-list,
+  .reader-note ul,
+  .compass-list {
+    display: grid;
+    gap: 0.7rem;
+  }
+
+  .cue-list li,
+  .reader-note li,
+  .compass-list li {
+    position: relative;
+    padding-left: 1.1rem;
+    color: rgba(32, 22, 15, 0.82);
+    line-height: 1.7;
+  }
+
+  .cue-list li::before,
+  .reader-note li::before,
+  .compass-list li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.7rem;
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    background: rgba(141, 91, 42, 0.7);
+  }
+
+  .section-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(16rem, 28rem);
+    gap: 1rem 2rem;
+    align-items: end;
+    margin-bottom: 1.35rem;
+  }
+
+  .section-header h2,
+  .afterword h2,
+  .empty-state h2 {
+    margin: 0.3rem 0 0;
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    line-height: 1.18;
+  }
+
+  .featured-review,
+  .compass-card {
+    display: grid;
+    grid-template-columns: minmax(0, 0.86fr) minmax(0, 1.14fr);
+    gap: clamp(1.4rem, 3vw, 2.6rem);
+    padding: clamp(1.2rem, 3vw, 2rem);
+    border-radius: 2rem;
+    border: 1px solid rgba(99, 66, 32, 0.12);
+    background:
+      linear-gradient(160deg, rgba(255, 255, 255, 0.84), rgba(255, 249, 239, 0.94)),
+      #fff;
+    box-shadow: var(--shadow-soft);
+  }
+
+  .featured-media,
+  .stream-media {
+    display: block;
+    overflow: hidden;
+    border-radius: 1.6rem;
+    background: linear-gradient(160deg, rgba(10, 74, 139, 0.08), rgba(122, 92, 23, 0.14));
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  .featured-media img,
+  .stream-media img {
+    display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    display: block;
   }
 
-  .thumb-fallback {
+  .media-fallback {
     display: grid;
     align-content: end;
-    gap: 10px;
-    height: 100%;
-    padding: 20px;
+    gap: 0.8rem;
+    min-height: 100%;
+    padding: 1.4rem;
     color: #17324d;
     background:
       radial-gradient(circle at top right, rgba(255, 255, 255, 0.85), transparent 42%),
       linear-gradient(160deg, rgba(10, 74, 139, 0.1), rgba(122, 92, 23, 0.16));
   }
 
-  .thumb-fallback-label {
+  .media-fallback span {
     width: fit-content;
-    padding: 6px 10px;
+    padding: 0.35rem 0.6rem;
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.72);
     font-size: 0.74rem;
@@ -202,88 +715,234 @@ const getExcerpt = (text: string, maxLength: number = 120): string => {
     text-transform: uppercase;
   }
 
-  .thumb-fallback strong {
-    font-size: 1.35rem;
+  .media-fallback strong {
+    font-size: 1.4rem;
     line-height: 1.35;
   }
 
-  .card-body {
+  .featured-body {
     display: grid;
     align-content: start;
-    gap: 12px;
-    padding: 18px 18px 20px;
+    gap: 1rem;
   }
 
-  .tags {
+  .featured-title,
+  .stream-body h3 {
+    margin: 0;
+    font-size: clamp(1.55rem, 3vw, 2.2rem);
+    line-height: 1.22;
+  }
+
+  .featured-book-title,
+  .stream-book-title,
+  .featured-meta,
+  .stream-meta,
+  .stream-date {
+    margin: 0;
+    color: var(--color-muted);
+  }
+
+  .featured-meta,
+  .stream-meta {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 0.6rem 1rem;
+    font-size: 0.92rem;
+  }
+
+  blockquote {
+    margin: 0;
+    padding: 1rem 1.1rem;
+    border-left: 3px solid rgba(141, 91, 42, 0.45);
+    border-radius: 0 1rem 1rem 0;
+    background: rgba(243, 223, 180, 0.16);
+    color: rgba(32, 22, 15, 0.86);
+    font-family: var(--font-headline);
+    line-height: 1.7;
+  }
+
+  .featured-details {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .reader-note {
+    display: grid;
+    gap: 0.75rem;
+    padding: 1rem 1.1rem;
+    border-radius: 1.3rem;
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(99, 66, 32, 0.08);
+  }
+
+  .stream-section {
+    padding: 0.25rem 0;
+  }
+
+  .review-stream {
     list-style: none;
     margin: 0;
     padding: 0;
+    display: grid;
+    gap: 1rem;
   }
 
-  .tags li {
-    padding: 6px 10px;
-    border-radius: 999px;
-    background: rgba(10, 74, 139, 0.08);
-    color: var(--color-accent);
-    font-size: 0.8rem;
-    font-weight: 700;
+  .stream-item {
+    display: grid;
+    grid-template-columns: minmax(11rem, 13rem) minmax(0, 1fr);
+    gap: 1.2rem 1.6rem;
+    padding: 1.4rem 0;
+    border-top: 1px solid rgba(99, 66, 32, 0.12);
   }
 
-  .title {
+  .stream-item:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  .stream-aside {
+    display: grid;
+    align-content: start;
+    gap: 0.7rem;
+  }
+
+  .stream-order {
     margin: 0;
-    font-size: 1.2rem;
-    line-height: 1.4;
+    color: rgba(141, 91, 42, 0.56);
+    font-family: var(--font-headline);
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    line-height: 1;
   }
 
-  .book-title {
-    margin: -4px 0 0;
-    font-size: 0.94rem;
-    color: var(--color-muted);
+  .stream-media {
+    aspect-ratio: 5 / 6;
   }
 
-  .meta {
+  .media-fallback-small strong {
+    font-size: 1.15rem;
+  }
+
+  .stream-body {
+    display: grid;
+    align-content: start;
+    gap: 0.8rem;
+  }
+
+  .stream-body h3 {
+    font-size: clamp(1.35rem, 2.4vw, 1.8rem);
+  }
+
+  .stream-quote {
+    margin: 0;
+    color: rgba(32, 22, 15, 0.74);
+    font-family: var(--font-headline);
+    line-height: 1.7;
+  }
+
+  .stream-footer {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px 14px;
+    gap: 0.8rem 1rem;
     align-items: center;
-    font-size: 0.88rem;
-    color: var(--color-muted);
+    justify-content: space-between;
   }
 
-  .summary {
+  .stream-cue {
     margin: 0;
-    opacity: 0.85;
-    font-size: 0.95rem;
-    line-height: 1.6;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
+    color: rgba(32, 22, 15, 0.82);
+    line-height: 1.7;
   }
 
-  .date {
-    display: inline-flex;
+  .stream-cue span {
+    display: inline-block;
+    margin-right: 0.5rem;
+    color: var(--color-accent);
+    font-size: 0.84rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
   }
 
-  .read-more {
-    margin-top: auto;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #0a4a8b;
-    opacity: 0.9;
+  .compass-card {
+    align-items: start;
   }
 
-  .card-link:hover .read-more {
-    opacity: 1;
+  .afterword,
+  .empty-state {
+    display: grid;
+    gap: 1rem;
+    padding: clamp(1.35rem, 3vw, 2rem);
+    border-radius: 1.8rem;
+    border: 1px solid rgba(99, 66, 32, 0.12);
+    background: rgba(255, 250, 243, 0.82);
   }
 
-  @media (max-width: 600px) {
-    .grid {
+  @media (max-width: 960px) {
+    .hero,
+    .section-header,
+    .featured-review,
+    .compass-card,
+    .stream-item {
       grid-template-columns: 1fr;
+    }
+
+    .hero h1 {
+      max-width: 12ch;
+    }
+
+    .section-header {
+      align-items: start;
+    }
+
+    .featured-media {
+      max-width: 31rem;
+    }
+
+    .stream-aside {
+      grid-template-columns: auto auto minmax(0, 1fr);
+      align-items: end;
+    }
+
+    .stream-media {
+      max-width: 12rem;
+      justify-self: start;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .reviews-story {
+      gap: 2.5rem;
+    }
+
+    .hero,
+    .featured-review,
+    .compass-card,
+    .afterword,
+    .empty-state {
+      border-radius: 1.6rem;
+    }
+
+    .hero-actions,
+    .review-actions {
+      width: 100%;
+    }
+
+    .hero-button,
+    .stream-link {
+      width: 100%;
+    }
+
+    .stream-aside {
+      grid-template-columns: 1fr;
+      align-items: start;
+    }
+
+    .stream-media,
+    .featured-media {
+      max-width: 100%;
+    }
+
+    .stream-footer {
+      align-items: stretch;
     }
   }
 </style>
