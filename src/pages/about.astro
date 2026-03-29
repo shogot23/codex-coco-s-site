@@ -216,7 +216,7 @@ const bridgeSteps = [
         <h2 id="closing-title">ここは、読後の景色を急がずに確かめるための場所です。</h2>
         <p>{closingLead}</p>
         <p class="closing-note">
-          派手に説明する代わりに、言葉と景色とココちゃんで、少しずつ読み返せる場所にしていきます。
+          派手に説明する代わりに、言葉と景色とココちゃんで、読後の気配を少しずつ読み返せる場所にしていきます。
         </p>
       </div>
 
@@ -231,7 +231,7 @@ const bridgeSteps = [
 <style>
   .about-world {
     display: grid;
-    gap: clamp(1.5rem, 4vw, 3rem);
+    gap: clamp(1.75rem, 4vw, 3.25rem);
   }
 
   .about-hero,
@@ -466,13 +466,13 @@ const bridgeSteps = [
 
   .manifesto-room {
     display: grid;
-    gap: 1.4rem;
+    gap: 1.6rem;
   }
 
   .manifesto-intro {
     display: grid;
     gap: 0.65rem;
-    max-width: 44rem;
+    max-width: 36rem;
   }
 
   .manifesto-intro h2,
@@ -484,13 +484,13 @@ const bridgeSteps = [
 
   .manifesto-lines {
     display: grid;
-    gap: 0.9rem;
+    gap: 1rem;
   }
 
   .manifesto-line {
     display: grid;
     gap: 0.55rem;
-    padding: 1rem 0;
+    padding: 1.15rem 0;
     border-top: 1px solid rgba(100, 76, 42, 0.12);
   }
 
@@ -516,7 +516,7 @@ const bridgeSteps = [
 
   .bridge-room {
     display: grid;
-    gap: 1.5rem;
+    gap: 1.75rem;
     background:
       radial-gradient(circle at top right, rgba(244, 219, 186, 0.45), transparent 24%),
       linear-gradient(180deg, rgba(255, 252, 247, 0.98), rgba(244, 238, 229, 0.9));
@@ -584,8 +584,8 @@ const bridgeSteps = [
   .closing-room {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
-    gap: 1.2rem;
-    align-items: end;
+    gap: 1.6rem;
+    align-items: center;
     background:
       radial-gradient(circle at bottom left, rgba(62, 93, 139, 0.08), transparent 28%),
       linear-gradient(180deg, rgba(255, 253, 248, 0.98), rgba(246, 238, 226, 0.92));
@@ -593,12 +593,13 @@ const bridgeSteps = [
 
   .closing-copy {
     display: grid;
-    gap: 0.8rem;
-    max-width: 42rem;
+    gap: 0.95rem;
+    max-width: 38rem;
   }
 
   .closing-note {
     color: #6d4e34;
+    max-width: 34rem;
   }
 
   @media (max-width: 920px) {

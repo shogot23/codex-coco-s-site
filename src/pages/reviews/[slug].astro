@@ -292,8 +292,8 @@ const articleJsonLd = {
             <h2 id="afterglow-title">言葉を読み終えたあと、景色のほうへ。</h2>
           </div>
           <p class="section-copy">
-            読後の余韻をそのまま閉じずに、景色か次の一冊へゆるやかにつなぎます。強く押し出さず、
-            読み終わった手の温度に合わせた終端です。
+            読後の余韻をそのまま閉じずに、景色か次の一冊へゆるやかにつなぎます。
+            読み終わった手の温度に合わせた、静かな終端です。
           </p>
         </div>
 
@@ -374,8 +374,7 @@ const articleJsonLd = {
                 <p class="panel-kicker">Reading Shelf</p>
                 <h3 id="reading-shelf-title">読み返したくなったら、この本を手元に。</h3>
                 <p>
-                  読後の熱がまだ残っているうちに、本そのものへ戻りたい人のための静かな出口です。
-                  世界観の主役にはせず、ここだけに置いています。
+                  読後の熱がまだ残っているうちに、本そのものへ戻りたい人のための静かな棚です。
                 </p>
 
                 <div class="purchase-links ui-action-group ui-action-group--stack">
@@ -406,7 +405,7 @@ const articleJsonLd = {
   .review-story {
     max-width: 1080px;
     margin: 0 auto;
-    padding: 24px 0 56px;
+    padding: 28px 0 64px;
   }
 
   .breadcrumb {
@@ -437,7 +436,7 @@ const articleJsonLd = {
 
   .story-shell {
     display: grid;
-    gap: 28px;
+    gap: 30px;
   }
 
   .opening,
@@ -455,14 +454,14 @@ const articleJsonLd = {
 
   .opening {
     display: grid;
-    gap: 28px;
+    gap: 30px;
     padding: clamp(1.25rem, 2vw, 2.25rem);
   }
 
   .opening-copy {
     display: grid;
     align-content: start;
-    gap: 16px;
+    gap: 14px;
   }
 
   .eyebrow,
@@ -507,7 +506,7 @@ const articleJsonLd = {
   .title {
     margin: 0;
     font-size: clamp(2.2rem, 4vw, 3.6rem);
-    line-height: 1.08;
+    line-height: 1.05;
   }
 
   .book-title {
@@ -526,9 +525,9 @@ const articleJsonLd = {
 
   .lead {
     margin: 0;
-    max-width: 42rem;
+    max-width: 39rem;
     font-size: clamp(1.05rem, 1vw + 0.9rem, 1.24rem);
-    line-height: 1.85;
+    line-height: 1.9;
     color: rgba(32, 22, 15, 0.9);
   }
 
@@ -703,7 +702,7 @@ const articleJsonLd = {
   .guidance,
   .body-section,
   .afterglow {
-    padding: clamp(1.25rem, 2vw, 2rem);
+    padding: clamp(1.35rem, 2vw, 2.15rem);
   }
 
   .guidance {
@@ -714,12 +713,12 @@ const articleJsonLd = {
   .guidance-grid,
   .afterglow-grid {
     display: grid;
-    gap: 18px;
+    gap: 20px;
   }
 
   .afterglow-rail {
     display: grid;
-    gap: 18px;
+    gap: 14px;
     align-content: start;
   }
 
@@ -728,8 +727,8 @@ const articleJsonLd = {
   .next-step,
   .reading-shelf {
     display: grid;
-    gap: 12px;
-    padding: 20px;
+    gap: 10px;
+    padding: 18px;
     border-radius: calc(var(--radius-lg) - 0.45rem);
     background: rgba(255, 255, 255, 0.72);
     border: 1px solid rgba(141, 91, 42, 0.1);
@@ -762,7 +761,7 @@ const articleJsonLd = {
   }
 
   .body-surface {
-    padding: clamp(1.25rem, 2.4vw, 2.5rem);
+    padding: clamp(1.4rem, 2.4vw, 2.7rem);
     border-radius: calc(var(--radius-lg) - 0.3rem);
     background:
       linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(255, 250, 243, 0.98));
@@ -770,10 +769,10 @@ const articleJsonLd = {
   }
 
   .body {
-    max-width: 43rem;
+    max-width: 41.5rem;
     margin: 0 auto;
     font-size: clamp(1.02rem, 0.15vw + 1rem, 1.08rem);
-    line-height: 2;
+    line-height: 2.02;
     color: rgba(32, 22, 15, 0.96);
   }
 
@@ -795,7 +794,7 @@ const articleJsonLd = {
   }
 
   .body :global(p) {
-    margin: 1.15em 0;
+    margin: 1.25em 0;
   }
 
   .body :global(ul),
@@ -874,8 +873,8 @@ const articleJsonLd = {
 
   .afterglow-gallery-copy {
     display: grid;
-    gap: 12px;
-    padding: 20px;
+    gap: 10px;
+    padding: 18px;
   }
 
   .afterglow-gallery-copy span {
@@ -889,13 +888,18 @@ const articleJsonLd = {
 
   .reading-shelf {
     background:
-      radial-gradient(circle at top right, rgba(243, 223, 180, 0.28), transparent 36%),
-      rgba(250, 246, 239, 0.94);
+      radial-gradient(circle at top right, rgba(243, 223, 180, 0.2), transparent 38%),
+      rgba(250, 246, 239, 0.9);
+  }
+
+  .reading-shelf h3 {
+    font-size: clamp(1.06rem, 0.9vw + 1rem, 1.28rem);
+    line-height: 1.4;
   }
 
   .purchase-links {
     display: flex;
-    gap: 10px;
+    gap: 8px;
   }
 
   .purchase-link {
@@ -903,11 +907,12 @@ const articleJsonLd = {
     align-items: center;
     justify-content: center;
     min-height: 44px;
-    padding: 11px 16px;
+    padding: 10px 15px;
     border-radius: var(--radius-pill);
     border: 1px solid rgba(124, 77, 33, 0.18);
     background: rgba(255, 255, 255, 0.82);
     color: #6f431e;
+    font-size: 0.95rem;
     font-weight: 700;
     transition:
       transform 0.2s ease,
@@ -923,7 +928,7 @@ const articleJsonLd = {
 
   .purchase-note {
     margin: 0;
-    font-size: 0.9rem;
+    font-size: 0.84rem;
     color: var(--color-muted);
   }
 
@@ -965,7 +970,7 @@ const articleJsonLd = {
     }
 
     .afterglow-grid {
-      grid-template-columns: minmax(0, 1.18fr) minmax(300px, 0.82fr);
+      grid-template-columns: minmax(0, 1.24fr) minmax(280px, 0.76fr);
       align-items: start;
     }
 
