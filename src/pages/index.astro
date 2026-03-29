@@ -82,21 +82,13 @@ const avatarUrl = withBase(avatar);
 const previewFallbackImage = resolvePublicAsset('/uploads/img_6088.png', avatarUrl);
 
 let aboutEntry = null;
-let profileEntry = null;
 
 try {
   aboutEntry = await getEntry('about', 'about');
 } catch {
   // About content is optional during local content setup.
 }
-
-try {
-  profileEntry = await getEntry('profile', 'profile');
-} catch {
-  // Profile content is optional during local content setup.
-}
 const aboutParagraphs = aboutEntry ? getParagraphs(aboutEntry.body) : [];
-const profileParagraphs = profileEntry ? getParagraphs(profileEntry.body) : [];
 
 const reviewEntries = await getPublishedReviews();
 const sortedReviews = [...reviewEntries].sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
@@ -188,13 +180,12 @@ const supportItems = [
 
 const aboutLead =
   aboutParagraphs[0] ??
-  '「読書 with Coco」は、読み終えた本の余韻を別の角度から深めるための個人サイトです。';
+  '読書 with Coco は、本を読み終えたあとに静かに残る気配を、もう一度見つめ直すための場所です。';
 const aboutBridge =
   aboutParagraphs[1] ??
-  '本の感想を言葉で残し、読書から生まれた情景をビジュアルにし、物語の空気をもう一度ゆっくり味わいます。';
-const profileLead =
-  profileParagraphs[0] ??
-  'ココちゃんは、このサイトで読書の余韻を一緒にたどる案内役です。';
+  '読んで終わりにしない。本のそばにココちゃんがいることで、言葉だけでは届かない景色や学びに、やわらかな呼吸を与えます。';
+const worldAsideCopy =
+  'ココちゃんは、このサイトで読後の景色をやわらかく見つめ直すための案内役です。';
 ---
 
 <Layout
@@ -437,17 +428,17 @@ const profileLead =
     <section class="world-bridge" aria-labelledby="world-bridge-heading">
       <div class="world-copy">
         <p class="section-label">About / World Bridge</p>
-        <h2 id="world-bridge-heading">読んだあとに残る景色を、もう一度たしかめるために。</h2>
+        <h2 id="world-bridge-heading">このサイトの心臓部を、静かにのぞく。</h2>
         <p>{aboutLead}</p>
         <p>{aboutBridge}</p>
       </div>
 
       <aside class="world-aside">
         <p class="world-aside-label">Coco&apos;s Note</p>
-        <p class="world-aside-copy">{profileLead}</p>
+        <p class="world-aside-copy">{worldAsideCopy}</p>
         <div class="world-links ui-action-group ui-action-group--stack">
-          <a class="inline-button inline-button-secondary ui-action" href={aboutUrl}>About を読む</a>
-          <a class="inline-button inline-button-secondary ui-action" href={profileUrl}>ココちゃんを見る</a>
+          <a class="inline-button inline-button-secondary ui-action" href={aboutUrl}>About をひらく</a>
+          <a class="inline-button inline-button-secondary ui-action" href={profileUrl}>ココちゃんの紹介へ</a>
         </div>
       </aside>
     </section>

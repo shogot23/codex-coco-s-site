@@ -67,7 +67,8 @@ test('review detail keeps the reading flow and afterglow link intact', async ({ 
 test('about page remains readable on small and large viewports', async ({ page }) => {
   await page.goto(`${SITE_BASE}about/`);
 
-  await expect(page.getByRole('heading', { name: 'ココちゃんと、本の余韻をもう一度ひらく場所。' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: '3つの入り口' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '本を閉じたあとも、ココちゃんと世界はつづいていく。' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '本 × ココちゃん × 学び は、余韻のなかでゆっくり交わる。' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'レビューを見る', exact: true }).first()).toBeVisible();
   await expectNoHorizontalOverflow(page);
 });
