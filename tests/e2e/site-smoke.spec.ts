@@ -59,15 +59,22 @@ test('about page guides interested readers to the moving fragments room', async 
   await expectNoHorizontalOverflow(page);
 });
 
-test('profile keeps the fragments path as a secondary guide', async ({ page }) => {
+test('profile introduces coco as the site guide and keeps review/gallery as the next paths', async ({ page }) => {
   await page.goto(`${SITE_BASE}profile/`);
 
-  const fragmentsGuide = page.getByRole('link', { name: /Fragments/ }).first();
-  await expect(fragmentsGuide).toBeVisible();
-  await fragmentsGuide.click();
+  const hero = page.locator('.profile-hero');
 
-  await expect(page).toHaveURL(/\/codex-coco-s-site\/videos\/$/);
-  await expect(page.getByRole('heading', { name: '読後の余韻を、少しだけ動かして置いておく。' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'ココちゃんについて' })).toBeVisible();
+  await expect(hero.getByText('ココちゃんは、このサイトの案内役です。', { exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'このサイトでのおしごと' })).toBeVisible();
+  await expect(page.getByText('いっしょに、次の一冊の景色を見にいこう。')).toBeVisible();
+  await expect(page.getByRole('link', { name: /Fragments/ })).toHaveCount(0);
+  await expect(hero.getByRole('link', { name: 'レビューを見る', exact: true })).toBeVisible();
+  await expect(hero.getByRole('link', { name: 'ギャラリーを見る', exact: true })).toBeVisible();
+
+  await hero.getByRole('link', { name: 'レビューを見る', exact: true }).click();
+  await expect(page).toHaveURL(/\/codex-coco-s-site\/reviews\/$/);
+  await expect(page.getByRole('heading', { name: '次の一冊をひらく前に、言葉の余韻をひとくち。' })).toBeVisible();
   await expectNoHorizontalOverflow(page);
 });
 
