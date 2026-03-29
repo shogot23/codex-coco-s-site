@@ -23,6 +23,12 @@ const title = entry?.data?.title ?? "プロフィール";
 const description = entry?.data?.description ?? "読書 with Coco のプロフィール";
 const avatarPath = "/uploads/profile.png";
 const avatarUrl = withBase(avatarPath);
+const heroLead = "ココちゃんは、このサイトの案内役です。";
+const heroDescription =
+  "読んだ本から広がる景色や気持ちを、レビューやギャラリーを通していっしょにたどっていきます。";
+const heroTemperament =
+  "おてんばだけど、ちょっぴりビビり。気になるものがあると、そろそろと近づいて、ちゃんと確かめたくなるタイプです。";
+const heroNote = "そんなココちゃんと一緒に、本の余韻をゆっくり味わえる場所をつくっています。";
 const updatedLabel = entry?.data?.updatedAt
   ? new Intl.DateTimeFormat("ja-JP", {
       year: "numeric",
@@ -33,23 +39,17 @@ const updatedLabel = entry?.data?.updatedAt
 
 const galleryUrl = withBase("gallery/");
 const reviewsUrl = withBase("reviews/");
-const videosUrl = withBase("videos/");
 
 const guideLinks = [
   {
-    label: "Gallery",
-    href: galleryUrl,
-    copy: "読書から生まれた情景を、ココちゃんと一緒に眺める。",
-  },
-  {
     label: "Reviews",
     href: reviewsUrl,
-    copy: "読み終えた本の余韻を、短く深く言葉でたどる。",
+    copy: "読後に残った言葉の輪郭を、ココちゃんと一緒にゆっくりたどる。",
   },
   {
-    label: "Fragments",
-    href: videosUrl,
-    copy: "読後の空気が動いた瞬間だけ、短い断片としてそっと見返す。",
+    label: "Gallery",
+    href: galleryUrl,
+    copy: "レビューの先に広がる景色や空気を、やわらかく見返してみる。",
   },
 ];
 
@@ -77,21 +77,23 @@ if (entry) {
       </div>
 
       <div class="hero-copy">
-        <p class="eyebrow">案内犬</p>
-        <h1>ココ</h1>
-        <p class="hero-lead">わが家の小さな相棒・ココちゃんが、この場所の案内役です。</p>
-        <p class="hero-description">{description}</p>
+        <p class="eyebrow">Coco / Site Guide</p>
+        <h1>ココちゃんについて</h1>
+        <p class="hero-lead">{heroLead}</p>
+        <p class="hero-description">{heroDescription}</p>
+        <p class="hero-trait">{heroTemperament}</p>
+        <p class="hero-note-copy">{heroNote}</p>
 
         {updatedLabel && <p class="hero-meta">更新: {updatedLabel}</p>}
 
         <div class="hero-actions">
-          <a class="hero-link hero-link-primary" href={galleryUrl}>ギャラリーを見る</a>
-          <a class="hero-link hero-link-secondary" href={reviewsUrl}>レビューを読む</a>
+          <a class="hero-link hero-link-primary" href={reviewsUrl}>レビューを見る</a>
+          <a class="hero-link hero-link-secondary" href={galleryUrl}>ギャラリーを見る</a>
         </div>
       </div>
     </section>
 
-    <section class="profile-guides" aria-label="プロフィールからの導線">
+    <section class="profile-guides" aria-label="ココちゃんとたどる場所">
       {guideLinks.map((link) => (
         <a class="guide-card" href={link.href}>
           <span class="guide-label">{link.label}</span>
@@ -102,8 +104,8 @@ if (entry) {
 
     <section class="profile-content">
       <div class="content-head">
-        <p class="content-kicker">Profile Story</p>
-        <h2>この場所について</h2>
+        <p class="content-kicker">Coco&apos;s Profile</p>
+        <h2>このサイトをいっしょに歩く、ココちゃんのこと</h2>
       </div>
 
       {Content ? (
@@ -253,6 +255,18 @@ if (entry) {
     line-height: 1.8;
   }
 
+  .hero-trait,
+  .hero-note-copy {
+    margin: 14px 0 0;
+    max-width: 36ch;
+    color: rgba(248, 245, 239, 0.84);
+    line-height: 1.8;
+  }
+
+  .hero-note-copy {
+    color: #fff4de;
+  }
+
   .hero-meta {
     margin: 18px 0 0;
     color: rgba(248, 245, 239, 0.7);
@@ -310,7 +324,7 @@ if (entry) {
     z-index: 1;
     display: grid;
     gap: 14px;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .guide-card {
@@ -374,9 +388,36 @@ if (entry) {
     color: rgba(248, 245, 239, 0.86);
   }
 
+  .content-body :global(h3) {
+    margin: 2rem 0 0.85rem;
+    font-size: clamp(1.15rem, 2vw, 1.4rem);
+    line-height: 1.4;
+    color: #fff7e0;
+  }
+
   .content-body :global(p) {
     margin: 0 0 1.1rem;
     line-height: 1.9;
+  }
+
+  .content-body :global(ul) {
+    margin: 0 0 1.25rem;
+    padding-left: 1.2rem;
+    color: rgba(248, 245, 239, 0.86);
+  }
+
+  .content-body :global(li) {
+    margin-bottom: 0.55rem;
+    line-height: 1.8;
+  }
+
+  .content-body :global(blockquote) {
+    margin: 0;
+    padding: 1rem 1.1rem;
+    border-left: 3px solid rgba(245, 223, 173, 0.8);
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 0 16px 16px 0;
+    color: #fff4de;
   }
 
   .content-body :global(p:last-child) {
