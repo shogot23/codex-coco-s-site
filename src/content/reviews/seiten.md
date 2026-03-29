@@ -16,6 +16,9 @@ recommendedFor:
   - 純粋に熱くなれて、青春を感じたい人
   - 倒れてから立ち上がる物語が好きな人
   - リトルトゥースの人
+purchaseLinks:
+  - label: Amazonで探す
+    url: https://www.amazon.co.jp/s?k=%E9%9D%92%E5%A4%A9+%E8%8B%A5%E6%9E%97%E6%AD%A3%E6%81%AD
 published: true
 ---
 「青天」とはアメフト用語で、タックルを受けて仰向けに倒れること。

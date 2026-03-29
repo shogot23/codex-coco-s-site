@@ -74,10 +74,17 @@ test('profile keeps the fragments path as a secondary guide', async ({ page }) =
 test('review detail keeps the reading flow and afterglow link intact', async ({ page }) => {
   await page.goto(`${SITE_BASE}reviews/seiten/`);
 
+  // `seiten` is the review fixture that intentionally defines purchaseLinks.
+  const purchaseShelf = page.getByTestId('review-purchase-shelf');
+
   await expect(page.locator('#review-title')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'ページに入る前の、短い手がかり。' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'ことばの散歩道' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '言葉を読み終えたあと、景色のほうへ。' })).toBeVisible();
+  await expect(purchaseShelf).toBeVisible();
+  await expect(purchaseShelf.getByRole('heading', { name: '読み返したくなったら、この本を手元に。' })).toBeVisible();
+  await expect(purchaseShelf.getByTestId('review-purchase-link')).toHaveText('Amazonで探す');
+  await expect(purchaseShelf.getByText('外部ストアへ移動します。')).toBeVisible();
   await expect(page.getByText('「青天」とはアメフト用語で')).toBeVisible();
 
   await expectNoHorizontalOverflow(page);

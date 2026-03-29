@@ -25,6 +25,32 @@ const optionalStringList = z.preprocess(
   z.array(z.string()).optional()
 );
 
+const optionalLinkList = z.preprocess(
+  (value) => {
+    if (!Array.isArray(value)) return value;
+
+    const normalized = value
+      .map((item) => {
+        if (!item || typeof item !== 'object') return null;
+        const label = 'label' in item && typeof item.label === 'string' ? item.label.trim() : '';
+        const url = 'url' in item && typeof item.url === 'string' ? item.url.trim() : '';
+        if (!label || !url) return null;
+        return { label, url };
+      })
+      .filter((item): item is { label: string; url: string } => item !== null);
+
+    return normalized.length > 0 ? normalized : undefined;
+  },
+  z
+    .array(
+      z.object({
+        label: z.string(),
+        url: z.string().url(),
+      })
+    )
+    .optional()
+);
+
 const profile = defineCollection({
   type: 'content',
   schema: z.object({
@@ -75,6 +101,7 @@ const reviews = defineCollection({
     ),
     infographic: optionalString,
     recommendedFor: optionalStringList,
+    purchaseLinks: optionalLinkList,
     published: z.boolean().default(true),
   }),
 });

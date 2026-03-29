@@ -28,6 +28,7 @@ const {
   infographic,
   recommendedFor,
   excerpt,
+  purchaseLinks,
 } = review.data;
 const { Content } = await review.render();
 
@@ -330,36 +331,69 @@ const articleJsonLd = {
             </div>
           )}
 
-          <div class="next-step">
-            <p class="panel-kicker">Next Step</p>
-            <h3>次の行き先を、急がず選ぶ。</h3>
-            <p>
-              もう少しこの世界にいたいときはギャラリーへ。別の一冊を探したくなったらレビュー一覧へ戻れます。
-            </p>
+          <div class="afterglow-rail">
+            <div class="next-step">
+              <p class="panel-kicker">Next Step</p>
+              <h3>次の行き先を、急がず選ぶ。</h3>
+              <p>
+                もう少しこの世界にいたいときはギャラリーへ。別の一冊を探したくなったらレビュー一覧へ戻れます。
+              </p>
 
-            <div class="next-links ui-action-group ui-action-group--stack">
-              <a class="primary-link ui-action" href={primaryRelatedGallery ? relatedGalleryUrl : galleryListUrl}>
-                {primaryRelatedGallery ? '景色のページへ' : 'ギャラリーを見る'}
-              </a>
-              <a class="secondary-link ui-action" href={reviewsListUrl}>レビュー一覧へ戻る</a>
+              <div class="next-links ui-action-group ui-action-group--stack">
+                <a class="primary-link ui-action" href={primaryRelatedGallery ? relatedGalleryUrl : galleryListUrl}>
+                  {primaryRelatedGallery ? '景色のページへ' : 'ギャラリーを見る'}
+                </a>
+                <a class="secondary-link ui-action" href={reviewsListUrl}>レビュー一覧へ戻る</a>
+              </div>
+
+              {otherReviews.length > 0 ? (
+                <ul class="other-reviews" aria-label="関連レビュー">
+                  {otherReviews.map((entry) => (
+                    <li>
+                      <a href={entry.href}>
+                        <span>{entry.dateLabel}</span>
+                        <strong>{entry.title}</strong>
+                        {entry.summary && <small>{entry.summary}</small>}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p class="single-review-note">
+                  現在公開中のレビューはこの一冊が中心です。一覧ページは、次の更新を迎える入口として残しています。
+                </p>
+              )}
             </div>
 
-            {otherReviews.length > 0 ? (
-              <ul class="other-reviews" aria-label="関連レビュー">
-                {otherReviews.map((entry) => (
-                  <li>
-                    <a href={entry.href}>
-                      <span>{entry.dateLabel}</span>
-                      <strong>{entry.title}</strong>
-                      {entry.summary && <small>{entry.summary}</small>}
+            {purchaseLinks && purchaseLinks.length > 0 && (
+              <aside
+                class="reading-shelf"
+                aria-labelledby="reading-shelf-title"
+                data-testid="review-purchase-shelf"
+              >
+                <p class="panel-kicker">Reading Shelf</p>
+                <h3 id="reading-shelf-title">読み返したくなったら、この本を手元に。</h3>
+                <p>
+                  読後の熱がまだ残っているうちに、本そのものへ戻りたい人のための静かな出口です。
+                  世界観の主役にはせず、ここだけに置いています。
+                </p>
+
+                <div class="purchase-links ui-action-group ui-action-group--stack">
+                  {purchaseLinks.map((link) => (
+                    <a
+                      class="purchase-link ui-action"
+                      data-testid="review-purchase-link"
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer nofollow"
+                    >
+                      {link.label}
                     </a>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p class="single-review-note">
-                現在公開中のレビューはこの一冊が中心です。一覧ページは、次の更新を迎える入口として残しています。
-              </p>
+                  ))}
+                </div>
+
+                <p class="purchase-note">外部ストアへ移動します。</p>
+              </aside>
             )}
           </div>
         </div>
@@ -683,9 +717,16 @@ const articleJsonLd = {
     gap: 18px;
   }
 
+  .afterglow-rail {
+    display: grid;
+    gap: 18px;
+    align-content: start;
+  }
+
   .guidance-panel,
   .afterglow-message,
-  .next-step {
+  .next-step,
+  .reading-shelf {
     display: grid;
     gap: 12px;
     padding: 20px;
@@ -844,6 +885,46 @@ const articleJsonLd = {
 
   .next-step {
     align-content: start;
+  }
+
+  .reading-shelf {
+    background:
+      radial-gradient(circle at top right, rgba(243, 223, 180, 0.28), transparent 36%),
+      rgba(250, 246, 239, 0.94);
+  }
+
+  .purchase-links {
+    display: flex;
+    gap: 10px;
+  }
+
+  .purchase-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 11px 16px;
+    border-radius: var(--radius-pill);
+    border: 1px solid rgba(124, 77, 33, 0.18);
+    background: rgba(255, 255, 255, 0.82);
+    color: #6f431e;
+    font-weight: 700;
+    transition:
+      transform 0.2s ease,
+      border-color 0.2s ease,
+      background-color 0.2s ease;
+  }
+
+  .purchase-link:hover {
+    transform: translateY(-2px);
+    border-color: rgba(124, 77, 33, 0.36);
+    background: rgba(255, 255, 255, 0.94);
+  }
+
+  .purchase-note {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--color-muted);
   }
 
   .other-reviews {
