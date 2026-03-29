@@ -1,7 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { getEntry, type CollectionEntry } from 'astro:content';
-import { getPublishedGallery, hasDetailContent } from '../../utils/gallery';
+import { getPublishedGallery, hasDetailContent, sortGalleryEntries } from '../../utils/gallery';
 
 export async function getStaticPaths() {
   const entries = await getPublishedGallery();
@@ -24,6 +24,8 @@ const { title, image, genre, author, note, description } = entry.data;
 const base = import.meta.env.BASE_URL;
 const baseWithSlash = base.endsWith('/') ? base : `${base}/`;
 const galleryListUrl = `${baseWithSlash}gallery/`;
+const reviewsListUrl = `${baseWithSlash}reviews/`;
+const aboutUrl = `${baseWithSlash}about/`;
 
 const isAbsoluteUrl = (value: string) =>
   /^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(value);
@@ -47,7 +49,19 @@ if (entry.data.relatedReview) {
   relatedReview = linkedReview?.data.published === true ? linkedReview : null;
 }
 
+const allGalleryEntries = sortGalleryEntries(await getPublishedGallery());
+const relatedScenes = allGalleryEntries
+  .filter((galleryEntry) => galleryEntry.slug !== entry.slug)
+  .filter((galleryEntry) => (genre ? galleryEntry.data.genre === genre : true))
+  .slice(0, 3);
+
+const fallbackScenes =
+  relatedScenes.length > 0
+    ? relatedScenes
+    : allGalleryEntries.filter((galleryEntry) => galleryEntry.slug !== entry.slug).slice(0, 3);
+
 const pageDescription = description ?? note ?? `${genre ?? 'ギャラリー'}の展示作品`;
+const sceneMemo = note ?? description ?? '読後に残った空気を、画像の前でもう一度たしかめるための景色です。';
 const coverImageUrl = resolveAbsoluteImageUrl(image);
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site!).toString();
 const galleryJsonLd = {
@@ -71,204 +85,446 @@ const galleryJsonLd = {
   },
 };
 
-const relatedReviewUrl = relatedReview ? `${baseWithSlash}reviews/${relatedReview.slug}/` : null;
+const relatedReviewUrl = relatedReview ? `${baseWithSlash}reviews/${relatedReview.slug}/` : reviewsListUrl;
+const sceneShelfTitle = genre
+  ? `${genre}の棚で見返す景色`
+  : '読後の余韻を見返す棚';
+const sceneShelfCopy = genre && ['ビジネス', '心理学', '健康', '新書'].includes(genre)
+  ? '学びが結論になる前の揺れを、暮らしに近い温度で受け止めるための棚です。'
+  : genre && ['歴史小説', '歴史教養', '漫画', 'ホビー'].includes(genre)
+    ? '少し遠くの時代や熱量へ歩いていくときに、景色の広がりを静かに確かめるための棚です。'
+    : '物語や感情の気配が先に残るとき、言葉の外側にある温度を見返すための棚です。';
+const reviewBridgeTitle = relatedReview
+  ? 'この景色の向こうにある言葉を読む。'
+  : '主導線の Reviews に戻って、言葉の輪郭を拾い直す。';
+const reviewBridgeCopy = relatedReview
+  ? 'この展示はレビューと地続きです。画像で受け取った余韻を、文章のほうからもう一度たどれます。'
+  : 'Gallery は景色の副導線です。読後の輪郭を言葉で確かめたいときは、Reviews の流れへ戻るのが自然です。';
 ---
 
 <Layout
-  title={`${title} | Gallery`}
+  title={`${title} | Gallery | 読書 with Coco`}
   description={pageDescription}
   image={image}
   type="article"
   jsonLd={galleryJsonLd}
 >
-  <section class="gallery-detail" aria-labelledby="gallery-title">
-    <nav class="breadcrumb" aria-label="Breadcrumb">
-      <a href={galleryListUrl}>Gallery</a>
-      <span class="separator" aria-hidden="true">/</span>
-      <span class="current" aria-current="page">{title}</span>
-    </nav>
+  <div class="scene-detail">
+    <section class="scene-hero" aria-labelledby="gallery-title">
+      <div class="scene-copy">
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+          <a href={galleryListUrl}>Gallery</a>
+          <span class="separator" aria-hidden="true">/</span>
+          <span class="current" aria-current="page">{title}</span>
+        </nav>
 
-    <article class="panel">
-      <div class="hero">
-        <div class="media">
-          <img src={withBase(image)} alt={`${title}の展示画像`} loading="eager" decoding="async" width="1200" height="900" />
+        <p class="section-label">Gallery / Scene Detail</p>
+        <p class="scene-brand">読書 with Coco</p>
+        {genre && <p class="genre-pill">{genre}</p>}
+        <h1 id="gallery-title">{title}</h1>
+        {author && <p class="author">著者: {author}</p>}
+        <p class="scene-description">{pageDescription}</p>
+        <p class="scene-memo">{sceneMemo}</p>
+
+        <div class="scene-actions ui-action-group ui-action-group--stack">
+          <a class="scene-link scene-link-primary ui-action" href={relatedReviewUrl}>
+            {relatedReview ? 'この景色の言葉を読む' : 'レビューの主導線へ戻る'}
+          </a>
+          <a class="scene-link scene-link-secondary ui-action" href={galleryListUrl}>Gallery に戻る</a>
         </div>
-
-        <header class="content">
-          {genre && <p class="genre">{genre}</p>}
-          <h1 class="title" id="gallery-title">{title}</h1>
-          {author && <p class="author">著者: {author}</p>}
-          <p class="description">{pageDescription}</p>
-          {note && <p class="note">{note}</p>}
-        </header>
       </div>
 
-      {relatedReview && relatedReviewUrl && (
-        <section class="related-section" aria-labelledby="related-review-title">
-          <h2 id="related-review-title">関連レビュー</h2>
-          <p class="related-copy">この作品の余韻を文章で辿りたいときの入口です。</p>
-          <a class="related-link" href={relatedReviewUrl}>{relatedReview.data.title}</a>
-        </section>
-      )}
-    </article>
+      <figure class="scene-visual">
+        <img src={withBase(image)} alt={`${title}の展示画像`} loading="eager" decoding="async" width="1200" height="1500" />
+      </figure>
+    </section>
 
-    <nav class="back-nav">
-      <a href={galleryListUrl}>ギャラリーに戻る</a>
-    </nav>
-  </section>
+    <section class="scene-notes" aria-labelledby="scene-notes-title">
+      <div class="notes-intro">
+        <p class="section-label">Scene Notes</p>
+        <h2 id="scene-notes-title">画像の前で立ち止まるための、短いメモ。</h2>
+      </div>
+
+      <div class="notes-grid">
+        <article class="note-card">
+          <p class="note-label">What Lingers</p>
+          <p>{sceneMemo}</p>
+        </article>
+
+        <article class="note-card">
+          <p class="note-label">Shelf Position</p>
+          <h3>{sceneShelfTitle}</h3>
+          <p>{sceneShelfCopy}</p>
+          {genre && <p class="note-meta">Genre: {genre}</p>}
+        </article>
+      </div>
+    </section>
+
+    <section class="review-bridge" aria-labelledby="review-bridge-title">
+      <div class="bridge-copy">
+        <p class="section-label">From Image To Words</p>
+        <h2 id="review-bridge-title">{reviewBridgeTitle}</h2>
+        <p>{reviewBridgeCopy}</p>
+      </div>
+
+      <div class="bridge-actions ui-action-group ui-action-group--stack">
+        <a class="scene-link scene-link-primary ui-action" href={relatedReviewUrl}>
+          {relatedReview ? relatedReview.data.title : 'レビュー一覧を見る'}
+        </a>
+        <a class="scene-link scene-link-secondary ui-action" href={aboutUrl}>About / world bridge へ</a>
+      </div>
+    </section>
+
+    {fallbackScenes.length > 0 && (
+      <section class="related-scenes" aria-labelledby="related-scenes-title">
+        <div class="notes-intro">
+          <p class="section-label">More Scenes</p>
+          <h2 id="related-scenes-title">
+            {genre ? `同じ ${genre} の棚で、もう少し景色をめくる。` : 'もう少しだけ、別の景色をめくる。'}
+          </h2>
+        </div>
+
+        <div class="related-grid">
+          {fallbackScenes.map((scene) => {
+            const href = hasDetailContent(scene) ? `${baseWithSlash}gallery/${scene.slug}/` : null;
+            const summary = scene.data.note ?? scene.data.description ?? '読後の空気を静かにたしかめる展示です。';
+
+            return href ? (
+              <a class="related-card" href={href} aria-label={`${scene.data.title}の景色を見る`}>
+                <div class="related-media">
+                  <img
+                    src={withBase(scene.data.image)}
+                    alt={`${scene.data.title}の展示画像`}
+                    loading="lazy"
+                    decoding="async"
+                    width="720"
+                    height="900"
+                  />
+                </div>
+                <div class="related-body">
+                  {scene.data.genre && <p class="note-meta">{scene.data.genre}</p>}
+                  <h3>{scene.data.title}</h3>
+                  <p>{summary}</p>
+                  <span class="related-action">景色を見る</span>
+                </div>
+              </a>
+            ) : (
+              <article class="related-card">
+                <div class="related-media">
+                  <img
+                    src={withBase(scene.data.image)}
+                    alt={`${scene.data.title}の展示画像`}
+                    loading="lazy"
+                    decoding="async"
+                    width="720"
+                    height="900"
+                  />
+                </div>
+                <div class="related-body">
+                  {scene.data.genre && <p class="note-meta">{scene.data.genre}</p>}
+                  <h3>{scene.data.title}</h3>
+                  <p>{summary}</p>
+                  <span class="related-status">展示中</span>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+    )}
+  </div>
 </Layout>
 
 <style>
-  .gallery-detail {
-    max-width: 960px;
-    margin: 0 auto;
-    padding: 32px 16px;
+  .scene-detail {
+    display: grid;
+    gap: clamp(1.5rem, 4vw, 2.8rem);
+  }
+
+  .scene-hero,
+  .scene-notes,
+  .review-bridge,
+  .related-scenes {
+    position: relative;
+    overflow: clip;
+    border: 1px solid rgba(100, 76, 42, 0.14);
+    border-radius: clamp(26px, 4vw, 40px);
+    box-shadow: 0 24px 70px rgba(83, 55, 28, 0.1);
+  }
+
+  .scene-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 0.92fr) minmax(320px, 1.08fr);
+    gap: clamp(1.4rem, 3vw, 2.8rem);
+    padding: clamp(1.5rem, 4vw, 3rem);
+    background:
+      radial-gradient(circle at top left, rgba(247, 214, 176, 0.84), transparent 28%),
+      radial-gradient(circle at bottom right, rgba(62, 93, 139, 0.18), transparent 30%),
+      linear-gradient(135deg, rgba(255, 250, 243, 0.98), rgba(236, 242, 248, 0.92));
+  }
+
+  .scene-copy,
+  .notes-intro,
+  .bridge-copy {
+    display: grid;
+    align-content: start;
+    gap: 0.95rem;
   }
 
   .breadcrumb {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 24px;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
     font-size: 0.92rem;
-    color: rgba(17, 17, 17, 0.78);
-  }
-
-  .breadcrumb a {
-    color: inherit;
-    text-decoration: none;
-  }
-
-  .breadcrumb a:hover {
-    text-decoration: underline;
+    color: rgba(32, 22, 15, 0.72);
   }
 
   .separator {
-    opacity: 0.4;
+    opacity: 0.45;
   }
 
   .current {
     font-weight: 700;
   }
 
-  .panel {
-    background: #fff;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    border-radius: 18px;
-    padding: 22px;
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.05);
+  .section-label,
+  .note-label,
+  .note-meta {
+    margin: 0;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(66, 52, 35, 0.62);
   }
 
-  .hero {
-    display: grid;
-    gap: 20px;
+  .scene-brand {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.2rem, 2vw, 1.5rem);
   }
 
-  .media {
-    overflow: hidden;
-    border-radius: 14px;
-    background: rgba(0, 0, 0, 0.04);
-  }
-
-  .media img {
-    display: block;
-    width: 100%;
-    height: auto;
-  }
-
-  .content {
-    display: grid;
-    align-content: start;
-    gap: 12px;
-  }
-
-  .genre {
+  .genre-pill {
     margin: 0;
     width: fit-content;
-    padding: 6px 12px;
+    padding: 0.4rem 0.8rem;
     border-radius: 999px;
-    background: rgba(13, 76, 142, 0.1);
-    color: #0a4a8b;
-    font-size: 0.86rem;
-    font-weight: 700;
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(100, 76, 42, 0.12);
+    color: rgba(32, 22, 15, 0.84);
+    font-size: 0.85rem;
   }
 
-  .title {
+  .scene-copy h1,
+  .notes-intro h2,
+  .bridge-copy h2 {
     margin: 0;
-    font-size: clamp(1.8rem, 3vw, 2.4rem);
-    line-height: 1.25;
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    line-height: 1.08;
+  }
+
+  .author,
+  .scene-description,
+  .scene-memo,
+  .note-card p,
+  .bridge-copy p,
+  .related-body p {
+    margin: 0;
+    line-height: 1.8;
+    color: rgba(32, 22, 15, 0.84);
   }
 
   .author {
-    margin: 0;
-    color: rgba(17, 17, 17, 0.72);
-    font-size: 0.98rem;
+    color: rgba(66, 52, 35, 0.74);
   }
 
-  .description {
-    margin: 0;
-    line-height: 1.8;
-    color: rgba(17, 17, 17, 0.88);
+  .scene-memo {
+    padding: 1rem 1.1rem;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.62);
+    border: 1px solid rgba(100, 76, 42, 0.1);
   }
 
-  .note {
-    margin: 0;
-    padding: 14px 16px;
-    border-left: 4px solid rgba(10, 74, 139, 0.26);
-    border-radius: 0 12px 12px 0;
-    background: rgba(10, 74, 139, 0.05);
-    line-height: 1.7;
+  .scene-actions,
+  .bridge-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    margin-top: 0.35rem;
   }
 
-  .related-section {
-    margin-top: 28px;
-    padding-top: 24px;
-    border-top: 1px solid rgba(0, 0, 0, 0.08);
-  }
-
-  .related-section h2 {
-    margin: 0;
-    font-size: 1.1rem;
-  }
-
-  .related-copy {
-    margin: 10px 0 0;
-    color: rgba(17, 17, 17, 0.72);
-    line-height: 1.7;
-  }
-
-  .related-link {
+  .scene-link {
     display: inline-flex;
-    margin-top: 14px;
-    color: #0a4a8b;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: 0.9rem 1.3rem;
+    border-radius: 999px;
+    border: 1px solid rgba(82, 56, 28, 0.16);
     font-weight: 700;
-    text-decoration: underline;
-    text-underline-offset: 0.2em;
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
   }
 
-  .back-nav {
-    margin-top: 18px;
+  .scene-link:hover,
+  .related-card:hover {
+    transform: translateY(-3px);
   }
 
-  .back-nav a {
-    color: #0a4a8b;
+  .scene-link-primary {
+    background: rgba(255, 252, 248, 0.94);
+    box-shadow: 0 16px 32px rgba(83, 55, 28, 0.1);
+  }
+
+  .scene-link-secondary {
+    background: rgba(255, 255, 255, 0.58);
+  }
+
+  .scene-visual {
+    margin: 0;
+    overflow: hidden;
+    border-radius: clamp(22px, 3vw, 30px);
+    background: rgba(63, 42, 25, 0.08);
+    box-shadow: 0 20px 40px rgba(83, 55, 28, 0.12);
+  }
+
+  .scene-visual img,
+  .related-media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .scene-notes,
+  .review-bridge,
+  .related-scenes {
+    padding: clamp(1.4rem, 4vw, 2.5rem);
+    background:
+      radial-gradient(circle at top right, rgba(247, 214, 176, 0.18), transparent 28%),
+      linear-gradient(180deg, rgba(255, 250, 243, 0.97), rgba(246, 242, 236, 0.94));
+  }
+
+  .notes-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin-top: 1.2rem;
+  }
+
+  .note-card {
+    display: grid;
+    gap: 0.7rem;
+    padding: 1.1rem;
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.74);
+    border: 1px solid rgba(100, 76, 42, 0.1);
+  }
+
+  .note-card h3,
+  .related-body h3 {
+    margin: 0;
+    font-size: clamp(1.18rem, 2vw, 1.5rem);
+    line-height: 1.2;
+  }
+
+  .review-bridge {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: clamp(1.2rem, 3vw, 2.2rem);
+    align-items: end;
+    background:
+      radial-gradient(circle at top left, rgba(205, 223, 236, 0.3), transparent 28%),
+      linear-gradient(135deg, rgba(248, 249, 245, 0.98), rgba(236, 244, 247, 0.95));
+  }
+
+  .related-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+    margin-top: 1.2rem;
+  }
+
+  .related-card {
+    display: grid;
+    gap: 0.9rem;
+    padding: 0.9rem;
+    color: inherit;
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.74);
+    border: 1px solid rgba(100, 76, 42, 0.1);
+    box-shadow: 0 18px 36px rgba(83, 55, 28, 0.08);
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
+  }
+
+  .related-media {
+    overflow: hidden;
+    border-radius: 18px;
+    aspect-ratio: 0.9 / 1;
+    background: rgba(63, 42, 25, 0.08);
+  }
+
+  .related-body {
+    display: grid;
+    gap: 0.6rem;
+  }
+
+  .related-action,
+  .related-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.92rem;
     font-weight: 700;
+    color: #0a4a8b;
   }
 
-  @media (min-width: 860px) {
-    .hero {
-      grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
-      align-items: start;
+  .related-action::after {
+    content: "→";
+  }
+
+  .related-status {
+    color: rgba(66, 52, 35, 0.72);
+  }
+
+  @media (max-width: 1040px) {
+    .scene-hero,
+    .review-bridge {
+      grid-template-columns: 1fr;
+    }
+
+    .related-grid {
+      grid-template-columns: 1fr;
     }
   }
 
-  @media (max-width: 600px) {
-    .gallery-detail {
-      padding: 24px 14px;
+  @media (max-width: 760px) {
+    .notes-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .scene-detail {
+      gap: 1.3rem;
     }
 
-    .panel {
-      padding: 16px;
+    .scene-hero,
+    .scene-notes,
+    .review-bridge,
+    .related-scenes {
+      border-radius: 26px;
+      padding: 1.2rem;
+    }
+
+    .scene-link {
+      width: 100%;
+    }
+
+    .scene-copy h1,
+    .notes-intro h2,
+    .bridge-copy h2 {
+      font-size: clamp(1.8rem, 8vw, 2.6rem);
     }
   }
 </style>

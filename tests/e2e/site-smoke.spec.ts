@@ -61,7 +61,29 @@ test('review detail keeps the reading flow and afterglow link intact', async ({ 
   await galleryBridgeLink.click();
   await expect(page).toHaveURL(/\/codex-coco-s-site\/gallery\/novel-seiten\/$/);
   await expect(page.getByRole('heading', { name: '青天', exact: true }).first()).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'この景色の向こうにある言葉を読む。' })).toBeVisible();
+
+  const reviewReturnLink = page.getByRole('link', { name: 'この景色の言葉を読む', exact: true });
+  await expect(reviewReturnLink).toBeVisible();
+  await reviewReturnLink.click();
+  await expect(page).toHaveURL(/\/codex-coco-s-site\/reviews\/seiten\/$/);
+  await expect(page.locator('#review-title')).toBeVisible();
   await expectNoHorizontalOverflow(page);
+});
+
+test('gallery works as a scenic side path without breaking the review-led structure', async ({ page }) => {
+  await page.goto(`${SITE_BASE}gallery/`);
+
+  await expect(page.getByRole('heading', { name: '読後の景色を、ココちゃんと静かに見返す。' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '本から生まれた景色を、先に3つだけひらく。' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'レビューの主導線へ戻る', exact: true })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'About / world bridge へ', exact: true })).toBeVisible();
+
+  await expectNoHorizontalOverflow(page);
+
+  await page.getByRole('link', { name: 'レビューの主導線へ戻る', exact: true }).click();
+  await expect(page).toHaveURL(/\/codex-coco-s-site\/reviews\/$/);
+  await expect(page.getByRole('heading', { name: '次の一冊をひらく前に、言葉の余韻をひとくち。' })).toBeVisible();
 });
 
 test('about page remains readable on small and large viewports', async ({ page }) => {

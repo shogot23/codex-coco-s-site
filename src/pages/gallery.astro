@@ -1,9 +1,21 @@
 ---
-import Layout from "../layouts/Layout.astro";
-import { GALLERY_GENRES } from "../content/config";
-import { getPublishedGallery, hasDetailContent } from "../utils/gallery";
+import type { CollectionEntry } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+import type { GalleryGenre } from '../content/config';
+import { getPublishedGallery, hasDetailContent, sortGalleryEntries } from '../utils/gallery';
 
-const baseWithSlash = import.meta.env.BASE_URL.endsWith("/")
+type GalleryEntry = CollectionEntry<'gallery'>;
+
+type ScenicChapterDefinition = {
+  id: string;
+  eyebrow: string;
+  title: string;
+  description: string;
+  genres: readonly GalleryGenre[];
+  mood: string;
+};
+
+const baseWithSlash = import.meta.env.BASE_URL.endsWith('/')
   ? import.meta.env.BASE_URL
   : `${import.meta.env.BASE_URL}/`;
 
@@ -14,359 +26,996 @@ const withBase = (assetPath: string) => {
   if (!assetPath) return baseWithSlash;
   if (isAbsoluteUrl(assetPath)) return assetPath;
   if (assetPath.startsWith(baseWithSlash)) return assetPath;
-  return `${baseWithSlash}${assetPath.replace(/^\/+/, "")}`;
+  return `${baseWithSlash}${assetPath.replace(/^\/+/, '')}`;
 };
 
-const galleryEntries = await getPublishedGallery();
+const getSceneSummary = (entry: GalleryEntry) =>
+  entry.data.note ?? entry.data.description ?? '本から生まれた景色を静かに見返すための展示です。';
 
-const galleryByGenre = GALLERY_GENRES.map((genre) => ({
-  name: genre,
-  items: galleryEntries.filter((entry) => entry.data.genre === genre),
-})).filter((group) => group.items.length > 0);
+const getSceneHref = (entry: GalleryEntry) =>
+  hasDetailContent(entry) ? `${baseWithSlash}gallery/${entry.slug}/` : null;
+
+const galleryEntries = sortGalleryEntries(await getPublishedGallery());
+const detailedEntries = galleryEntries.filter((entry) => hasDetailContent(entry));
+const uniqueGenres = new Set(galleryEntries.map((entry) => entry.data.genre).filter(Boolean));
+const linkedReviewCount = galleryEntries.filter((entry) => Boolean(entry.data.relatedReview)).length;
+
+const reviewsUrl = `${baseWithSlash}reviews/`;
+const aboutUrl = `${baseWithSlash}about/`;
+
+const heroLeadEntry = detailedEntries.find((entry) => entry.data.relatedReview) ?? detailedEntries[0] ?? galleryEntries[0] ?? null;
+const heroSupportEntries = galleryEntries
+  .filter((entry) => entry.slug !== heroLeadEntry?.slug)
+  .slice(0, 3);
+
+const chapterBlueprints: ScenicChapterDefinition[] = [
+  {
+    id: 'chapter-fiction',
+    eyebrow: 'Chapter 01',
+    title: '物語と感情の気配を見返す。',
+    description:
+      '小説やノンフィクションのあとに残る温度を、すこし近い距離で並べる章です。読後に言葉へ戻る前の呼吸をここに置きます。',
+    genres: ['現代文学', 'ノンフィクション', 'エッセイ', '自伝'],
+    mood: 'fiction',
+  },
+  {
+    id: 'chapter-learning',
+    eyebrow: 'Chapter 02',
+    title: '学びが日常へ降りる瞬間を拾う。',
+    description:
+      'ビジネス、心理学、健康、新書の本から見えた輪郭を、暮らしに近い景色として束ねます。学びを硬くしすぎない章です。',
+    genres: ['ビジネス', '心理学', '健康', '新書'],
+    mood: 'learning',
+  },
+  {
+    id: 'chapter-horizon',
+    eyebrow: 'Chapter 03',
+    title: '時代と熱量の遠景まで歩いていく。',
+    description:
+      '歴史、漫画、ホビーの本がひらく遠い景色を、ココちゃんの歩幅でゆっくりたどります。少し遠くへ行きたい日に向く章です。',
+    genres: ['歴史小説', '歴史教養', '漫画', 'ホビー'],
+    mood: 'horizon',
+  },
+];
+
+const hasGenreIn = (entry: GalleryEntry, genres: readonly GalleryGenre[]) => {
+  const genre = entry.data.genre;
+  return Boolean(genre && genres.includes(genre));
+};
+
+const chapterSections = chapterBlueprints
+  .map((chapter) => {
+    const items = galleryEntries.filter((entry) => hasGenreIn(entry, chapter.genres));
+
+    return {
+      ...chapter,
+      items,
+      lead: items[0] ?? null,
+      trail: items.slice(1),
+    };
+  })
+  .filter((chapter) => chapter.items.length > 0);
+
+const usedFeaturedSlugs = new Set<string>();
+
+const pickScene = (genres: readonly GalleryGenre[]) =>
+  galleryEntries.find((entry) => {
+    if (usedFeaturedSlugs.has(entry.slug)) return false;
+    return hasGenreIn(entry, genres);
+  }) ?? null;
+
+const featuredMoments: Array<{
+  eyebrow: string;
+  title: string;
+  copy: string;
+  entry: GalleryEntry;
+}> = [];
+
+const addFeaturedMoment = (
+  eyebrow: string,
+  title: string,
+  copy: string,
+  entry: GalleryEntry | null
+) => {
+  if (!entry || usedFeaturedSlugs.has(entry.slug)) return;
+  usedFeaturedSlugs.add(entry.slug);
+  featuredMoments.push({ eyebrow, title, copy, entry });
+};
+
+addFeaturedMoment(
+  'From Review',
+  '言葉から景色へ渡る一枚',
+  '主導線のレビューから離れすぎないように、最初の一枚は読後の余韻とつながっている作品を置いています。',
+  heroLeadEntry
+);
+
+addFeaturedMoment(
+  'Learning Glow',
+  '学びを景色に変える棚',
+  '考え方や習慣の本が残す輪郭は、整った結論よりも、日々の見え方の変化として受け取りたいものです。',
+  pickScene(['ビジネス', '心理学', '健康', '新書'])
+);
+
+addFeaturedMoment(
+  'Far Horizon',
+  '少し遠くへ連れていく景色',
+  '歴史や漫画やホビーの本は、今いる場所から少し離れた地平を見せてくれます。その広がりを副導線として残します。',
+  pickScene(['歴史小説', '歴史教養', '漫画', 'ホビー'])
+);
+
+const chapterLinks = chapterSections.map((chapter) => ({
+  href: `#${chapter.id}`,
+  label: chapter.title,
+  count: chapter.items.length,
+}));
 ---
 
 <Layout
   title="Gallery | 読書 with Coco"
-  description="読書から生まれた情景を、ココちゃんと一緒に辿る作品展示ギャラリー。"
+  description="レビューの余韻から続く景色を、ココちゃんと静かに見返す Gallery ページ。"
 >
-  <section class="wrap" aria-labelledby="gallery-page-title">
-    <header class="page-header">
-      <h1 id="gallery-page-title">Gallery</h1>
-      <p class="lead">読書から生まれた情景を眺めるビジュアルギャラリー。</p>
-    </header>
+  {galleryEntries.length ? (
+    <div class="gallery-world">
+      <section class="gallery-hero" aria-labelledby="gallery-page-title">
+        <div class="hero-copy">
+          <p class="section-label">Gallery / Scenic Side Path</p>
+          <p class="hero-brand">読書 with Coco</p>
+          <h1 id="gallery-page-title">読後の景色を、ココちゃんと静かに見返す。</h1>
+          <p class="hero-lead">
+            レビューで受け取った言葉の余韻を、ここでは色や構図のほうから確かめます。主役はあくまで本。
+            そのそばでココちゃんが、読書から広がる景色をそっと案内します。
+          </p>
 
-    {galleryByGenre.length ? (
-      <>
-        <p class="total-count">{galleryEntries.length}作品を公開中</p>
-        <nav class="filters ui-action-group" aria-label="ギャラリーのジャンル絞り込み">
-          <button class="filter-button is-active ui-action" type="button" data-filter="すべて" aria-pressed="true">
-            すべて <span class="count">{galleryEntries.length}</span>
-          </button>
-          {GALLERY_GENRES.map((genre) => (
-            <button class="filter-button ui-action" type="button" data-filter={genre} aria-pressed="false">
-              {genre} <span class="count">{galleryByGenre.find((group) => group.name === genre)?.items.length ?? 0}</span>
-            </button>
-          ))}
-        </nav>
+          {heroLeadEntry && (
+            <p class="hero-note">
+              いま先頭に置いている景色は <span>{heroLeadEntry.data.title}</span>。
+              Reviews 主導の流れを壊さないように、最初の一枚だけは言葉の余韻に近い場所から始めています。
+            </p>
+          )}
 
-        {galleryByGenre.map((group) => (
-          <section class="section" data-genre={group.name}>
-            <div class="section-head">
-              <h2>{group.name}</h2>
-            </div>
-            <div class="grid">
-              {group.items.map((entry) => {
-                const hasDetail = hasDetailContent(entry);
-                const detailUrl = `${baseWithSlash}gallery/${entry.slug}/`;
-                const summary = entry.data.note ?? entry.data.description;
+          <div class="hero-actions ui-action-group ui-action-group--stack">
+            <a class="hero-link hero-link-primary ui-action" href="#scene-featured">景色をめくる</a>
+            <a class="hero-link hero-link-secondary ui-action" href={reviewsUrl}>レビューの主導線へ戻る</a>
+          </div>
+        </div>
 
-                return hasDetail ? (
-                  <a href={detailUrl} class="card-link" aria-label={`${entry.data.title}の詳細を見る`}>
-                    <article class="card">
-                      <div class="thumb">
+        <div class="hero-visual">
+          {heroLeadEntry && (
+            (() => {
+              const href = getSceneHref(heroLeadEntry);
+              const summary = getSceneSummary(heroLeadEntry);
+
+              return href ? (
+                <a class="hero-scene hero-scene-lead" href={href} aria-label={`${heroLeadEntry.data.title}の景色を見る`}>
+                  <div class="hero-scene-media">
+                    <img
+                      src={withBase(heroLeadEntry.data.image)}
+                      alt={`${heroLeadEntry.data.title}の展示画像`}
+                      loading="eager"
+                      decoding="async"
+                      width="960"
+                      height="1080"
+                    />
+                  </div>
+                  <div class="hero-scene-body">
+                    <p class="hero-scene-kicker">Lead Scene</p>
+                    <h2>{heroLeadEntry.data.title}</h2>
+                    {heroLeadEntry.data.author && <p class="scene-author">著者: {heroLeadEntry.data.author}</p>}
+                    <p class="scene-summary">{summary}</p>
+                    <span class="scene-action">景色の余韻を見る</span>
+                  </div>
+                </a>
+              ) : (
+                <article class="hero-scene hero-scene-lead">
+                  <div class="hero-scene-media">
+                    <img
+                      src={withBase(heroLeadEntry.data.image)}
+                      alt={`${heroLeadEntry.data.title}の展示画像`}
+                      loading="eager"
+                      decoding="async"
+                      width="960"
+                      height="1080"
+                    />
+                  </div>
+                  <div class="hero-scene-body">
+                    <p class="hero-scene-kicker">Lead Scene</p>
+                    <h2>{heroLeadEntry.data.title}</h2>
+                    {heroLeadEntry.data.author && <p class="scene-author">著者: {heroLeadEntry.data.author}</p>}
+                    <p class="scene-summary">{summary}</p>
+                    <span class="scene-status">展示中</span>
+                  </div>
+                </article>
+              );
+            })()
+          )}
+
+          <div class="hero-echoes" aria-label="景色の断片">
+            {heroSupportEntries.map((entry) => {
+              const href = getSceneHref(entry);
+              const summary = getSceneSummary(entry);
+
+              return href ? (
+                <a class="hero-echo" href={href} aria-label={`${entry.data.title}の景色を見る`}>
+                  <div class="hero-echo-media">
+                    <img
+                      src={withBase(entry.data.image)}
+                      alt={`${entry.data.title}の展示画像`}
+                      loading="lazy"
+                      decoding="async"
+                      width="480"
+                      height="540"
+                    />
+                  </div>
+                  <div class="hero-echo-body">
+                    <p class="hero-echo-title">{entry.data.title}</p>
+                    <p>{summary}</p>
+                  </div>
+                </a>
+              ) : (
+                <article class="hero-echo">
+                  <div class="hero-echo-media">
+                    <img
+                      src={withBase(entry.data.image)}
+                      alt={`${entry.data.title}の展示画像`}
+                      loading="lazy"
+                      decoding="async"
+                      width="480"
+                      height="540"
+                    />
+                  </div>
+                  <div class="hero-echo-body">
+                    <p class="hero-echo-title">{entry.data.title}</p>
+                    <p>{summary}</p>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+
+          <aside class="hero-panel" aria-label="Gallery のしおり">
+            <p class="panel-label">Scenic Notes</p>
+
+            <dl class="panel-stats">
+              <div>
+                <dt>公開中の景色</dt>
+                <dd>{galleryEntries.length}</dd>
+              </div>
+              <div>
+                <dt>ひらいている棚</dt>
+                <dd>{uniqueGenres.size}</dd>
+              </div>
+              <div>
+                <dt>Review につながる入口</dt>
+                <dd>{linkedReviewCount}</dd>
+              </div>
+            </dl>
+
+            {chapterLinks.length > 0 && (
+              <div class="panel-block">
+                <p>このページの歩き方</p>
+                <ul class="chapter-links">
+                  {chapterLinks.map((chapter) => (
+                    <li>
+                      <a href={chapter.href}>
+                        <span>{chapter.label}</span>
+                        <strong>{chapter.count}</strong>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </aside>
+        </div>
+      </section>
+
+      {featuredMoments.length > 0 && (
+        <section class="featured-room" id="scene-featured" aria-labelledby="featured-scenes-title">
+          <div class="room-intro">
+            <p class="section-label">Featured Scenes</p>
+            <h2 id="featured-scenes-title">本から生まれた景色を、先に3つだけひらく。</h2>
+            <p>
+              一覧を急いで見せるより、まずはこのサイトらしい空気が伝わる景色から始めます。
+              ここで受け取った気配が、その後の棚めぐりの導入になります。
+            </p>
+          </div>
+
+          <div class="featured-grid">
+            {featuredMoments.map((moment) => {
+              const href = getSceneHref(moment.entry);
+              const summary = getSceneSummary(moment.entry);
+
+              return href ? (
+                <a class="feature-card" href={href} aria-label={`${moment.entry.data.title}の景色を見る`}>
+                  <div class="feature-media">
+                    <img
+                      src={withBase(moment.entry.data.image)}
+                      alt={`${moment.entry.data.title}の展示画像`}
+                      loading="lazy"
+                      decoding="async"
+                      width="720"
+                      height="860"
+                    />
+                  </div>
+                  <div class="feature-body">
+                    <p class="feature-kicker">{moment.eyebrow}</p>
+                    <h3>{moment.title}</h3>
+                    <p class="feature-entry-title">{moment.entry.data.title}</p>
+                    <p>{moment.copy}</p>
+                    <p class="feature-summary">{summary}</p>
+                    <span class="scene-action">景色を見る</span>
+                  </div>
+                </a>
+              ) : (
+                <article class="feature-card">
+                  <div class="feature-media">
+                    <img
+                      src={withBase(moment.entry.data.image)}
+                      alt={`${moment.entry.data.title}の展示画像`}
+                      loading="lazy"
+                      decoding="async"
+                      width="720"
+                      height="860"
+                    />
+                  </div>
+                  <div class="feature-body">
+                    <p class="feature-kicker">{moment.eyebrow}</p>
+                    <h3>{moment.title}</h3>
+                    <p class="feature-entry-title">{moment.entry.data.title}</p>
+                    <p>{moment.copy}</p>
+                    <p class="feature-summary">{summary}</p>
+                    <span class="scene-status">展示中</span>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {chapterSections.map((chapter) => (
+        <section class={`chapter-room chapter-room-${chapter.mood}`} id={chapter.id} aria-labelledby={`${chapter.id}-title`}>
+          <div class="chapter-intro">
+            <p class="section-label">{chapter.eyebrow}</p>
+            <h2 id={`${chapter.id}-title`}>{chapter.title}</h2>
+            <p>{chapter.description}</p>
+            <p class="chapter-count">{chapter.items.length} pieces</p>
+          </div>
+
+          <div class="chapter-stage">
+            {chapter.lead && (
+              (() => {
+                const href = getSceneHref(chapter.lead);
+                const summary = getSceneSummary(chapter.lead);
+
+                return href ? (
+                  <a class="chapter-lead" href={href} aria-label={`${chapter.lead.data.title}の景色を見る`}>
+                    <div class="chapter-lead-media">
+                      <img
+                        src={withBase(chapter.lead.data.image)}
+                        alt={`${chapter.lead.data.title}の展示画像`}
+                        loading="lazy"
+                        decoding="async"
+                        width="960"
+                        height="720"
+                      />
+                    </div>
+                    <div class="chapter-lead-body">
+                      {chapter.lead.data.genre && <p class="genre-label">{chapter.lead.data.genre}</p>}
+                      <h3>{chapter.lead.data.title}</h3>
+                      {chapter.lead.data.author && <p class="scene-author">著者: {chapter.lead.data.author}</p>}
+                      <p class="scene-summary">{summary}</p>
+                      <span class="scene-action">景色をひらく</span>
+                    </div>
+                  </a>
+                ) : (
+                  <article class="chapter-lead">
+                    <div class="chapter-lead-media">
+                      <img
+                        src={withBase(chapter.lead.data.image)}
+                        alt={`${chapter.lead.data.title}の展示画像`}
+                        loading="lazy"
+                        decoding="async"
+                        width="960"
+                        height="720"
+                      />
+                    </div>
+                    <div class="chapter-lead-body">
+                      {chapter.lead.data.genre && <p class="genre-label">{chapter.lead.data.genre}</p>}
+                      <h3>{chapter.lead.data.title}</h3>
+                      {chapter.lead.data.author && <p class="scene-author">著者: {chapter.lead.data.author}</p>}
+                      <p class="scene-summary">{summary}</p>
+                      <span class="scene-status">展示中</span>
+                    </div>
+                  </article>
+                );
+              })()
+            )}
+
+            {chapter.trail.length > 0 && (
+              <div class="chapter-trail">
+                {chapter.trail.map((entry) => {
+                  const href = getSceneHref(entry);
+                  const summary = getSceneSummary(entry);
+
+                  return href ? (
+                    <a class="trail-card" href={href} aria-label={`${entry.data.title}の景色を見る`}>
+                      <div class="trail-media">
                         <img
                           src={withBase(entry.data.image)}
                           alt={`${entry.data.title}の展示画像`}
                           loading="lazy"
                           decoding="async"
-                          width="400"
-                          height="300"
+                          width="640"
+                          height="480"
                         />
                       </div>
-                      <div class="body">
-                        <div class="title-row">
-                          <div class="title">{entry.data.title}</div>
-                        </div>
-                        {entry.data.author && <div class="meta">著者: {entry.data.author}</div>}
-                        {summary && <p class="excerpt">{summary}</p>}
-                        <span class="card-action">作品を見る</span>
+                      <div class="trail-body">
+                        {entry.data.genre && <p class="genre-label">{entry.data.genre}</p>}
+                        <h3>{entry.data.title}</h3>
+                        <p>{summary}</p>
+                      </div>
+                    </a>
+                  ) : (
+                    <article class="trail-card trail-card-static">
+                      <div class="trail-media">
+                        <img
+                          src={withBase(entry.data.image)}
+                          alt={`${entry.data.title}の展示画像`}
+                          loading="lazy"
+                          decoding="async"
+                          width="640"
+                          height="480"
+                        />
+                      </div>
+                      <div class="trail-body">
+                        {entry.data.genre && <p class="genre-label">{entry.data.genre}</p>}
+                        <h3>{entry.data.title}</h3>
+                        <p>{summary}</p>
                       </div>
                     </article>
-                  </a>
-                ) : (
-                  <article class="card">
-                    <div class="thumb">
-                      <img
-                        src={withBase(entry.data.image)}
-                        alt={`${entry.data.title}の展示画像`}
-                        loading="lazy"
-                        decoding="async"
-                        width="400"
-                        height="300"
-                      />
-                    </div>
-                    <div class="body">
-                      <div class="title-row">
-                        <div class="title">{entry.data.title}</div>
-                      </div>
-                      {entry.data.author && <div class="meta">著者: {entry.data.author}</div>}
-                      {summary && <p class="excerpt">{summary}</p>}
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
-          </section>
-        ))}
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </section>
+      ))}
 
-        <p class="empty filtered-empty" data-filter-empty hidden>選択したジャンルの作品はまだありません。</p>
-      </>
-    ) : (
-      <p class="empty">公開中の作品はまだありません。</p>
-    )}
-  </section>
+      <section class="bridge-room" aria-labelledby="bridge-room-title">
+        <div class="bridge-copy">
+          <p class="section-label">Back To The Main Path</p>
+          <h2 id="bridge-room-title">主導線は Reviews に置いたまま、Gallery は余韻を深くする。</h2>
+          <p>
+            このページで見せたいのは、画像の数ではなく読書の空気です。迷ったときはレビューへ戻り、
+            世界観の根っこをたどりたいときは About / world bridge へつなぎます。
+          </p>
+        </div>
 
-  <script is:inline>
-    const allLabel = 'すべて';
-    const filterButtons = Array.from(document.querySelectorAll('[data-filter]'));
-    const genreSections = Array.from(document.querySelectorAll('[data-genre]'));
-    const emptyState = document.querySelector('[data-filter-empty]');
-    const allowedGenres = new Set([allLabel, ...filterButtons.map((button) => button.getAttribute('data-filter'))]);
-
-    const readGenreFromHash = () => {
-      const params = new URLSearchParams(window.location.hash.replace(/^#/, ''));
-      return params.get('genre') || allLabel;
-    };
-
-    const applyGenreFilter = (requestedGenre) => {
-      const activeGenre = allowedGenres.has(requestedGenre) ? requestedGenre : allLabel;
-
-      filterButtons.forEach((button) => {
-        const buttonGenre = button.getAttribute('data-filter') || allLabel;
-        const isActive = buttonGenre === activeGenre;
-        button.classList.toggle('is-active', isActive);
-        button.setAttribute('aria-pressed', String(isActive));
-      });
-
-      genreSections.forEach((section) => {
-        const sectionGenre = section.getAttribute('data-genre') || '';
-        section.hidden = activeGenre !== allLabel && sectionGenre !== activeGenre;
-      });
-
-      const hasVisibleSection = genreSections.some((section) => !section.hidden);
-      if (emptyState) {
-        emptyState.hidden = hasVisibleSection || activeGenre === allLabel;
-      }
-    };
-
-    filterButtons.forEach((button) => {
-      button.addEventListener('click', () => {
-        const nextGenre = button.getAttribute('data-filter') || allLabel;
-        if (nextGenre === allLabel) {
-          window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}`);
-          applyGenreFilter(allLabel);
-          return;
-        }
-
-        window.location.hash = `genre=${encodeURIComponent(nextGenre)}`;
-      });
-    });
-
-    window.addEventListener('hashchange', () => {
-      applyGenreFilter(readGenreFromHash());
-    });
-
-    applyGenreFilter(readGenreFromHash());
-  </script>
+        <div class="bridge-actions ui-action-group ui-action-group--stack">
+          <a class="hero-link hero-link-primary ui-action" href={reviewsUrl}>レビューを見る</a>
+          <a class="hero-link hero-link-secondary ui-action" href={aboutUrl}>About / world bridge へ</a>
+        </div>
+      </section>
+    </div>
+  ) : (
+    <section class="gallery-empty">
+      <h1>Gallery</h1>
+      <p>公開中の作品はまだありません。</p>
+    </section>
+  )}
 </Layout>
 
 <style>
-  .wrap {
-    max-width: 980px;
-    margin: 0 auto;
-    padding: 32px 16px;
+  .gallery-world {
+    display: grid;
+    gap: clamp(1.75rem, 4vw, 3rem);
   }
 
-  .page-header {
-    margin-bottom: 28px;
+  .gallery-hero,
+  .featured-room,
+  .chapter-room,
+  .bridge-room {
+    position: relative;
+    overflow: clip;
+    border: 1px solid rgba(100, 76, 42, 0.14);
+    border-radius: clamp(26px, 4vw, 40px);
+    box-shadow: 0 24px 70px rgba(83, 55, 28, 0.1);
   }
 
-  .lead {
-    color: var(--color-muted);
-    margin: 10px 0 0;
-    max-width: 42rem;
-    line-height: 1.7;
+  .gallery-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 0.88fr) minmax(320px, 1.12fr);
+    gap: clamp(1.5rem, 3vw, 3rem);
+    padding: clamp(1.5rem, 4vw, 3rem);
+    background:
+      radial-gradient(circle at top left, rgba(244, 220, 186, 0.88), transparent 32%),
+      radial-gradient(circle at bottom right, rgba(76, 106, 156, 0.22), transparent 34%),
+      linear-gradient(135deg, rgba(255, 250, 243, 0.98), rgba(237, 244, 248, 0.94));
   }
 
-  .total-count {
-    margin: 0 0 12px;
-    font-size: 0.92rem;
-    color: var(--color-muted);
+  .section-label,
+  .panel-label,
+  .hero-scene-kicker,
+  .feature-kicker,
+  .genre-label {
+    margin: 0;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(66, 52, 35, 0.62);
   }
 
-  .filters {
+  .hero-brand {
+    margin: 0.6rem 0 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.25rem, 2vw, 1.55rem);
+    color: rgba(32, 22, 15, 0.88);
+  }
+
+  .hero-copy h1,
+  .room-intro h2,
+  .chapter-intro h2,
+  .bridge-copy h2 {
+    margin: 0;
+    font-size: clamp(2.1rem, 4vw, 3.8rem);
+    line-height: 1.08;
+  }
+
+  .hero-copy,
+  .room-intro,
+  .chapter-intro,
+  .bridge-copy {
+    display: grid;
+    align-content: start;
+    gap: 1rem;
+  }
+
+  .hero-lead,
+  .hero-note,
+  .room-intro p,
+  .chapter-intro p,
+  .bridge-copy p,
+  .scene-summary,
+  .trail-body p,
+  .hero-echo-body p {
+    margin: 0;
+    line-height: 1.8;
+    color: rgba(32, 22, 15, 0.84);
+  }
+
+  .hero-note span {
+    font-weight: 700;
+    color: rgba(32, 22, 15, 0.98);
+  }
+
+  .hero-actions,
+  .bridge-actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 24px;
+    gap: 0.8rem;
+    margin-top: 0.5rem;
   }
 
-  .filter-button {
-    appearance: none;
-    border: 1px solid var(--color-border);
-    background: var(--color-surface-strong);
-    color: inherit;
-    border-radius: 999px;
-    padding: 8px 14px;
-    font: inherit;
-    cursor: pointer;
-    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
-  }
-
-  .filter-button:hover {
-    border-color: var(--color-border-strong);
-  }
-
-  .filter-button.is-active {
-    background: var(--color-text);
-    color: var(--color-surface-strong);
-    border-color: var(--color-text);
-  }
-
-  .filter-button .count {
-    margin-left: 4px;
-    opacity: 0.7;
-  }
-
-  .filter-button:focus-visible {
-    outline: 2px solid var(--color-focus);
-    outline-offset: 2px;
-  }
-
-  .section {
-    margin: 28px 0 38px;
-  }
-
-  .section-head {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 16px;
-    margin-bottom: 14px;
-  }
-
-  .section-head h2 {
-    margin: 0;
-  }
-
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 16px;
-  }
-
-  .card-link {
-    display: block;
-    color: inherit;
-  }
-
-  .card {
-    height: 100%;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    border-radius: 14px;
-    overflow: hidden;
-    background: #fff;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-
-  .card-link:hover .card {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
-  }
-
-  .card-link:focus-visible {
-    outline: none;
-  }
-
-  .card-link:focus-visible .card {
-    outline: 2px solid #0a5fcc;
-    outline-offset: 2px;
-  }
-
-  .thumb {
-    aspect-ratio: 4 / 3;
-    background: rgba(0, 0, 0, 0.04);
-    display: flex;
+  .hero-link {
+    display: inline-flex;
     align-items: center;
     justify-content: center;
+    min-height: 48px;
+    padding: 0.9rem 1.3rem;
+    border-radius: 999px;
+    border: 1px solid rgba(82, 56, 28, 0.16);
+    font-weight: 700;
+    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
   }
 
-  img {
+  .hero-link:hover,
+  .feature-card:hover,
+  .chapter-lead:hover,
+  .trail-card:hover,
+  .hero-scene:hover,
+  .hero-echo:hover {
+    transform: translateY(-3px);
+  }
+
+  .hero-link-primary {
+    background: rgba(255, 252, 248, 0.94);
+    box-shadow: 0 16px 32px rgba(83, 55, 28, 0.1);
+  }
+
+  .hero-link-secondary {
+    background: rgba(255, 255, 255, 0.52);
+  }
+
+  .hero-visual {
+    display: grid;
+    gap: 1rem;
+    align-content: start;
+  }
+
+  .hero-scene,
+  .feature-card,
+  .chapter-lead {
+    display: grid;
+    gap: 1rem;
+    color: inherit;
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(100, 76, 42, 0.12);
+    border-radius: clamp(20px, 3vw, 28px);
+    box-shadow: 0 18px 36px rgba(83, 55, 28, 0.08);
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
+  }
+
+  .hero-scene {
+    padding: 1rem;
+  }
+
+  .hero-scene-lead {
+    grid-template-columns: minmax(0, 1.05fr) minmax(240px, 0.95fr);
+    align-items: center;
+  }
+
+  .hero-scene-media,
+  .feature-media,
+  .chapter-lead-media,
+  .trail-media,
+  .hero-echo-media {
+    overflow: hidden;
+    border-radius: clamp(18px, 2vw, 24px);
+    background: rgba(63, 42, 25, 0.08);
+  }
+
+  .hero-scene-media {
+    aspect-ratio: 1 / 1.08;
+  }
+
+  .hero-scene-media img,
+  .feature-media img,
+  .chapter-lead-media img,
+  .trail-media img,
+  .hero-echo-media img {
+    display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
 
-  .body {
+  .hero-scene-body,
+  .feature-body,
+  .chapter-lead-body,
+  .trail-body,
+  .hero-echo-body {
     display: grid;
-    gap: 8px;
-    padding: 12px 14px 14px;
+    align-content: start;
+    gap: 0.65rem;
   }
 
-  .title-row {
-    display: flex;
-    align-items: start;
-    justify-content: space-between;
-    gap: 10px;
-  }
-
-  .title {
-    font-weight: 700;
-    line-height: 1.45;
-  }
-
-  .meta {
-    color: rgba(17, 17, 17, 0.72);
-    font-size: 0.9rem;
-  }
-
-  .excerpt {
+  .hero-scene-body h2,
+  .feature-body h3,
+  .chapter-lead-body h3,
+  .trail-body h3 {
     margin: 0;
-    color: rgba(17, 17, 17, 0.78);
-    font-size: 0.94rem;
-    line-height: 1.65;
-    display: -webkit-box;
-    overflow: hidden;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
+    font-size: clamp(1.3rem, 2.2vw, 1.85rem);
+    line-height: 1.2;
   }
 
-  .card-action {
+  .scene-author {
+    margin: 0;
+    color: rgba(66, 52, 35, 0.72);
+    font-size: 0.94rem;
+  }
+
+  .scene-action,
+  .scene-status {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    color: #0a4a8b;
+    gap: 0.45rem;
+    margin-top: 0.2rem;
     font-size: 0.92rem;
     font-weight: 700;
+    color: #0a4a8b;
   }
 
-  .card-action::after {
+  .scene-action::after {
     content: "→";
   }
 
-  .empty {
-    opacity: 0.72;
+  .scene-status {
+    color: rgba(66, 52, 35, 0.72);
   }
 
-  @media (max-width: 600px) {
-    .wrap {
-      padding: 24px 14px;
+  .hero-echoes {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.85rem;
+  }
+
+  .hero-echo {
+    display: grid;
+    gap: 0.7rem;
+    align-content: start;
+    color: inherit;
+    padding: 0.8rem;
+    border-radius: 22px;
+    border: 1px solid rgba(100, 76, 42, 0.12);
+    background: rgba(255, 255, 255, 0.68);
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
+  }
+
+  .hero-echo-media {
+    aspect-ratio: 1 / 1.12;
+  }
+
+  .hero-echo-title,
+  .feature-entry-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: rgba(32, 22, 15, 0.96);
+  }
+
+  .hero-panel {
+    display: grid;
+    gap: 1rem;
+    padding: 1.1rem 1.2rem 1.2rem;
+    border-radius: 24px;
+    background: rgba(248, 242, 233, 0.9);
+    border: 1px solid rgba(100, 76, 42, 0.12);
+  }
+
+  .panel-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.85rem;
+    margin: 0;
+  }
+
+  .panel-stats div {
+    padding: 0.9rem;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.74);
+    border: 1px solid rgba(100, 76, 42, 0.08);
+  }
+
+  .panel-stats dt {
+    margin: 0;
+    font-size: 0.8rem;
+    color: rgba(66, 52, 35, 0.62);
+  }
+
+  .panel-stats dd {
+    margin: 0.35rem 0 0;
+    font-family: var(--font-headline);
+    font-size: clamp(1.35rem, 2vw, 1.85rem);
+  }
+
+  .panel-block {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .panel-block p {
+    margin: 0;
+    font-weight: 700;
+    color: rgba(32, 22, 15, 0.9);
+  }
+
+  .chapter-links {
+    display: grid;
+    gap: 0.55rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .chapter-links a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.8rem 0.95rem;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(100, 76, 42, 0.08);
+  }
+
+  .chapter-links strong {
+    font-family: var(--font-headline);
+    font-size: 1.1rem;
+  }
+
+  .featured-room,
+  .bridge-room {
+    padding: clamp(1.5rem, 4vw, 2.8rem);
+  }
+
+  .featured-room {
+    background:
+      radial-gradient(circle at top right, rgba(247, 214, 176, 0.26), transparent 28%),
+      linear-gradient(180deg, rgba(255, 250, 243, 0.96), rgba(249, 244, 237, 0.94));
+  }
+
+  .featured-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(1rem, 2vw, 1.4rem);
+    margin-top: 1.5rem;
+  }
+
+  .feature-card {
+    padding: 1rem;
+  }
+
+  .feature-card:nth-child(2) {
+    transform: translateY(1.3rem);
+  }
+
+  .feature-card:nth-child(2):hover {
+    transform: translateY(1rem);
+  }
+
+  .feature-media {
+    aspect-ratio: 0.88 / 1;
+  }
+
+  .feature-summary {
+    color: rgba(66, 52, 35, 0.76);
+  }
+
+  .chapter-room {
+    display: grid;
+    grid-template-columns: minmax(220px, 0.34fr) minmax(0, 0.66fr);
+    gap: clamp(1.2rem, 3vw, 2.3rem);
+    padding: clamp(1.5rem, 4vw, 2.8rem);
+  }
+
+  .chapter-room-fiction {
+    background:
+      radial-gradient(circle at top left, rgba(248, 226, 199, 0.34), transparent 28%),
+      linear-gradient(135deg, rgba(255, 250, 243, 0.98), rgba(245, 239, 232, 0.94));
+  }
+
+  .chapter-room-learning {
+    background:
+      radial-gradient(circle at top right, rgba(205, 223, 236, 0.4), transparent 32%),
+      linear-gradient(135deg, rgba(248, 249, 245, 0.98), rgba(236, 244, 247, 0.95));
+  }
+
+  .chapter-room-horizon {
+    background:
+      radial-gradient(circle at bottom left, rgba(232, 215, 193, 0.42), transparent 30%),
+      linear-gradient(135deg, rgba(252, 247, 239, 0.98), rgba(238, 237, 247, 0.93));
+  }
+
+  .chapter-count {
+    display: inline-flex;
+    width: fit-content;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.64);
+    border: 1px solid rgba(100, 76, 42, 0.1);
+    font-size: 0.84rem;
+    color: rgba(66, 52, 35, 0.7);
+  }
+
+  .chapter-stage {
+    display: grid;
+    gap: 1.2rem;
+  }
+
+  .chapter-lead {
+    grid-template-columns: minmax(0, 1.02fr) minmax(260px, 0.98fr);
+    padding: 1rem;
+    align-items: center;
+  }
+
+  .chapter-lead-media {
+    aspect-ratio: 1.24 / 1;
+  }
+
+  .chapter-trail {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem 1.1rem;
+  }
+
+  .trail-card {
+    display: grid;
+    gap: 0.8rem;
+    align-content: start;
+    padding-top: 0.9rem;
+    border-top: 1px solid rgba(100, 76, 42, 0.14);
+    color: inherit;
+    transition: transform 0.22s ease;
+  }
+
+  .trail-card-static {
+    opacity: 0.94;
+  }
+
+  .trail-media {
+    aspect-ratio: 4 / 3;
+  }
+
+  .bridge-room {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: clamp(1.2rem, 3vw, 2.5rem);
+    align-items: end;
+    background:
+      radial-gradient(circle at top left, rgba(247, 214, 176, 0.24), transparent 26%),
+      linear-gradient(135deg, rgba(255, 249, 241, 0.98), rgba(238, 245, 249, 0.95));
+  }
+
+  .gallery-empty {
+    padding: 2rem 0;
+  }
+
+  @media (max-width: 1140px) {
+    .gallery-hero,
+    .chapter-room,
+    .bridge-room {
+      grid-template-columns: 1fr;
     }
 
-    .grid {
-      gap: 12px;
+    .hero-scene-lead,
+    .chapter-lead {
+      grid-template-columns: 1fr;
     }
 
-    .body {
-      padding: 10px 12px 12px;
+    .hero-visual {
+      gap: 1.1rem;
     }
 
-    .title {
-      font-size: 0.95rem;
+    .featured-grid {
+      grid-template-columns: 1fr;
     }
 
-    .excerpt {
-      font-size: 0.9rem;
+    .feature-card:nth-child(2),
+    .feature-card:nth-child(2):hover {
+      transform: none;
+    }
+  }
+
+  @media (max-width: 820px) {
+    .hero-echoes,
+    .chapter-trail,
+    .panel-stats {
+      grid-template-columns: 1fr;
+    }
+
+    .hero-copy h1,
+    .room-intro h2,
+    .chapter-intro h2,
+    .bridge-copy h2 {
+      font-size: clamp(1.9rem, 8vw, 2.8rem);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .gallery-world {
+      gap: 1.35rem;
+    }
+
+    .gallery-hero,
+    .featured-room,
+    .chapter-room,
+    .bridge-room {
+      border-radius: 26px;
+      padding: 1.2rem;
+    }
+
+    .hero-echo {
+      padding: 0.7rem;
+    }
+
+    .hero-link {
+      width: 100%;
+    }
+
+    .chapter-links a {
+      align-items: baseline;
     }
   }
 </style>
