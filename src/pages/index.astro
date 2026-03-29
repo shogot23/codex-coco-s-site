@@ -65,7 +65,6 @@ const formatReviewDate = (value: Date) =>
 
 const reviewsUrl = withBase('reviews/');
 const galleryUrl = withBase('gallery/');
-const videosUrl = withBase('videos/');
 const aboutUrl = withBase('about/');
 const profileUrl = withBase('profile/');
 
@@ -171,10 +170,9 @@ const supportItems = [
     body: '気になった一冊の空気を、ココちゃんと一緒にビジュアルで確かめます。',
   },
   {
-    label: 'Video',
-    title: '物語の余韻を、少しだけ動かしてみる。',
-    body: `${publishedVideoCount}本の短編映像で、読書の空気を静かに補います。`,
-    href: videosUrl,
+    label: 'Fragments',
+    title: '余韻が動いた瞬間だけ、静かな断片として残す。',
+    body: `${publishedVideoCount}本の動くメモは、レビューとギャラリーを読み終えたあとにだけ、そっと開ける補助室です。`,
   },
 ];
 
@@ -190,7 +188,7 @@ const worldAsideCopy =
 
 <Layout
   title="読書 with Coco - 読書で生まれた世界を、ココちゃんが旅する"
-  description="レビューを主導線に、ギャラリーと映像で読書の余韻を深める『読書 with Coco』のトップページ。"
+  description="レビューを主導線に、ギャラリーと静かな断片で読書の余韻を深める『読書 with Coco』のトップページ。"
   image={avatarUrl}
 >
   <div class="home-story">
@@ -271,7 +269,7 @@ const worldAsideCopy =
         <p class="section-label">Support Section</p>
         <h2 id="support-heading">一冊の余韻を、三つの窓でひらく。</h2>
         <p>
-          主役はいつもレビューです。そのまわりでギャラリーと映像が、本から広がった景色を静かに支えます。
+          主役はいつもレビューです。そのまわりでギャラリーと静かな断片が、本から広がった景色をそっと支えます。
         </p>
       </div>
 
@@ -284,11 +282,6 @@ const worldAsideCopy =
               <h3>{item.title}</h3>
               <p>{item.body}</p>
             </div>
-            {item.href && (
-              <a class="support-link ui-action" href={item.href}>
-                映像を見る
-              </a>
-            )}
           </article>
         ))}
       </div>
