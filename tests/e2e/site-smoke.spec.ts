@@ -29,7 +29,7 @@ test('home first viewport shows brand and review-led hero CTA flow', async ({ pa
   await expect(page.locator('#review-stream')).toBeVisible();
 });
 
-test('primary navigation reaches reviews and videos without layout breakage', async ({ page }) => {
+test('primary navigation keeps review-led links and excludes the video library shortcut', async ({ page }) => {
   await page.goto(SITE_BASE);
 
   const primaryNav = page.getByRole('navigation', { name: 'Primary' });
@@ -38,10 +38,36 @@ test('primary navigation reaches reviews and videos without layout breakage', as
   await expect(page).toHaveURL(/\/codex-coco-s-site\/reviews\/$/);
   await expect(page.getByRole('heading', { name: '次の一冊をひらく前に、言葉の余韻をひとくち。' })).toBeVisible();
 
-  await primaryNav.getByRole('link', { name: 'Videos', exact: true }).click();
-  await expect(page).toHaveURL(/\/codex-coco-s-site\/videos\/$/);
-  await expect(page.getByRole('heading', { name: 'Videos' })).toBeVisible();
+  await expect(primaryNav.getByRole('link', { name: 'Videos', exact: true })).toHaveCount(0);
+  await primaryNav.getByRole('link', { name: 'Gallery', exact: true }).click();
+  await expect(page).toHaveURL(/\/codex-coco-s-site\/gallery\/$/);
+  await expect(page.getByRole('heading', { name: '読後の景色を、ココちゃんと静かに見返す。' })).toBeVisible();
 
+  await expectNoHorizontalOverflow(page);
+});
+
+test('about page guides interested readers to the moving fragments room', async ({ page }) => {
+  await page.goto(`${SITE_BASE}about/`);
+
+  const fragmentsLink = page.getByRole('link', { name: '動く断片を見る', exact: true });
+  await expect(fragmentsLink).toBeVisible();
+  await fragmentsLink.click();
+
+  await expect(page).toHaveURL(/\/codex-coco-s-site\/videos\/$/);
+  await expect(page.getByRole('heading', { name: '読後の余韻を、少しだけ動かして置いておく。' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'レビューへ戻る', exact: true })).toBeVisible();
+  await expectNoHorizontalOverflow(page);
+});
+
+test('profile keeps the fragments path as a secondary guide', async ({ page }) => {
+  await page.goto(`${SITE_BASE}profile/`);
+
+  const fragmentsGuide = page.getByRole('link', { name: /Fragments/ }).first();
+  await expect(fragmentsGuide).toBeVisible();
+  await fragmentsGuide.click();
+
+  await expect(page).toHaveURL(/\/codex-coco-s-site\/videos\/$/);
+  await expect(page.getByRole('heading', { name: '読後の余韻を、少しだけ動かして置いておく。' })).toBeVisible();
   await expectNoHorizontalOverflow(page);
 });
 
