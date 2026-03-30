@@ -68,6 +68,9 @@ const galleryUrl = withBase('gallery/');
 const aboutUrl = withBase('about/');
 const profileUrl = withBase('profile/');
 
+const getHomeReviewImage = (cover?: string, infographic?: string) =>
+  resolvePublicAsset(cover ?? infographic ?? '', previewFallbackImage);
+
 let avatar = '/uploads/img_6088.png';
 
 try {
@@ -111,10 +114,7 @@ const featuredReview = featuredReviewEntry
         84
       ),
       dateLabel: formatReviewDate(featuredReviewEntry.data.date),
-      image: resolvePublicAsset(
-        featuredReviewEntry.data.infographic ?? featuredReviewEntry.data.cover ?? '',
-        previewFallbackImage
-      ),
+      image: getHomeReviewImage(featuredReviewEntry.data.cover, featuredReviewEntry.data.infographic),
       href: hasReviewDetailRoute
         ? withBase(`reviews/${featuredReviewEntry.id.replace(/\.md$/, '')}/`)
         : reviewsUrl,
@@ -1108,7 +1108,16 @@ const worldAsideCopy =
         line-height: 1.8;
       }
 
+      .hero-visual-stage {
+        min-height: 0;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.85rem;
+        align-items: start;
+      }
+
       .hero-portrait {
+        grid-column: 1 / -1;
+        order: 1;
         width: min(100%, 21rem);
         padding: 0.85rem;
       }
@@ -1117,16 +1126,19 @@ const worldAsideCopy =
         position: static;
       }
 
-      .hero-postcard,
-      .hero-postcard-tilt {
-        transform: none;
+      .hero-orbit-left {
+        order: 2;
       }
 
-      .hero-visual-stage {
-        min-height: 24rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0.9rem;
+      .hero-orbit-right {
+        order: 3;
+      }
+
+      .hero-postcard,
+      .hero-postcard-tilt {
+        width: 100%;
+        padding: 0.65rem;
+        transform: none;
       }
 
       .support-item,
