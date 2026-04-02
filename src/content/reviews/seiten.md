@@ -19,6 +19,8 @@ recommendedFor:
 purchaseLinks:
   - label: Amazonで探す
     url: https://www.amazon.co.jp/s?k=%E9%9D%92%E5%A4%A9+%E8%8B%A5%E6%9E%97%E6%AD%A3%E6%81%AD
+  - label: 楽天で探す
+    url: https://books.rakuten.co.jp/rb/18471502/
 published: true
 ---
 「青天」とはアメフト用語で、タックルを受けて仰向けに倒れること。
