@@ -7,5 +7,6 @@ description: "罪と償いをめぐる異様な設定のなかで、逃れられ
 needs_review: false
 generated_at: "2026-03-08T08:40:21.862Z"
 source_file: "gallery/books/Column_Nakamura_Fuminori.jpeg"
+relatedReview: "retsu"
 published: true
 ---

@@ -378,10 +378,10 @@ const articleJsonLd = {
                 </p>
 
                 <div class="purchase-links ui-action-group ui-action-group--stack">
-                  {purchaseLinks.map((link) => (
+                  {purchaseLinks.map((link, index) => (
                     <a
                       class="purchase-link ui-action"
-                      data-testid="review-purchase-link"
+                      data-testid={index === 0 ? 'review-purchase-link' : undefined}
                       href={link.url}
                       target="_blank"
                       rel="noopener noreferrer nofollow"
