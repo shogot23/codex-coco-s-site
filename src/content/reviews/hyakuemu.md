@@ -20,7 +20,7 @@ purchaseLinks:
     url: https://books.rakuten.co.jp/rb/17065427/
   - label: 楽天で探す（下巻）
     url: https://books.rakuten.co.jp/rb/17065428/
-published: true
+published: false
 ---
 <!-- 仮レビュー文：このセクションは後で差し替えます -->
 
