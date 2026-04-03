@@ -199,7 +199,7 @@ const articleJsonLd = {
                 target="_blank"
                 rel="noopener noreferrer nofollow"
               >
-                {purchaseLinks[0].label ?? 'この本を見る'}
+                {review.slug === 'seiten' ? purchaseLinks[0].label ?? 'この本を見る' : 'この本を見る'}
               </a>
             )}
           </div>

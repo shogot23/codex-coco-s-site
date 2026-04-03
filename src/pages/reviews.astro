@@ -260,7 +260,9 @@ const latestReviewLabel = featuredReview ? featuredReview.dateLabel : null;
                     target="_blank"
                     rel="noopener noreferrer nofollow"
                   >
-                    {featuredReview.purchaseLinks[0].label ?? 'この本を見る'}
+                    {featuredReview.slug === "seiten"
+                      ? featuredReview.purchaseLinks[0].label ?? "この本を見る"
+                      : "この本を見る"}
                   </a>
                 )}
               </div>
@@ -341,9 +343,11 @@ const latestReviewLabel = featuredReview ? featuredReview.dateLabel : null;
                             href={review.purchaseLinks[0].url}
                             target="_blank"
                             rel="noopener noreferrer nofollow"
-                            aria-label={`${review.supplementalTitle ?? review.title}を${review.purchaseLinks[0].label ?? '外部ストアで見る'}`}
+                            aria-label={`${review.supplementalTitle ?? review.title}の本を見る`}
                           >
-                            {review.purchaseLinks[0].label ?? 'この本を見る'}
+                            {review.slug === "seiten"
+                              ? review.purchaseLinks[0].label ?? "この本を見る"
+                              : "この本を見る"}
                           </a>
                         )}
                       </div>
