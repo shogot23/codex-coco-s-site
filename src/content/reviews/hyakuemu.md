@@ -16,6 +16,10 @@ recommendedFor:
 purchaseLinks:
   - label: Amazonで探す
     url: https://www.amazon.co.jp/s?k=%E3%81%B2%E3%82%83%E3%81%8F%E3%81%88%E3%82%80%E3%80%82%20%E9%AD%9A%E8%B1%8A
+  - label: 楽天で探す（上巻）
+    url: https://books.rakuten.co.jp/rb/17065427/
+  - label: 楽天で探す（下巻）
+    url: https://books.rakuten.co.jp/rb/17065428/
 published: true
 ---
 <!-- 仮レビュー文：このセクションは後で差し替えます -->
