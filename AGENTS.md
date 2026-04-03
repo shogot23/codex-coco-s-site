@@ -6,6 +6,14 @@
 - このrepoの frontend 基盤整備、公開UI変更、config更新、テスト基盤追加は `publish/dev-critical` 扱いとする。
 - `publish/dev-critical` の変更後、commit 前、PR 前、merge 前には必ず `claude-review-gate` を実行し、`ok: true` を確認する。
 
+## 基本運用ルール
+
+- 実装前に変更対象ファイルと狙いを箇条書きで宣言する
+- 作業開始前に `git status --short --branch` で worktree が clean であることを確認する
+- main への直接 commit を禁止する。必ず branch を切り PR 経由で反映する
+- 指示された範囲のみを変更し、無関係な整形・依存追加・ルール追加をしない
+- 検証コマンドは repo に存在するもののみ使用する（`npm run` 経由で定義されたもの）
+
 ## Repo Layout
 
 - `src/pages/`: Astro pages。`index.astro` が first viewport の基準。
