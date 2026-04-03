@@ -121,6 +121,7 @@ const featuredReview = featuredReviewEntry
       linkLabel: hasReviewDetailRoute ? 'このレビューを読む' : 'レビュー一覧へ',
       tags: featuredReviewEntry.data.tags ?? [],
       recommendedFor: featuredReviewEntry.data.recommendedFor ?? [],
+      purchaseLinks: featuredReviewEntry.data.purchaseLinks ?? [],
     }
   : null;
 
@@ -343,6 +344,16 @@ const worldAsideCopy =
               <a class="inline-button inline-button-secondary ui-action" href={reviewsUrl}>
                 すべてのレビューを見る
               </a>
+              {featuredReview.purchaseLinks.length > 0 && (
+                <a
+                  class="inline-button inline-button-secondary ui-action"
+                  href={featuredReview.purchaseLinks[0].url}
+                  target="_blank"
+                  rel="noopener noreferrer nofollow"
+                >
+                  この本を見る
+                </a>
+              )}
             </div>
           </div>
         </div>

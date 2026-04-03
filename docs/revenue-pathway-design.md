@@ -7,53 +7,53 @@
 
 ## Visual Thesis
 
-- 収益導線は「売場」ではなく、読後に本をそっと手元へ戻すための静かな棚として見せる。
+- 収益導線は「売場」ではなく、読書体験の延長線上にある静かな出口として見せる。購入意欲が生まれた瞬間に最短で到達できる位置に置きつつ、世界観は維持する。
 
 ## Content Plan
 
-- Home は story-cover のまま維持する。
-- Reviews 一覧は「次の一冊を選ぶ」役割に徹し、販促を追加しない。
-- Review 詳細の終端だけに、任意表示の購入導線を置く。
+- Home の Featured Review に購入CTAを置いてよい（secondary 系クラスで抑制）。
+- Reviews 一覧の Featured Review に購入CTAを置いてよい（secondary 系クラスで抑制）。
+- Reviews 一覧の Stream カード: Phase 2 で対応。`stream-link` は既存の「レビューを読む」と同視覚強度のため、subordinate 表現の別途設計が必要。
+- Review 詳細は終端（Reading Shelf）だけでなく、上部（opening-actions）にも購入導線を前倒し配置してよい。
 - About / Gallery / Videos には収益導線を広げない。
+- 公開面で信頼を損なう下書き表示（description/excerpt に「下書き」を含むコンテンツ）は除外対象とする。
 
 ## Interaction Thesis
 
-- 操作の順番は `読む` → `景色へ寄る` → `必要なら手元に置く`。
-- 購入導線は primary / secondary CTA にしない。
-
-## 現状診断
-
-- Home は「ブランドと世界観を開く最初の一画面」として完成している。
-- Reviews 一覧は「レビューへ入る前の余韻と選択」を担っている。
-- Review 詳細は本文読了後に `Afterglow` で景色や次の一冊へ戻す構造になっている。
-- このため、最も自然な収益導線は Review 詳細の終端に限られる。
+- 操作の順番は `読む` → `景色へ寄る` → `必要なら手元に置く` を基本としつつ、購入意欲が生まれた瞬間に最短出口として購入CTAに到達できるようにする。
+- 購入導線は primary CTA にはせず、secondary / secondary-link 相当で抑制する。既存の `このレビューを読む` が常に主CTA。
 
 ## 候補比較
 
-| 候補 | 自然さ | 役割衝突 | 判定 |
+| 候補 | 到達性 | 世界観への影響 | 判定 |
 | --- | --- | --- | --- |
-| Home | 低い | story-cover と CTA priority を崩しやすい | 不採用 |
-| Reviews 一覧 | 低い | 選択導線より販促が先に見えやすい | 不採用 |
-| Review 詳細 | 高い | 読了後の次の一歩として接続できる | 採用 |
+| Home Featured | 高い | secondary 系クラスで抑制すれば共存可 | Phase 1 採用 |
+| Reviews 一覧 Featured | 高い | hero-button-secondary で抑制すれば共存可 | Phase 1 採用 |
+| Reviews 一覧 Stream | 高い | stream-link が主CTAと同強度、subordinate表現の別設計が必要 | Phase 2 |
+| Review 詳細（上部） | 高い | secondary-link で抑制、既存 Reading Shelf も残存 | Phase 1 採用 |
+| Review 詳細（終端） | 高い | 既存 Reading Shelf を維持 | 維持 |
 | About / Gallery / Videos | 低い | 世界観補強ページの役割を汚しやすい | 今回は置かない |
 
 ## 採用方針
 
-- `Review 詳細` の `Afterglow` 内にだけ `Reading Shelf` を置く。
-- 見せ方は small panel とし、カードやバナーの主役にしない。
-- 文言は `この本を手元に置く` `読み返したくなったら` のように、余韻の延長で表現する。
-- 実装は review content に購入リンクを任意設定できるようにし、未設定レビューでは何も出さない。
-- `purchaseLinks` を設定していない review では `Reading Shelf` 自体を表示しない。この非表示は意図どおりの挙動とする。
+- Home: Featured Review の review-actions に `inline-button inline-button-secondary` の購入CTAを追加。
+- Reviews 一覧: Featured Review の review-actions に `hero-button hero-button-secondary` の購入CTAを追加。Stream カードは Phase 2 で対応（subordinate 表現の別途設計が必要）。
+- Review 詳細: `opening-actions` に `secondary-link` の購入CTAを追加し、既存の `Afterglow` 内 `Reading Shelf` はそのまま残す。
+- 見せ方はカードやバナーの主役にせず、既存アクショングループの一員として控えめに配置する。
+- 文言は `この本を見る` を採用（プラットフォーム不問、好奇心を刺激、サイトの文体に自然）。
+- 実装は review content の `purchaseLinks` を使用し、未設定レビューでは何も出さない。
+- `purchaseLinks` を設定していない review では CTA が表示されない。この非表示は意図どおりの挙動とする。
+- 下書きコンテンツは `published: false` で公開面から除外する。
 
 ## Copy / Strength Rule
 
-- 使う: `読み返したくなったら`, `この本を手元に置く`, `外部ストアへ移動します`
+- 使う: `この本を見る`, `読み返したくなったら`, `この本を手元に置く`, `外部ストアへ移動します`
 - 使わない: `今すぐ購入`, `最安値`, `限定`, `おすすめ商品`
-- 強さは tertiary。既存の `本文を読む` / `景色のページへ` / `レビュー一覧へ戻る` より弱く扱う。
+- 強さは secondary / secondary-link 相当。既存の `このレビューを読む` より弱く扱う。primary CTA にはしない。
 
 ## Doctrine との整合
 
-- 主 CTA は引き続き `レビューを見る`。
-- 収益導線を review detail の終端に閉じ込めることで、`読後の余韻が深まる順番` を守る。
+- 主 CTA は引き続き `このレビューを読む`。
+- 購入導線は読書体験を主役にしつつ、購入意欲が生まれた瞬間の最短出口として機能する。
 - バナー化を避け、既存の静かな surface と同じ質感で generic affiliate 化を防ぐ。
 - 本の購入は `本 × ココちゃん × 学び` のうち「本」の延長としてのみ扱う。

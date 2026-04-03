@@ -193,7 +193,14 @@ const articleJsonLd = {
               {primaryRelatedGallery ? 'この本から広がる景色へ' : '次の一冊を探す'}
             </a>
             {purchaseLinks && purchaseLinks.length > 0 && (
-              <a class="tertiary-hint" href="#reading-shelf-title">この本を手元に</a>
+              <a
+                class="secondary-link ui-action"
+                href={purchaseLinks[0].url}
+                target="_blank"
+                rel="noopener noreferrer nofollow"
+              >
+                この本を見る
+              </a>
             )}
           </div>
         </div>

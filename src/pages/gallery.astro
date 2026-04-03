@@ -1,5 +1,5 @@
 ---
-import type { CollectionEntry } from 'astro:content';
+import { getEntry, type CollectionEntry } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
 import type { GalleryGenre } from '../content/config';
 import { getPublishedGallery, hasDetailContent, sortGalleryEntries } from '../utils/gallery';
@@ -38,12 +38,26 @@ const getSceneHref = (entry: GalleryEntry) =>
 const galleryEntries = sortGalleryEntries(await getPublishedGallery());
 const detailedEntries = galleryEntries.filter((entry) => hasDetailContent(entry));
 const uniqueGenres = new Set(galleryEntries.map((entry) => entry.data.genre).filter(Boolean));
-const linkedReviewCount = galleryEntries.filter((entry) => Boolean(entry.data.relatedReview)).length;
+const linkedReviewCount = (await Promise.all(
+  galleryEntries.map(async (entry) => {
+    if (!entry.data.relatedReview) return false;
+    const linked = await getEntry(entry.data.relatedReview);
+    return linked?.data.published === true;
+  })
+)).filter(Boolean).length;
 
 const reviewsUrl = `${baseWithSlash}reviews/`;
 const aboutUrl = `${baseWithSlash}about/`;
 
-const heroLeadEntry = detailedEntries.find((entry) => entry.data.relatedReview) ?? detailedEntries[0] ?? galleryEntries[0] ?? null;
+const entriesWithPublishedReview = await Promise.all(
+  detailedEntries.map(async (entry) => {
+    if (!entry.data.relatedReview) return null;
+    const linked = await getEntry(entry.data.relatedReview);
+    return linked?.data.published === true ? entry : null;
+  })
+);
+const heroLeadEntry =
+  entriesWithPublishedReview.find(Boolean) ?? detailedEntries[0] ?? galleryEntries[0] ?? null;
 const heroSupportEntries = galleryEntries
   .filter((entry) => entry.slug !== heroLeadEntry?.slug)
   .slice(0, 3);
