@@ -2,8 +2,8 @@
 title: "列"
 bookTitle: "列"
 author: "中村文則"
-description: "（下書き）このレビューの説明文は後で差し替えます。"
-excerpt: "（下書き）引用文は後で差し替えます。"
+description: "比較の罠を抜けて、自分だけの物差しを見つける一冊。"
+excerpt: "比較ってしちゃダメだと思っていても、無意識のうちにしてしまいますよね。それでも自分の楽しみや物差しは、自分で見つけないといけない。"
 date: 2026-04-02
 cover: /uploads/review/infographic/nakamura_fuminori_retsu.PNG
 infographic: /uploads/review/infographic/nakamura_fuminori_retsu.PNG
@@ -11,20 +11,16 @@ tags:
   - 小説
   - その他
 recommendedFor:
-  - "（下書き）おすすめ対象は後で差し替えます"
+  - "他人と比べて落ち込んでしまう人"
+  - "自分だけの物差しを持ちたい人"
 purchaseLinks:
   - label: Amazonで探す
     url: https://www.amazon.co.jp/s?k=%E5%88%97%20%E4%B8%AD%E6%9D%91%E6%96%87%E5%89%87
   - label: 楽天で探す
     url: https://books.rakuten.co.jp/rb/17631571/
-published: false
+published: true
 ---
-<!-- 仮レビュー文：このセクションは後で差し替えます -->
-
-このレビュー本文は下書きです。後で読後メモに差し替えます。
-
-『列』（中村文則）について、読後に残った感想をここに書きます。
-本の内容に触れつつ、個人的な気づきや余韻を言葉にします。
-
----おすすめの人---
-ここに「こんな人におすすめ」の理由を追加します。
+比較ってしちゃダメだと思っていても、
+無意識のうちにしてしまいますよね。
+それでも自分の楽しみや物差しというのは
+自分で見つけないといけないんですよねぇ。

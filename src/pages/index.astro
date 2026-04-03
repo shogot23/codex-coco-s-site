@@ -93,7 +93,9 @@ try {
 const aboutParagraphs = aboutEntry ? getParagraphs(aboutEntry.body) : [];
 
 const reviewEntries = await getPublishedReviews();
-const sortedReviews = [...reviewEntries].sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+const sortedReviews = [...reviewEntries].sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime() || a.slug.localeCompare(b.slug)
+);
 const featuredReviewEntry = sortedReviews[0];
 const supportingReviewEntries = sortedReviews.slice(1, 3);
 
