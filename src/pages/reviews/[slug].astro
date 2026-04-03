@@ -192,6 +192,9 @@ const articleJsonLd = {
             <a class="secondary-link ui-action" href={primaryRelatedGallery ? relatedGalleryUrl : reviewsListUrl}>
               {primaryRelatedGallery ? 'この本から広がる景色へ' : '次の一冊を探す'}
             </a>
+            {purchaseLinks && purchaseLinks.length > 0 && (
+              <a class="tertiary-hint" href="#reading-shelf-title">この本を手元に</a>
+            )}
           </div>
         </div>
 
@@ -924,6 +927,20 @@ const articleJsonLd = {
     transform: translateY(-2px);
     border-color: rgba(124, 77, 33, 0.36);
     background: rgba(255, 255, 255, 0.94);
+  }
+
+  .tertiary-hint {
+    display: inline-flex;
+    align-items: center;
+    color: var(--color-muted);
+    font-size: 0.92rem;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .tertiary-hint:hover {
+    text-decoration: underline;
+    color: var(--color-text);
   }
 
   .purchase-note {
