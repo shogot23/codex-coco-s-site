@@ -90,7 +90,7 @@ test('review detail keeps the reading flow and afterglow link intact', async ({ 
   await expect(page.getByRole('heading', { name: '言葉を読み終えたあと、景色のほうへ。' })).toBeVisible();
   await expect(purchaseShelf).toBeVisible();
   await expect(purchaseShelf.getByRole('heading', { name: '読み返したくなったら、この本を手元に。' })).toBeVisible();
-  await expect(purchaseShelf.getByTestId('review-purchase-link')).toHaveText('Amazonで探す');
+  await expect(purchaseShelf.getByTestId('review-purchase-link')).toHaveText('楽天で見る');
   await expect(purchaseShelf.getByText('外部ストアへ移動します。')).toBeVisible();
   await expect(page.getByText('「青天」とはアメフト用語で')).toBeVisible();
 

@@ -17,10 +17,8 @@ recommendedFor:
   - 倒れてから立ち上がる物語が好きな人
   - リトルトゥースの人
 purchaseLinks:
-  - label: Amazonで探す
-    url: https://www.amazon.co.jp/s?k=%E9%9D%92%E5%A4%A9+%E8%8B%A5%E6%9E%97%E6%AD%A3%E6%81%AD
-  - label: 楽天で探す
-    url: https://books.rakuten.co.jp/rb/18471502/
+  - label: 楽天で見る
+    url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F21819882%2F&m=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F21819882%2F"
 published: true
 ---
 「青天」とはアメフト用語で、タックルを受けて仰向けに倒れること。

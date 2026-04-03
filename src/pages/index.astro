@@ -101,6 +101,7 @@ const supportingReviewEntries = sortedReviews.slice(1, 3);
 
 const featuredReview = featuredReviewEntry
   ? {
+      slug: featuredReviewEntry.slug,
       title: featuredReviewEntry.data.title,
       bookTitle: featuredReviewEntry.data.bookTitle ?? featuredReviewEntry.data.title,
       author: featuredReviewEntry.data.author,
@@ -353,7 +354,9 @@ const worldAsideCopy =
                   target="_blank"
                   rel="noopener noreferrer nofollow"
                 >
-                  この本を見る
+                  {featuredReview.slug === 'seiten'
+                    ? featuredReview.purchaseLinks[0].label ?? 'この本を見る'
+                    : 'この本を見る'}
                 </a>
               )}
             </div>
