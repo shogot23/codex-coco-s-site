@@ -331,7 +331,20 @@ const latestReviewLabel = featuredReview ? featuredReview.dateLabel : null;
                         </p>
                       )}
 
-                      <a class="stream-link ui-action" href={review.href}>レビューを読む</a>
+                      <div class="stream-actions">
+                        <a class="stream-link ui-action" href={review.href}>レビューを読む</a>
+                        {review.purchaseLinks.length > 0 && (
+                          <a
+                            class="stream-purchase ui-action"
+                            href={review.purchaseLinks[0].url}
+                            target="_blank"
+                            rel="noopener noreferrer nofollow"
+                            aria-label={`${review.supplementalTitle ?? review.title}の本を見る`}
+                          >
+                            この本を見る
+                          </a>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </li>
@@ -866,6 +879,13 @@ const latestReviewLabel = featuredReview ? featuredReview.dateLabel : null;
     justify-content: space-between;
   }
 
+  .stream-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem 0.9rem;
+  }
+
   .stream-cue {
     margin: 0;
     color: rgba(32, 22, 15, 0.82);
@@ -879,6 +899,27 @@ const latestReviewLabel = featuredReview ? featuredReview.dateLabel : null;
     font-size: 0.84rem;
     font-weight: 700;
     letter-spacing: 0.08em;
+  }
+
+  .stream-purchase {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--color-muted);
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .stream-purchase:hover {
+    color: var(--color-accent);
+  }
+
+  .stream-purchase::after {
+    content: "↗";
+    font-size: 0.78rem;
+    opacity: 0.55;
   }
 
   .compass-card {
@@ -947,6 +988,10 @@ const latestReviewLabel = featuredReview ? featuredReview.dateLabel : null;
 
     .hero-actions,
     .review-actions {
+      width: 100%;
+    }
+
+    .stream-actions {
       width: 100%;
     }
 
