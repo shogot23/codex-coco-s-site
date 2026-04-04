@@ -1,14 +1,18 @@
 # 読書 with Coco Repo Guide
 
+## 参照の基本
+
+- 正本入口は `AGENTS.md` とし、repo 全体の判断が必要なときは `docs/parallel-dev-core.md` → `docs/parallel-dev-config.md` → `docs/reading-with-coco-design-doctrine.md` → `docs/frontend-playbook.md` の順で参照する。
+- `docs/parallel-dev-core.md` は共通ルールのみ、`docs/parallel-dev-config.md` はこの repo 固有値のみを扱う。
+
 ## Review Gate
 
 - すべての変更は最初に `record-fast` / `record-safe` / `publish/dev-critical` を判定する。
-- このrepoの frontend 基盤整備、公開UI変更、config更新、テスト基盤追加は `publish/dev-critical` 扱いとする。
-- `publish/dev-critical` の変更後、commit 前、PR 前、merge 前には必ず `claude-review-gate` を実行し、`ok: true` を確認する。
+- この repo の `publish/dev-critical` 条件、verify コマンド、現在の Claude review 要件は `docs/parallel-dev-config.md` を正本として参照する。
 
 ## 基本運用ルール
 
-- 実装前に変更対象ファイルと狙いを箇条書きで宣言する
+- 実装前に `docs/parallel-dev-config.md` で分類と検証範囲を確認し、変更対象ファイルと狙いを箇条書きで宣言する
 - 作業開始前に `git status --short --branch` で worktree が clean であることを確認する
 - main への直接 commit を禁止する。必ず branch を切り PR 経由で反映する
 - 指示された範囲のみを変更し、無関係な整形・依存追加・ルール追加をしない
@@ -68,6 +72,7 @@
 ## Verify
 
 - frontend 変更後は `npm run lint` → `npm run typecheck` → `npm run build` → `npm run test:e2e` を順に実行する。
+- 完了時は `npm run verify:frontend` で最終確認する。
 - Playwright では desktop と mobile の両方で top page、主要遷移、CTA クリック、レイアウト崩れを確認する。
 - UI調整中は `npm run test:e2e -- --project=chromium` などで短い反復をしてよいが、完了時は full smoke を通す。
 
