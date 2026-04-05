@@ -18,6 +18,16 @@
 - 指示された範囲のみを変更し、無関係な整形・依存追加・ルール追加をしない
 - 検証コマンドは repo に存在するもののみ使用する（`npm run` 経由で定義されたもの）
 
+## Lightweight PlanGate
+
+- 軽量 PlanGate は重い承認プロセスではなく、実装前に意図と確認項目をファイルへ固定して事故を減らすための最小運用とする
+- 実装系タスクや複数段階の文書更新では、着手前に `docs/tasks/<task-id>/` を作り、`pbi-input.md` / `plan.md` / `test-cases.md` を用意する
+- `plan.md` の承認前はコード変更をしない
+- scope 外変更をしない。差分は常に最小に保つ
+- 実装後は最低限 `npm run typecheck` と `npm run build` を行う。frontend 変更では既存の verify ルールを優先する
+- 完了後は `status.md` を更新し、その日の daily / worklog に実施内容を残す
+- `record-fast` の daily / recovery-log / worklog だけを残す作業は、この PlanGate の対象外としてよい
+
 ## Repo Layout
 
 - `src/pages/`: Astro pages。`index.astro` が first viewport の基準。
@@ -75,6 +85,7 @@
 - 完了時は `npm run verify:frontend` で最終確認する。
 - Playwright では desktop と mobile の両方で top page、主要遷移、CTA クリック、レイアウト崩れを確認する。
 - UI調整中は `npm run test:e2e -- --project=chromium` などで短い反復をしてよいが、完了時は full smoke を通す。
+- 軽量 PlanGate の運用手順とテンプレートは `docs/process/lightweight-plangate.md` と `docs/tasks/_templates/` を参照する。
 
 ## Definition Of Done
 
