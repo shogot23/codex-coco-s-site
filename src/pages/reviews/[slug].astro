@@ -111,6 +111,12 @@ const heroImage = infographic ?? cover ?? primaryRelatedGallery?.data.image ?? n
 const heroImageUrl = heroImage ? resolveImageUrl(heroImage) : null;
 const supplementalTitle = bookTitle && bookTitle !== title ? bookTitle : null;
 const hasGuidance = Boolean((recommendedFor && recommendedFor.length > 0) || (tags && tags.length > 0));
+const primaryPurchaseLink = purchaseLinks?.[0] ?? null;
+const hasMultiplePurchaseLinks = (purchaseLinks?.length ?? 0) > 1;
+const openingPurchaseHref = hasMultiplePurchaseLinks ? '#review-purchase-shelf' : primaryPurchaseLink?.url;
+const openingPurchaseLabel = hasMultiplePurchaseLinks
+  ? '購入先をまとめて見る'
+  : primaryPurchaseLink?.label ?? 'この本を見る';
 const pageDescription = description ?? excerpt ?? `${title}のレビュー詳細`;
 
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site!).toString();
@@ -192,17 +198,23 @@ const articleJsonLd = {
             <a class="secondary-link ui-action" href={primaryRelatedGallery ? relatedGalleryUrl : reviewsListUrl}>
               {primaryRelatedGallery ? 'この本から広がる景色へ' : '次の一冊を探す'}
             </a>
-            {purchaseLinks && purchaseLinks.length > 0 && (
+            {primaryPurchaseLink && (
               <a
                 class="secondary-link ui-action"
-                href={purchaseLinks[0].url}
-                target="_blank"
-                rel="noopener noreferrer nofollow"
+                href={openingPurchaseHref}
+                target={hasMultiplePurchaseLinks ? undefined : '_blank'}
+                rel={hasMultiplePurchaseLinks ? undefined : 'noopener noreferrer nofollow'}
               >
-                {review.slug === 'seiten' ? purchaseLinks[0].label ?? 'この本を見る' : 'この本を見る'}
+                {openingPurchaseLabel}
               </a>
             )}
           </div>
+
+          {hasMultiplePurchaseLinks && (
+            <p class="purchase-shortcut-note">
+              購入先の一覧はページ下部の Reading Shelf にまとめています。
+            </p>
+          )}
         </div>
 
         <div class="opening-visual">
@@ -377,6 +389,7 @@ const articleJsonLd = {
 
             {purchaseLinks && purchaseLinks.length > 0 && (
               <aside
+                id="review-purchase-shelf"
                 class="reading-shelf"
                 aria-labelledby="reading-shelf-title"
                 data-testid="review-purchase-shelf"
@@ -562,6 +575,13 @@ const articleJsonLd = {
     max-width: 38rem;
     line-height: 1.8;
     color: var(--color-muted);
+  }
+
+  .purchase-shortcut-note {
+    margin: -2px 0 0;
+    color: var(--color-muted);
+    font-size: 0.92rem;
+    line-height: 1.7;
   }
 
   .opening-actions,
@@ -897,6 +917,7 @@ const articleJsonLd = {
   }
 
   .reading-shelf {
+    scroll-margin-top: 7rem;
     background:
       radial-gradient(circle at top right, rgba(243, 223, 180, 0.2), transparent 38%),
       rgba(250, 246, 239, 0.9);
