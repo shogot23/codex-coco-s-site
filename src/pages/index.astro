@@ -3,7 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import { getCollection, getEntry } from 'astro:content';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { getPublishedGallery, hasDetailContent } from '../utils/gallery';
+import { buildReviewGalleryMap, getPublishedGallery, hasDetailContent } from '../utils/gallery';
 import { getPublishedReviews } from '../utils/reviews';
 
 const BASE_URL = import.meta.env.BASE_URL.endsWith('/')
@@ -68,8 +68,8 @@ const galleryUrl = withBase('gallery/');
 const aboutUrl = withBase('about/');
 const profileUrl = withBase('profile/');
 
-const getHomeReviewImage = (cover?: string, infographic?: string) =>
-  resolvePublicAsset(cover ?? infographic ?? '', previewFallbackImage);
+const getHomeReviewImage = (cover?: string, infographic?: string, galleryImage?: string) =>
+  resolvePublicAsset(galleryImage ?? cover ?? infographic ?? '', previewFallbackImage);
 
 let avatar = '/uploads/img_6088.png';
 
@@ -96,6 +96,8 @@ const reviewEntries = await getPublishedReviews();
 const sortedReviews = [...reviewEntries].sort(
   (a, b) => b.data.date.getTime() - a.data.date.getTime() || a.slug.localeCompare(b.slug)
 );
+const galleryEntries = await getPublishedGallery();
+const reviewGalleryMap = buildReviewGalleryMap(galleryEntries);
 const featuredReviewEntry = sortedReviews[0];
 const supportingReviewEntries = sortedReviews.slice(1, 3);
 
@@ -117,7 +119,11 @@ const featuredReview = featuredReviewEntry
         84
       ),
       dateLabel: formatReviewDate(featuredReviewEntry.data.date),
-      image: getHomeReviewImage(featuredReviewEntry.data.cover, featuredReviewEntry.data.infographic),
+      image: getHomeReviewImage(
+        featuredReviewEntry.data.cover,
+        featuredReviewEntry.data.infographic,
+        reviewGalleryMap.get(featuredReviewEntry.slug)?.data.image
+      ),
       href: hasReviewDetailRoute
         ? withBase(`reviews/${featuredReviewEntry.id.replace(/\.md$/, '')}/`)
         : reviewsUrl,
@@ -134,7 +140,6 @@ const supportingReviews = supportingReviewEntries.map((entry) => ({
   href: hasReviewDetailRoute ? withBase(`reviews/${entry.id.replace(/\.md$/, '')}/`) : reviewsUrl,
 }));
 
-const galleryEntries = await getPublishedGallery();
 const getGalleryTimestamp = (generatedAt?: string) => {
   if (!generatedAt) return 0;
   const timestamp = Date.parse(generatedAt);

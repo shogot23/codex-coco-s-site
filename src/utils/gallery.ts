@@ -17,6 +17,30 @@ export function getGalleryTimestamp(generatedAt?: string): number {
   return Number.isNaN(timestamp) ? 0 : timestamp;
 }
 
+export function buildReviewGalleryMap(
+  galleryEntries: CollectionEntry<'gallery'>[]
+): Map<string, CollectionEntry<'gallery'>> {
+  const map = new Map<string, CollectionEntry<'gallery'>>();
+
+  for (const entry of galleryEntries) {
+    const ref = entry.data.relatedReview;
+    const reviewId =
+      typeof ref === 'string'
+        ? ref
+        : ref && typeof ref === 'object' && 'id' in ref && typeof ref.id === 'string'
+          ? ref.id
+          : ref && typeof ref === 'object' && 'slug' in ref && typeof ref.slug === 'string'
+            ? ref.slug
+            : undefined;
+
+    if (reviewId && !map.has(reviewId)) {
+      map.set(reviewId, entry);
+    }
+  }
+
+  return map;
+}
+
 /**
  * Sort gallery entries for "lead with review-connected scenes, then richer detail, then recent imports".
  * Order is descending by:
