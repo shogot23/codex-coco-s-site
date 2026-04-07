@@ -18,7 +18,7 @@ recommendedFor:
   - リトルトゥースの人
 purchaseLinks:
   - label: 楽天で見る
-    url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F21819882%2F&m=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F21819882%2F"
+    url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F18471502%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbook%2Fi%2F21819882%2F"
 published: true
 ---
 「青天」とはアメフト用語で、タックルを受けて仰向けに倒れること。
