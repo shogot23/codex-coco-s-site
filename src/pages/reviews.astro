@@ -1,11 +1,14 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { buildReviewGalleryMap, getPublishedGallery } from "../utils/gallery";
 import { getPublishedReviews } from "../utils/reviews";
 
 const reviews = await getPublishedReviews();
 const sortedReviews = [...reviews].sort(
   (a, b) => b.data.date.getTime() - a.data.date.getTime() || a.slug.localeCompare(b.slug)
 );
+const galleryEntries = await getPublishedGallery();
+const reviewGalleryMap = buildReviewGalleryMap(galleryEntries);
 
 const base = import.meta.env.BASE_URL;
 const baseWithSlash = base.endsWith("/") ? base : `${base}/`;
@@ -48,7 +51,8 @@ const reviewCards = sortedReviews.map((review) => {
   const href = `${baseWithSlash}reviews/${review.slug}/`;
   const summarySource = review.data.description ?? review.data.excerpt ?? review.body ?? "";
   const quoteSource = review.data.excerpt ?? review.body ?? review.data.description ?? "";
-  const thumbnail = review.data.cover ?? review.data.infographic;
+  const galleryImage = reviewGalleryMap.get(review.slug)?.data.image;
+  const thumbnail = galleryImage ?? review.data.cover ?? review.data.infographic;
   const supplementalTitle =
     review.data.bookTitle && review.data.bookTitle !== review.data.title
       ? review.data.bookTitle
@@ -722,6 +726,10 @@ const latestReviewLabel = featuredReview ? featuredReview.dateLabel : null;
       box-shadow 0.2s ease;
   }
 
+  .featured-media {
+    aspect-ratio: 4 / 5;
+  }
+
   .featured-media img,
   .stream-media img {
     display: block;
@@ -853,7 +861,7 @@ const latestReviewLabel = featuredReview ? featuredReview.dateLabel : null;
   }
 
   .stream-media {
-    aspect-ratio: 5 / 6;
+    aspect-ratio: 4 / 5;
   }
 
   .media-fallback-small strong {
