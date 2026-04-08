@@ -29,8 +29,39 @@ const withBase = (assetPath: string) => {
   return `${baseWithSlash}${assetPath.replace(/^\/+/, '')}`;
 };
 
-const getSceneSummary = (entry: GalleryEntry) =>
-  entry.data.note ?? entry.data.description ?? '本から生まれた景色を静かに見返すための展示です。';
+const escapeForRegExp = (value: string) =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const sanitizeSceneSummary = (summary: string, entry: GalleryEntry) => {
+  let cleaned = summary.trim();
+
+  if (entry.data.title) {
+    const titlePattern = new RegExp(
+      `^(?:『|「)?${escapeForRegExp(entry.data.title)}(?:』|」)?(?:は|を)?(?:、|,)?\\s*`,
+      'u'
+    );
+    cleaned = cleaned.replace(titlePattern, '');
+  }
+
+  if (entry.data.author) {
+    const authorPattern = new RegExp(
+      `^(?:著者[:：]\\s*)?${escapeForRegExp(entry.data.author)}(?:による)?(?:、|,)?\\s*`,
+      'u'
+    );
+    cleaned = cleaned.replace(authorPattern, '');
+  }
+
+  cleaned = cleaned.replace(/^[、,]\s*/, '');
+
+  return cleaned || summary;
+};
+
+const getSceneSummary = (entry: GalleryEntry) => {
+  const summary =
+    entry.data.note ?? entry.data.description ?? '本から生まれた景色を静かに見返すための展示です。';
+
+  return sanitizeSceneSummary(summary, entry);
+};
 
 const getSceneHref = (entry: GalleryEntry) =>
   hasDetailContent(entry) ? `${baseWithSlash}gallery/${entry.slug}/` : null;
