@@ -148,6 +148,7 @@ type CliOptions = {
   dryRun: boolean;
   reportJsonPath?: string;
   targetFile?: string;
+  overrideTarget?: string;
   overrides: {
     title?: string;
     author?: string;
@@ -1512,7 +1513,7 @@ function buildCliOptions(args: string[]): CliOptions {
 
     if (current === '--help') {
       throw new Error(
-        'Usage: npm run gallery:import -- [--dry-run] [--report-json <path>] [--file <path>] [--title <title>] [--author <author>] [--genre <現代文学|歴史小説|漫画|ノンフィクション|歴史教養|心理学|健康|ホビー|新書|自伝|ビジネス|エッセイ>]'
+        'Usage: npm run gallery:import -- [--dry-run] [--report-json <path>] [--file <path>] [--title <title>] [--author <author>] [--genre <現代文学|歴史小説|漫画|ノンフィクション|歴史教養|心理学|健康|ホビー|新書|自伝|ビジネス|エッセイ>] [--override <source_file>]'
       );
     }
 
@@ -1528,6 +1529,11 @@ function buildCliOptions(args: string[]): CliOptions {
 
     if (current === '--file' || current.startsWith('--file=')) {
       cliOptions.targetFile = path.resolve(readValue('--file'));
+      continue;
+    }
+
+    if (current === '--override' || current.startsWith('--override=')) {
+      cliOptions.overrideTarget = readValue('--override');
       continue;
     }
 
@@ -1559,8 +1565,16 @@ function buildCliOptions(args: string[]): CliOptions {
   }
 
   const overrideFields = Object.values(cliOptions.overrides).filter((value) => value !== undefined);
-  if (!cliOptions.targetFile && overrideFields.length > 0) {
-    throw new Error('title / author / genre の override は --file と一緒に指定してください。');
+  if (!cliOptions.targetFile && !cliOptions.overrideTarget && overrideFields.length > 0) {
+    throw new Error('title / author / genre の override は --file または --override と一緒に指定してください。');
+  }
+
+  if (cliOptions.targetFile && cliOptions.overrideTarget) {
+    throw new Error('--file と --override は同時に指定できません。');
+  }
+
+  if (cliOptions.overrideTarget && overrideFields.length === 0) {
+    throw new Error('--override には --title / --author / --genre のいずれかを指定してください。');
   }
 
   return cliOptions;
@@ -2127,6 +2141,126 @@ function writeReportOutputs(context: ReportContext): void {
   writeFileSync(context.cliOptions.reportJsonPath, `${JSON.stringify(context, null, 2)}\n`);
 }
 
+function runOverrideMode(cliOptions: CliOptions, reportContext: ReportContext): number {
+  const sourceFilePattern = cliOptions.overrideTarget!;
+  const entries = readExistingGalleryEntries();
+
+  // Match by source_file (supports partial match on basename)
+  const matched = entries.filter((entry) => {
+    const sf = readScalarField(
+      parseFrontmatter(readFileSync(entry.path, 'utf8'))?.frontmatter ?? '',
+      'source_file'
+    );
+    if (typeof sf === 'string') {
+      return sf === sourceFilePattern || sf.endsWith(sourceFilePattern);
+    }
+    return false;
+  });
+
+  if (matched.length === 0) {
+    console.error(`[gallery:import --override] source_file "${sourceFilePattern}" に一致するエントリが見つかりません。`);
+    return 1;
+  }
+
+  if (matched.length > 1) {
+    console.error(
+      `[gallery:import --override] 複数エントリが一致しました (${matched.length}件)。より具体的な source_file を指定してください:`,
+      matched.map((e) => e.slug)
+    );
+    return 1;
+  }
+
+  const entry = matched[0];
+  const content = readFileSync(entry.path, 'utf8');
+  const parsed = parseFrontmatter(content);
+  if (!parsed) {
+    console.error(`[gallery:import --override] frontmatter 解析失敗: ${entry.path}`);
+    return 1;
+  }
+
+  let frontmatter = parsed.frontmatter;
+  const applied: string[] = [];
+
+  if (cliOptions.overrides.title) {
+    const prev = readScalarField(frontmatter, 'title');
+    frontmatter = frontmatter.replace(
+      new RegExp(`^title:\\s*.*$`, 'm'),
+      `title: ${quote(cliOptions.overrides.title)}`
+    );
+    applied.push(`title: ${JSON.stringify(prev)} → ${JSON.stringify(cliOptions.overrides.title)}`);
+  }
+
+  if (cliOptions.overrides.author) {
+    const prev = readScalarField(frontmatter, 'author');
+    frontmatter = frontmatter.replace(
+      new RegExp(`^author:\\s*.*$`, 'm'),
+      `author: ${quote(cliOptions.overrides.author)}`
+    );
+    applied.push(`author: ${JSON.stringify(prev)} → ${JSON.stringify(cliOptions.overrides.author)}`);
+  }
+
+  if (cliOptions.overrides.genre) {
+    const prev = readScalarField(frontmatter, 'genre');
+    const nextLine = `genre: ${quote(cliOptions.overrides.genre)}`;
+    if (new RegExp(`^genre:\\s*.*$`, 'm').test(frontmatter)) {
+      frontmatter = frontmatter.replace(new RegExp(`^genre:\\s*.*$`, 'm'), nextLine);
+    } else {
+      frontmatter += `\n${nextLine}`;
+    }
+    applied.push(`genre: ${JSON.stringify(prev)} → ${JSON.stringify(cliOptions.overrides.genre)}`);
+  }
+
+  if (cliOptions.dryRun) {
+    console.log('[dry-run] 以下の変更を適用予定:');
+    for (const line of applied) {
+      console.log(`  ${line}`);
+    }
+    console.log(`  target: ${entry.path}`);
+    return 0;
+  }
+
+  const newContent = `---\n${frontmatter}\n---\n${parsed.body}`;
+  writeFileSync(entry.path, newContent);
+
+  console.log(`[gallery:import --override] ${entry.slug} を更新しました:`);
+  for (const line of applied) {
+    console.log(`  ${line}`);
+  }
+
+  reportContext.results.push({
+    sourcePath: entry.path,
+    sourceHandling: 'retained',
+    status: 'imported',
+    metadata: {
+      title: cliOptions.overrides.title ?? entry.title,
+      titleConfidence: 1,
+      author: cliOptions.overrides.author ?? entry.author,
+      authorConfidence: 1,
+      genre: cliOptions.overrides.genre,
+      genreConfidence: 1,
+      description: entry.description ?? '',
+      descriptionConfidence: 1,
+      alt: '',
+      altConfidence: 1,
+      ocrConfidence: 0,
+      ocrText: '',
+      overallConfidence: 1,
+      warnings: [],
+      existingTitlesByAuthor: [],
+      scannersUsed: [],
+      ocrCandidateStrings: [],
+      titleCandidates: [],
+      authorCandidates: [],
+      similarEntries: [],
+      overrideFields: Object.keys(cliOptions.overrides).filter(
+        (k) => cliOptions.overrides[k as keyof typeof cliOptions.overrides] !== undefined
+      ) as OverrideField[],
+    },
+  });
+
+  return 0;
+}
+
 async function main(): Promise<number> {
   mkdirSync(TARGET_DIR, { recursive: true });
   mkdirSync(GALLERY_DIR, { recursive: true });
@@ -2149,6 +2283,13 @@ async function main(): Promise<number> {
   try {
     const cliOptions = buildCliOptions(process.argv.slice(2));
     reportContext.cliOptions = cliOptions;
+
+    // --override mode: update metadata of an existing gallery entry
+    if (cliOptions.overrideTarget) {
+      const exitCode = runOverrideMode(cliOptions, reportContext);
+      return exitCode;
+    }
+
     if (cliOptions.targetFile) {
       assertTargetFileIsInsideInbox(cliOptions.targetFile);
     }
