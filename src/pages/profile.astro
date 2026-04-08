@@ -1,514 +1,561 @@
 ---
-import { getCollection } from "astro:content";
+import { getEntry } from "astro:content";
 import Layout from "../layouts/Layout.astro";
 
-const items = await getCollection("profile");
-const entry = items[0] ?? null;
+let entry = null;
 
-const BASE_URL = import.meta.env.BASE_URL.endsWith("/")
+try {
+  entry = await getEntry("profile", "profile");
+} catch {
+  // Profile content is optional during local content setup.
+}
+
+const base = import.meta.env.BASE_URL.endsWith("/")
   ? import.meta.env.BASE_URL
   : `${import.meta.env.BASE_URL}/`;
 
-const isAbsoluteUrl = (value: string) =>
-  /^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(value);
+const isAbsoluteUrl = (value: string) => /^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(value);
 
 const withBase = (path: string) => {
-  if (!path) return BASE_URL;
+  if (!path) return base;
   if (isAbsoluteUrl(path)) return path;
-  if (path.startsWith(BASE_URL)) return path;
-  return `${BASE_URL}${path.replace(/^\/+/, "")}`;
+  if (path.startsWith(base)) return path;
+  return `${base}${path.replace(/^\/+/, "")}`;
 };
 
-const title = entry?.data?.title ?? "プロフィール";
+const stripMarkdown = (value: string) =>
+  value
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replace(/[*_`>-]/g, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+
+const getParagraphs = (value: string) =>
+  stripMarkdown(value)
+    .split(/\n\s*\n/)
+    .map((paragraph) => paragraph.replace(/\s*\n\s*/g, " ").trim())
+    .filter(Boolean);
+
+const title = entry ? `${entry.data.title} | 読書 with Coco` : "プロフィール | 読書 with Coco";
 const description = entry?.data?.description ?? "読書 with Coco のプロフィール";
-const avatarPath = "/uploads/profile.png";
-const avatarUrl = withBase(avatarPath);
-const heroLead = "ココちゃんは、このサイトの案内役です。";
-const heroParagraphs = [
-  "レビューの言葉とギャラリーの景色を行き来しながら、読んだ本のあとに残る気持ちを、いっしょにゆっくりたどっていきます。",
-  "おてんばだけど、ちょっぴりビビり。気になるものにはそろそろ近づいて、ちゃんと確かめたくなるタイプです。",
-  "そんなココちゃんと一緒に、本の余韻を静かに味わえる場所をつくっています。",
-];
-const updatedLabel = entry?.data?.updatedAt
+const avatarUrl = withBase(entry?.data?.avatar ?? "/uploads/profile.png");
+const reviewsUrl = withBase("reviews/");
+const galleryUrl = withBase("gallery/");
+const homeUrl = withBase("");
+
+const profileItems = entry?.data?.profileItems ?? [];
+const favoriteItems = entry?.data?.favoriteItems ?? [];
+const sensitiveItems = entry?.data?.sensitiveItems ?? [];
+const roleText = entry?.data?.roleText ?? "";
+const closingQuote = entry?.data?.closingQuote ?? "";
+
+const profileParagraphs = entry ? getParagraphs(entry.body) : [];
+const profileLead = profileParagraphs[0] ?? "ココちゃんは、このサイトの案内役です。";
+const profileBridge = profileParagraphs[1] ?? null;
+
+const updatedAtLabel = entry?.data?.updatedAt
   ? new Intl.DateTimeFormat("ja-JP", {
       year: "numeric",
       month: "long",
       day: "numeric",
+      timeZone: "UTC",
     }).format(entry.data.updatedAt)
   : null;
-
-const galleryUrl = withBase("gallery/");
-const reviewsUrl = withBase("reviews/");
-
-const guideLinks = [
-  {
-    label: "Reviews",
-    href: reviewsUrl,
-    copy: "読後に残った言葉の輪郭を、ココちゃんと一緒にゆっくりたどる。",
-  },
-  {
-    label: "Gallery",
-    href: galleryUrl,
-    copy: "レビューの先に広がる景色や空気を、やわらかく見返してみる。",
-  },
-];
-
-let Content = null;
-if (entry) {
-  ({ Content } = await entry.render());
-}
 ---
 
 <Layout title={title} description={description} image={avatarUrl}>
-  <section class="profile-shell">
-    <section class="profile-hero">
+  <div class="profile-world">
+    <section class="profile-hero" aria-labelledby="profile-title">
+      <div class="hero-copy">
+        <p class="section-label">Profile / Site Guide</p>
+        <h2 class="section-caption">ココちゃんについて</h2>
+        <p class="hero-brand">読書 with Coco</p>
+        <h1 id="profile-title">このサイトの案内役、ココちゃん。</h1>
+        <p class="hero-lead">{profileLead}</p>
+        {profileBridge && <p class="hero-bridge">{profileBridge}</p>}
+
+        <div class="hero-actions ui-action-group ui-action-group--stack">
+          <a class="hero-link hero-link-primary ui-action" href={reviewsUrl}>レビューを見る</a>
+          <a class="hero-link hero-link-secondary ui-action" href={galleryUrl}>ギャラリーを見る</a>
+        </div>
+
+        <div class="hero-footnote">
+          <p>{entry?.data?.description ?? "ココちゃんについて"}</p>
+          {updatedAtLabel && <span>更新: {updatedAtLabel}</span>}
+        </div>
+      </div>
+
       <div class="hero-visual">
-        <figure class="visual-card">
+        <figure class="hero-image-frame">
           <img
             src={avatarUrl}
-            alt="本に囲まれたココちゃんのポートレート"
+            alt="読書 with Coco の案内役、ココちゃん"
             width="720"
             height="720"
             loading="eager"
             decoding="async"
           />
         </figure>
-        <p class="visual-note">Reading with Coco</p>
-      </div>
-
-      <div class="hero-copy">
-        <p class="eyebrow">Coco / Site Guide</p>
-        <h1>ココちゃんについて</h1>
-        <p class="hero-lead">{heroLead}</p>
-        <div class="hero-body">
-          {heroParagraphs.map((paragraph, index) => (
-            <p class={index === heroParagraphs.length - 1 ? "hero-note-copy" : "hero-description"}>
-              {paragraph}
-            </p>
-          ))}
-        </div>
-
-        {updatedLabel && <p class="hero-meta">更新: {updatedLabel}</p>}
-
-        <div class="hero-actions">
-          <a class="hero-link hero-link-primary" href={reviewsUrl}>レビューを見る</a>
-          <a class="hero-link hero-link-secondary" href={galleryUrl}>ギャラリーを見る</a>
-        </div>
       </div>
     </section>
 
-    <section class="profile-guides" aria-label="ココちゃんとたどる場所">
-      {guideLinks.map((link) => (
-        <a class="guide-card" href={link.href}>
-          <span class="guide-label">{link.label}</span>
-          <p>{link.copy}</p>
-        </a>
-      ))}
-    </section>
-
-    <section class="profile-content">
-      <div class="content-head">
-        <p class="content-kicker">Coco&apos;s Profile</p>
-        <h2>このサイトをいっしょに歩く、ココちゃんのこと</h2>
+    <section class="character-room" aria-labelledby="character-title">
+      <div class="character-intro">
+        <p class="section-label">Coco&apos;s Character</p>
+        <h2 id="character-title">ココちゃんのこと、少しだけ。</h2>
       </div>
 
-      {Content ? (
-        <div class="content-body">
-          <Content />
-        </div>
-      ) : (
-        <p class="content-empty">profile コンテンツが見つかりません（src/content/profile/profile.md を確認）</p>
-      )}
+      <div class="character-rows">
+        {profileItems.map((item) => (
+          <article class="character-row">
+            <p class="character-label">{item.label}</p>
+            <p class="character-value">{item.value}</p>
+          </article>
+        ))}
+      </div>
     </section>
-  </section>
+
+    <section class="favorites-room" aria-labelledby="favorites-title">
+      <div class="favorites-intro">
+        <p class="section-label">What Coco Loves</p>
+        <h2 id="favorites-title">ココちゃんがすきなこと。</h2>
+      </div>
+
+      <div class="favorites-grid">
+        {favoriteItems.map((item, index) => (
+          <article class="favorite-card">
+            <p class="favorite-count">{String(index + 1).padStart(2, "0")}</p>
+            <p class="favorite-text">{item}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section class="sensitive-room" aria-labelledby="sensitive-title">
+      <div class="sensitive-intro">
+        <p class="section-label">What Coco Watches Carefully</p>
+        <h2 id="sensitive-title">ココちゃんがにがてなこと。</h2>
+      </div>
+
+      <div class="sensitive-grid">
+        {sensitiveItems.map((item, index) => (
+          <article class="sensitive-card">
+            <p class="sensitive-count">{String(index + 1).padStart(2, "0")}</p>
+            <p class="sensitive-text">{item}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section class="closing-room" aria-labelledby="closing-title">
+      <div class="closing-copy">
+        <p class="section-label">Coco&apos;s Role / Site Guide</p>
+        <h3 class="section-caption">このサイトでのおしごと</h3>
+        <h2 id="closing-title">本の世界を、やわらかく案内する相棒。</h2>
+        <p>{roleText}</p>
+        <blockquote class="closing-quote">{closingQuote}</blockquote>
+      </div>
+
+      <div class="closing-links ui-action-group ui-action-group--stack">
+        <a class="hero-link hero-link-primary ui-action" href={reviewsUrl}>レビューを見る</a>
+        <a class="hero-link hero-link-secondary ui-action" href={homeUrl}>Home へ戻る</a>
+      </div>
+    </section>
+  </div>
 </Layout>
 
 <style>
-  .profile-shell {
-    position: relative;
-    overflow: hidden;
+  .profile-world {
     display: grid;
-    gap: clamp(18px, 3vw, 28px);
-    padding: clamp(18px, 4vw, 32px);
-    border-radius: 32px;
-    background: linear-gradient(155deg, #060f23 0%, #0a1d3f 48%, #17396d 100%);
-    color: #f8f5ef;
-    box-shadow: 0 24px 56px rgba(2, 8, 23, 0.35);
-  }
-
-  .profile-shell::before,
-  .profile-shell::after {
-    content: "";
-    position: absolute;
-    border-radius: 50%;
-    pointer-events: none;
-  }
-
-  .profile-shell::before {
-    top: -120px;
-    right: -90px;
-    width: 360px;
-    height: 360px;
-    background: radial-gradient(circle, rgba(255, 232, 186, 0.3) 0%, rgba(255, 232, 186, 0) 72%);
-  }
-
-  .profile-shell::after {
-    bottom: -140px;
-    left: -110px;
-    width: 320px;
-    height: 320px;
-    background: radial-gradient(circle, rgba(94, 167, 255, 0.2) 0%, rgba(94, 167, 255, 0) 70%);
+    gap: clamp(1.75rem, 4vw, 3.25rem);
   }
 
   .profile-hero,
-  .profile-content {
+  .character-room,
+  .favorites-room,
+  .sensitive-room,
+  .closing-room {
     position: relative;
-    z-index: 1;
-    border-radius: 28px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 18px 40px rgba(5, 14, 33, 0.32);
+    overflow: clip;
+    border: 1px solid rgba(100, 76, 42, 0.14);
+    border-radius: clamp(26px, 4vw, 40px);
+    box-shadow: 0 24px 70px rgba(83, 55, 28, 0.1);
   }
 
   .profile-hero {
     display: grid;
-    grid-template-columns: minmax(0, 0.94fr) minmax(0, 1.06fr);
-    gap: clamp(24px, 4vw, 42px);
-    align-items: center;
-    padding: clamp(22px, 4vw, 40px);
-    background: linear-gradient(145deg, rgba(9, 24, 50, 0.95), rgba(21, 44, 83, 0.88));
+    grid-template-columns: minmax(0, 1.02fr) minmax(320px, 0.98fr);
+    gap: clamp(1.5rem, 3vw, 3rem);
+    padding: clamp(1.6rem, 4vw, 3rem);
+    background:
+      radial-gradient(circle at top left, rgba(247, 214, 176, 0.84), transparent 30%),
+      radial-gradient(circle at bottom right, rgba(62, 93, 139, 0.18), transparent 32%),
+      linear-gradient(135deg, rgba(255, 250, 243, 0.98), rgba(236, 242, 248, 0.92));
   }
 
-  .hero-visual {
+  .character-room,
+  .favorites-room,
+  .sensitive-room,
+  .closing-room {
+    padding: clamp(1.35rem, 3vw, 2.3rem);
+    background: linear-gradient(180deg, rgba(255, 253, 249, 0.98), rgba(247, 240, 230, 0.88));
+  }
+
+  .favorites-room {
+    background:
+      radial-gradient(circle at top right, rgba(244, 219, 186, 0.45), transparent 24%),
+      linear-gradient(180deg, rgba(255, 252, 247, 0.98), rgba(244, 238, 229, 0.9));
+  }
+
+  .sensitive-room {
+    background:
+      radial-gradient(circle at bottom left, rgba(62, 93, 139, 0.08), transparent 28%),
+      linear-gradient(180deg, rgba(255, 253, 248, 0.98), rgba(246, 238, 226, 0.92));
+  }
+
+  .hero-copy,
+  .hero-visual,
+  .closing-copy {
     position: relative;
-    justify-self: center;
-    width: min(100%, 420px);
+    z-index: 1;
   }
 
-  .hero-visual::before {
-    content: "";
-    position: absolute;
-    inset: 10% 10% -10%;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(245, 223, 173, 0.32) 0%, rgba(245, 223, 173, 0) 72%);
-    filter: blur(16px);
-    z-index: -1;
-  }
-
-  .visual-card {
+  .section-label,
+  .character-label,
+  .favorite-count,
+  .sensitive-count {
     margin: 0;
-    border-radius: 30px;
-    padding: 10px;
-    background: linear-gradient(145deg, rgba(245, 223, 173, 0.5), rgba(250, 244, 232, 0.14));
-    box-shadow: 0 18px 44px rgba(3, 10, 25, 0.45);
-  }
-
-  .visual-card img {
-    display: block;
-    width: 100%;
-    height: auto;
-    aspect-ratio: 1 / 1;
-    object-fit: cover;
-    border-radius: 22px;
-    border: 1px solid rgba(255, 255, 255, 0.32);
-    background: rgba(255, 255, 255, 0.08);
-  }
-
-  .visual-note {
-    position: absolute;
-    right: 18px;
-    bottom: 18px;
-    margin: 0;
-    padding: 8px 12px;
-    border-radius: 999px;
-    background: rgba(9, 24, 50, 0.72);
-    border: 1px solid rgba(245, 223, 173, 0.52);
-    color: #fff4da;
-    font-size: 0.82rem;
-    font-weight: 700;
     letter-spacing: 0.08em;
+    text-transform: uppercase;
   }
 
-  .hero-copy h1 {
-    margin: 10px 0 0;
-    font-size: clamp(2.8rem, 6vw, 4.4rem);
-    line-height: 0.98;
-    letter-spacing: 0.03em;
-    color: #fff9ec;
-  }
-
-  .hero-copy {
-    display: grid;
-    gap: 0.9rem;
-    justify-items: start;
-    max-width: 40rem;
-  }
-
-  .eyebrow {
-    margin: 0;
-    color: #f5dfad;
-    font-size: 0.9rem;
+  .section-label,
+  .character-label {
+    font-size: 0.78rem;
     font-weight: 700;
-    letter-spacing: 0.1em;
+    color: var(--color-accent);
   }
 
-  .hero-lead {
-    margin: 14px 0 0;
-    max-width: 32rem;
-    color: #fff4de;
-    font-size: clamp(1.05rem, 2vw, 1.25rem);
-    line-height: 1.8;
-    text-wrap: pretty;
+  .hero-brand {
+    margin: 0.85rem 0 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.45rem, 2vw, 1.9rem);
+    color: #1f2430;
   }
 
-  .hero-body {
-    display: grid;
-    gap: 0.9rem;
-    max-width: 38rem;
+  .section-caption {
+    margin: 0.35rem 0 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.4;
+    color: #5d3c20;
   }
 
-  .hero-description,
-  .hero-note-copy {
+  .profile-hero h1,
+  .character-intro h2,
+  .favorites-intro h2,
+  .sensitive-intro h2,
+  .closing-copy h2 {
     margin: 0;
-    max-width: 38rem;
-    color: rgba(248, 245, 239, 0.84);
-    line-height: 1.9;
-    text-wrap: pretty;
-  }
-
-  .hero-note-copy {
-    color: #fff4de;
-  }
-
-  .hero-meta {
-    margin: 18px 0 0;
-    color: rgba(248, 245, 239, 0.7);
-    font-size: 0.92rem;
+    font-family: var(--font-display);
+    line-height: 1.1;
     letter-spacing: 0.02em;
+    color: #1b2330;
   }
 
-  .hero-actions {
+  .profile-hero h1 {
+    margin-top: 1rem;
+    font-size: clamp(2.6rem, 5vw, 4.7rem);
+    max-width: 9ch;
+    text-wrap: balance;
+  }
+
+  .character-intro,
+  .favorites-intro,
+  .sensitive-intro,
+  .closing-copy {
+    display: grid;
+    gap: 0.65rem;
+    max-width: 38rem;
+  }
+
+  .character-intro h2,
+  .favorites-intro h2,
+  .sensitive-intro h2,
+  .closing-copy h2 {
+    font-size: clamp(2rem, 3vw, 2.8rem);
+    text-wrap: balance;
+  }
+
+  .hero-lead,
+  .hero-bridge,
+  .closing-copy p,
+  .favorite-text,
+  .sensitive-text {
+    color: rgba(33, 23, 16, 0.78);
+  }
+
+  .hero-lead,
+  .hero-bridge {
+    margin: 1.2rem 0 0;
+    max-width: 34rem;
+    line-height: 1.9;
+    font-size: clamp(1rem, 1.3vw, 1.1rem);
+  }
+
+  .hero-actions,
+  .closing-links {
     display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-top: 24px;
+    gap: 0.9rem;
+    margin-top: 1.8rem;
   }
 
   .hero-link {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 44px;
-    box-sizing: border-box;
-    max-width: 100%;
-    padding: 11px 18px;
+    min-height: 48px;
+    padding: 0.85rem 1.3rem;
     border-radius: 999px;
-    font-size: 0.95rem;
     font-weight: 700;
-    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    text-decoration: none;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease,
+      border-color 0.2s ease,
+      background-color 0.2s ease;
   }
 
   .hero-link:hover {
-    transform: translateY(-2px);
+    transform: translateY(-1px);
   }
 
   .hero-link-primary {
-    background: linear-gradient(135deg, #f3e0b4, #e5c982);
-    color: #172742;
-    box-shadow: 0 10px 24px rgba(237, 205, 133, 0.28);
-  }
-
-  .hero-link-primary:hover {
-    box-shadow: 0 14px 28px rgba(237, 205, 133, 0.36);
+    background: #1f2430;
+    color: #fffaf1;
+    box-shadow: 0 18px 34px rgba(31, 36, 48, 0.18);
   }
 
   .hero-link-secondary {
-    color: #f8f5ef;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(243, 224, 180, 0.65);
+    border: 1px solid rgba(100, 76, 42, 0.16);
+    background: rgba(255, 255, 255, 0.72);
+    color: #5d3c20;
   }
 
-  .hero-link-secondary:hover {
-    background: rgba(255, 255, 255, 0.14);
+  .hero-footnote {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1rem;
+    align-items: center;
+    width: fit-content;
+    margin-top: 1.5rem;
+    padding: 0.8rem 1rem;
+    border: 1px solid rgba(100, 76, 42, 0.12);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.68);
+    backdrop-filter: blur(10px);
   }
 
-  .profile-guides {
-    position: relative;
-    z-index: 1;
-    display: grid;
-    gap: 14px;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .guide-card {
-    display: grid;
-    gap: 10px;
-    min-height: 148px;
-    padding: 20px;
-    border-radius: 20px;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    box-shadow: 0 14px 30px rgba(4, 11, 26, 0.32);
-    transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
-  }
-
-  .guide-card:hover {
-    transform: translateY(-4px);
-    background: rgba(255, 255, 255, 0.12);
-    border-color: rgba(243, 224, 180, 0.52);
-  }
-
-  .guide-label {
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: #fff9e7;
-    letter-spacing: 0.02em;
-  }
-
-  .guide-card p {
+  .hero-footnote p,
+  .hero-footnote span {
     margin: 0;
-    color: rgba(248, 245, 239, 0.84);
+    color: rgba(33, 23, 16, 0.7);
+    font-size: 0.9rem;
+  }
+
+  .hero-visual {
+    display: grid;
+    align-items: stretch;
+  }
+
+  .hero-image-frame {
+    margin: 0;
+    overflow: hidden;
+    border-radius: clamp(24px, 3vw, 34px);
+    min-height: 100%;
+    background: linear-gradient(160deg, rgba(255, 255, 255, 0.64), rgba(237, 212, 184, 0.76));
+  }
+
+  .hero-image-frame img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 460px;
+    object-fit: cover;
+  }
+
+  .character-room {
+    display: grid;
+    gap: 1.6rem;
+  }
+
+  .character-rows {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .character-row {
+    display: grid;
+    gap: 0.55rem;
+    padding: 1.15rem 0;
+    border-top: 1px solid rgba(100, 76, 42, 0.12);
+  }
+
+  .character-row:first-child {
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .character-label {
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: #8d5b2a;
+  }
+
+  .character-value {
+    margin: 0;
+    max-width: 40rem;
+    font-family: var(--font-headline);
+    font-size: clamp(1.15rem, 1.8vw, 1.45rem);
+    line-height: 1.65;
+    color: #2c2017;
+  }
+
+  .favorites-room,
+  .sensitive-room {
+    display: grid;
+    gap: 1.75rem;
+  }
+
+  .favorites-grid,
+  .sensitive-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.95rem;
+  }
+
+  .favorite-card,
+  .sensitive-card {
+    display: grid;
+    gap: 0.85rem;
+    padding: 1.15rem;
+    border: 1px solid rgba(100, 76, 42, 0.12);
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.66);
+    transition:
+      transform 0.2s ease,
+      background-color 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  .favorite-card:hover,
+  .sensitive-card:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.8);
+  }
+
+  .favorite-count,
+  .sensitive-count {
+    display: grid;
+    place-items: center;
+    width: 54px;
+    height: 54px;
+    border-radius: 16px;
+    background: rgba(247, 214, 176, 0.42);
+    color: #7d4c22;
+    font-weight: 700;
+    font-size: 0.82rem;
+  }
+
+  .favorite-text,
+  .sensitive-text {
+    margin: 0;
+    font-family: var(--font-headline);
+    font-size: clamp(1.1rem, 1.7vw, 1.35rem);
+    line-height: 1.6;
+    color: #2c2017;
+  }
+
+  .closing-room {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 1.6rem;
+    align-items: center;
+  }
+
+  .closing-copy {
+    gap: 0.95rem;
+  }
+
+  .closing-copy p {
+    margin: 0;
+    line-height: 1.85;
+  }
+
+  .closing-quote {
+    margin: 0.25rem 0 0;
+    padding: 1rem 1.1rem;
+    border-left: 3px solid rgba(100, 76, 42, 0.4);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.55);
+    color: #5d3c20;
+    font-family: var(--font-headline);
+    font-size: clamp(1.05rem, 1.5vw, 1.2rem);
     line-height: 1.7;
   }
 
-  .profile-content {
-    padding: clamp(22px, 4vw, 32px);
-    background: rgba(7, 18, 39, 0.58);
-  }
-
-  .content-head {
-    display: grid;
-    gap: 8px;
-    margin-bottom: 20px;
-  }
-
-  .content-kicker {
-    margin: 0;
-    color: #f5dfad;
-    font-size: 0.82rem;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-  }
-
-  .content-head h2 {
-    margin: 0;
-    font-size: clamp(1.6rem, 3vw, 2.2rem);
-    color: #fff9ec;
-  }
-
-  .content-body {
-    display: grid;
-    gap: 0.2rem;
-    max-width: 44rem;
-    color: rgba(248, 245, 239, 0.86);
-  }
-
-  .content-body :global(h3) {
-    margin: 2rem 0 0.85rem;
-    font-size: clamp(1.15rem, 2vw, 1.4rem);
-    line-height: 1.4;
-    color: #fff7e0;
-  }
-
-  .content-body :global(p) {
-    margin: 0 0 1.1rem;
-    max-width: 42rem;
-    line-height: 1.95;
-    text-wrap: pretty;
-  }
-
-  .content-body :global(ul) {
-    margin: 0 0 1.25rem;
-    padding-left: 1.2rem;
-    max-width: 34rem;
-    color: rgba(248, 245, 239, 0.86);
-  }
-
-  .content-body :global(li) {
-    margin-bottom: 0.55rem;
-    line-height: 1.8;
-  }
-
-  .content-body :global(blockquote) {
-    margin: 0;
-    padding: 1rem 1.1rem;
-    border-left: 3px solid rgba(245, 223, 173, 0.8);
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 0 16px 16px 0;
-    color: #fff4de;
-  }
-
-  .content-body :global(p:last-child) {
-    margin-bottom: 0;
-  }
-
-  .content-body :global(strong) {
-    color: #fff7e0;
-  }
-
-  .content-empty {
-    margin: 0;
-    color: rgba(248, 245, 239, 0.82);
-    line-height: 1.8;
-  }
-
-  @media (max-width: 900px) {
-    .profile-hero {
-      grid-template-columns: 1fr;
-    }
-
-    .hero-copy {
-      max-width: 100%;
-    }
-
-    .hero-actions {
-      justify-content: flex-start;
-    }
-
-    .profile-guides {
-      grid-template-columns: 1fr;
-    }
-
-    .guide-card {
-      min-height: auto;
-    }
-  }
-
-  @media (max-width: 600px) {
-    .profile-shell {
-      padding: 16px;
-      border-radius: 24px;
-    }
-
+  @media (max-width: 920px) {
     .profile-hero,
-    .profile-content {
-      padding: 18px;
-      border-radius: 22px;
+    .closing-room {
+      grid-template-columns: 1fr;
     }
 
     .hero-visual {
-      width: min(100%, 260px);
+      order: -1;
     }
 
-    .visual-note {
-      left: 50%;
-      right: auto;
-      bottom: 14px;
-      transform: translateX(-50%);
-      white-space: nowrap;
+    .profile-hero h1 {
+      max-width: none;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .profile-world {
+      gap: 1.15rem;
     }
 
-    .hero-copy h1 {
-      font-size: clamp(2.4rem, 13vw, 3.2rem);
+    .profile-hero,
+    .character-room,
+    .favorites-room,
+    .sensitive-room,
+    .closing-room {
+      border-radius: 28px;
+      padding: 1.15rem;
     }
 
-    .hero-actions {
-      flex-direction: column;
-      width: min(100%, 20rem);
+    .hero-image-frame img {
+      min-height: 320px;
     }
 
-    .hero-link {
+    .favorites-grid,
+    .sensitive-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .profile-hero h1,
+    .character-intro h2,
+    .favorites-intro h2,
+    .sensitive-intro h2,
+    .closing-copy h2 {
+      font-size: 2rem;
+    }
+
+    .hero-footnote {
       width: 100%;
+      box-sizing: border-box;
     }
   }
 </style>

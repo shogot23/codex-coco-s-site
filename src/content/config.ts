@@ -58,6 +58,18 @@ const profile = defineCollection({
     description: z.string().optional(),
     avatar: z.string().optional(),
     updatedAt: z.coerce.date().optional(),
+    profileItems: z
+      .array(
+        z.object({
+          label: z.string(),
+          value: z.string(),
+        })
+      )
+      .optional(),
+    favoriteItems: optionalStringList,
+    sensitiveItems: optionalStringList,
+    roleText: z.string().optional(),
+    closingQuote: z.string().optional(),
   }),
 });
 
