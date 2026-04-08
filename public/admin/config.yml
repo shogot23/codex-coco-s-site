@@ -16,6 +16,27 @@ collections:
     fields:
       - { label: "タイトル", name: "title", widget: "string" }
       - { label: "説明", name: "description", widget: "string", required: false }
+      - { label: "アバター画像", name: "avatar", widget: "image", required: false }
+      - { label: "更新日", name: "updatedAt", widget: "datetime", required: false }
+      - label: "プロフィール項目"
+        name: "profileItems"
+        widget: "list"
+        required: false
+        fields:
+          - { label: "ラベル", name: "label", widget: "string" }
+          - { label: "値", name: "value", widget: "string" }
+      - label: "すきなこと"
+        name: "favoriteItems"
+        widget: "list"
+        required: false
+        field: { label: "項目", name: "text", widget: "string" }
+      - label: "にがてなこと"
+        name: "sensitiveItems"
+        widget: "list"
+        required: false
+        field: { label: "項目", name: "text", widget: "string" }
+      - { label: "役割テキスト", name: "roleText", widget: "text", required: false }
+      - { label: "引用", name: "closingQuote", widget: "string", required: false }
       - { label: "本文", name: "body", widget: "markdown" }
 
   - name: "about"
