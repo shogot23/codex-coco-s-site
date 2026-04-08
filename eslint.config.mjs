@@ -8,6 +8,7 @@ export default [
     ignores: [
       'dist/**',
       '.astro/**',
+      '.claude/worktrees/**',
       'node_modules/**',
       'scripts/**',
       'playwright-report/**',
