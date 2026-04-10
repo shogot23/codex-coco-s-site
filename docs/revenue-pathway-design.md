@@ -40,13 +40,16 @@
 - Reviews 一覧: Featured Review の review-actions に `hero-button hero-button-secondary` の購入CTAを追加。Stream カードは Phase 2 で対応（subordinate 表現の別途設計が必要）。
 - Review 詳細: `opening-actions` に `secondary-link` の購入CTAを追加し、既存の `Afterglow` 内 `Reading Shelf` はそのまま残す。
 - 見せ方はカードやバナーの主役にせず、既存アクショングループの一員として控えめに配置する。
-- 文言は `この本を見る` を採用（プラットフォーム不問、好奇心を刺激、サイトの文体に自然）。
-- 実装は review content の `purchaseLinks` を使用し、未設定レビューでは何も出さない。
+- レビュー購入導線の source of truth は review frontmatter の `purchaseLinks` とし、Home / Reviews 一覧 / Review 詳細の各導線は可能な限りこの共通データ構造を参照する。
+- `purchaseLinks` は単数ではなく配列として扱い、先頭 1 件固定や slug ベースのリンク出し分けは行わない。
+- CTA 文言は `purchaseLinks.label` を UI copy の正本とし、UI 側で汎用文言へ差し替えない。
 - `purchaseLinks` を設定していない review では CTA が表示されない。この非表示は意図どおりの挙動とする。
+- 新規レビュー追加時は、必要な購入導線を review frontmatter の `purchaseLinks` に定義して対応する。
 - 下書きコンテンツは `published: false` で公開面から除外する。
 
 ## Copy / Strength Rule
 
+- CTA 文言の正本は `purchaseLinks.label`。以下は UI 側固定文言ではなく、frontmatter 側の `purchaseLinks.label` で使う文言トーンのガードとして扱う。
 - 使う: `この本を見る`, `読み返したくなったら`, `この本を手元に置く`, `外部ストアへ移動します`
 - 使わない: `今すぐ購入`, `最安値`, `限定`, `おすすめ商品`
 - 強さは secondary / secondary-link 相当。既存の `このレビューを読む` より弱く扱う。primary CTA にはしない。
