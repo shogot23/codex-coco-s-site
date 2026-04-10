@@ -264,9 +264,7 @@ const latestReviewLabel = featuredReview ? featuredReview.dateLabel : null;
                     target="_blank"
                     rel="noopener noreferrer nofollow"
                   >
-                    {featuredReview.slug === "seiten"
-                      ? featuredReview.purchaseLinks[0].label ?? "この本を見る"
-                      : "この本を見る"}
+                    {featuredReview.purchaseLinks[0].label ?? "この本を見る"}
                   </a>
                 )}
               </div>
@@ -349,9 +347,7 @@ const latestReviewLabel = featuredReview ? featuredReview.dateLabel : null;
                             rel="noopener noreferrer nofollow"
                             aria-label={`${review.supplementalTitle ?? review.title}の本を見る`}
                           >
-                            {review.slug === "seiten"
-                              ? review.purchaseLinks[0].label ?? "この本を見る"
-                              : "この本を見る"}
+                            {review.purchaseLinks[0].label ?? "この本を見る"}
                           </a>
                         )}
                       </div>
