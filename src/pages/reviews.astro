@@ -258,14 +258,18 @@ const latestReviewLabel = featuredReview ? featuredReview.dateLabel : null;
                   {remainingReviews.length > 0 ? "他のレビューを見る" : "読む前のしおりを見る"}
                 </a>
                 {featuredReview.purchaseLinks.length > 0 && (
-                  <a
-                    class="hero-button hero-button-secondary ui-action"
-                    href={featuredReview.purchaseLinks[0].url}
-                    target="_blank"
-                    rel="noopener noreferrer nofollow"
-                  >
-                    {featuredReview.purchaseLinks[0].label ?? "この本を見る"}
-                  </a>
+                  <div class="review-purchase-links ui-action-group ui-action-group--stack">
+                    {featuredReview.purchaseLinks.map((link) => (
+                      <a
+                        class="hero-button hero-button-secondary ui-action"
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer nofollow"
+                      >
+                        {link.label ?? "この本を見る"}
+                      </a>
+                    ))}
+                  </div>
                 )}
               </div>
             </div>
@@ -340,15 +344,19 @@ const latestReviewLabel = featuredReview ? featuredReview.dateLabel : null;
                       <div class="stream-actions">
                         <a class="stream-link ui-action" href={review.href}>レビューを読む</a>
                         {review.purchaseLinks.length > 0 && (
-                          <a
-                            class="stream-purchase ui-action"
-                            href={review.purchaseLinks[0].url}
-                            target="_blank"
-                            rel="noopener noreferrer nofollow"
-                            aria-label={`${review.supplementalTitle ?? review.title}の本を見る`}
-                          >
-                            {review.purchaseLinks[0].label ?? "この本を見る"}
-                          </a>
+                          <div class="stream-purchase-links ui-action-group ui-action-group--stack">
+                            {review.purchaseLinks.map((link) => (
+                              <a
+                                class="stream-purchase ui-action"
+                                href={link.url}
+                                target="_blank"
+                                rel="noopener noreferrer nofollow"
+                                aria-label={`${review.supplementalTitle ?? review.title}の購入先: ${link.label ?? "この本を見る"}`}
+                              >
+                                {link.label ?? "この本を見る"}
+                              </a>
+                            ))}
+                          </div>
                         )}
                       </div>
                     </div>
@@ -896,6 +904,17 @@ const latestReviewLabel = featuredReview ? featuredReview.dateLabel : null;
     gap: 0.6rem 0.9rem;
   }
 
+  .review-purchase-links,
+  .stream-purchase-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 0.9rem;
+  }
+
+  .review-purchase-links {
+    width: 100%;
+  }
+
   .stream-cue {
     margin: 0;
     color: rgba(32, 22, 15, 0.82);
@@ -1005,8 +1024,13 @@ const latestReviewLabel = featuredReview ? featuredReview.dateLabel : null;
       width: 100%;
     }
 
+    .stream-purchase-links {
+      width: 100%;
+    }
+
     .hero-button,
-    .stream-link {
+    .stream-link,
+    .stream-purchase {
       width: 100%;
     }
 
