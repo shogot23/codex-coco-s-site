@@ -14,10 +14,8 @@ recommendedFor:
   - "他人と比べて落ち込んでしまう人"
   - "自分だけの物差しを持ちたい人"
 purchaseLinks:
-  - label: Amazonで探す
-    url: https://www.amazon.co.jp/s?k=%E5%88%97%20%E4%B8%AD%E6%9D%91%E6%96%87%E5%89%87
-  - label: 楽天で探す
-    url: https://books.rakuten.co.jp/rb/17631571/
+  - label: 楽天で見る
+    url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F17631571%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbook%2Fi%2F21063061%2F"
 published: true
 ---
 比較ってしちゃダメだと思っていても、

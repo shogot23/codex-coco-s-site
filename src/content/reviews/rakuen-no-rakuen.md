@@ -15,10 +15,8 @@ recommendedFor:
   - "答えが出ない問いを抱えたまま進みたい人"
   - "因果では説明できない世界に興味がある人"
 purchaseLinks:
-  - label: Amazonで探す
-    url: https://www.amazon.co.jp/s?k=%E6%A5%BD%E5%9C%92%E3%81%AE%E6%A5%BD%E5%9C%92%20%E4%BC%8A%E5%9D%82%E5%B9%B8%E5%A4%AA%E9%83%8E
-  - label: 楽天で探す
-    url: https://books.rakuten.co.jp/rb/18084617/
+  - label: 楽天で見る
+    url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F18084617%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbook%2Fi%2F21471918%2F"
 published: true
 ---
 AIの進歩がめざましく、ワクワクしつつ、自分の仕事ななくなるんじゃないかとビクビクしているわたくし。そんな中で出会ったこの本。AI暴走後の混沌で、"西遊記"モチーフの3人が「楽園」を探す旅へ。人は因果で説明したがるけど、自然や死の前では無意味かもしれない。それでも、答えのないまま次の一歩を踏み出せるか。そんなことを問われるような一冊でした。

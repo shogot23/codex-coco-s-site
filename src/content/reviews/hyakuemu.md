@@ -16,12 +16,10 @@ recommendedFor:
   - "自分の「走る理由」を探している人"
   - "スポーツ関係ないけど、何かに熱くなりたい人"
 purchaseLinks:
-  - label: Amazonで探す
-    url: https://www.amazon.co.jp/s?k=%E3%81%B2%E3%82%83%E3%81%8F%E3%81%88%E3%82%80%E3%80%82%20%E9%AD%9A%E8%B1%8A
-  - label: 楽天で探す（上巻）
-    url: https://books.rakuten.co.jp/rb/17065427/
-  - label: 楽天で探す（下巻）
-    url: https://books.rakuten.co.jp/rb/17065428/
+  - label: 楽天で見る（上巻）
+    url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F17065427%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbook%2Fi%2F20600589%2F"
+  - label: 楽天で見る（下巻）
+    url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F17065428%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbook%2Fi%2F20600572%2F"
 published: true
 ---
 人生長いんだ　一瞬を気にすんなよ

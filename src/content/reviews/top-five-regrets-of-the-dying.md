@@ -17,10 +17,8 @@ recommendedFor:
   - "人生の優先順位を考え直したい人"
   - "「まだ間に合う」という感覚が欲しい人"
 purchaseLinks:
-  - label: Amazonで探す
-    url: https://www.amazon.co.jp/s?k=%E6%AD%BB%E3%81%AC%E7%9E%AC%E9%96%93%E3%81%AE5%E3%81%A4%E3%81%AE%E5%BE%8C%E6%82%94%20%E3%83%96%E3%83%AD%E3%83%8B%E3%83%BC%E3%83%BB%E3%82%A6%E3%82%A7%E3%82%A2
-  - label: 楽天で探す
-    url: https://books.rakuten.co.jp/rb/12103744/
+  - label: 楽天で見る
+    url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F12103744%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbook%2Fi%2F16202107%2F"
 published: true
 ---
 オーストラリアの緩和ケア看護師が、たくさんの人の「最期」に立ち会って聞いた
