@@ -100,6 +100,8 @@ const reviewBridgeTitle = relatedReview
 const reviewBridgeCopy = relatedReview
   ? 'この展示はレビューと地続きです。画像で受け取った余韻を、文章のほうからもう一度たどれます。'
   : 'Gallery は景色の副導線です。読後の輪郭を言葉で確かめたいときは、Reviews の流れへ戻るのが自然です。';
+
+const purchaseLinks = relatedReview?.data.purchaseLinks ?? [];
 ---
 
 <Layout
@@ -171,6 +173,22 @@ const reviewBridgeCopy = relatedReview
         <a class="scene-link scene-link-primary ui-action" href={relatedReviewUrl}>
           {relatedReview ? relatedReview.data.title : 'レビュー一覧を見る'}
         </a>
+        {purchaseLinks.length > 0 && (
+          <div class="bridge-purchase-links ui-action-group">
+            {purchaseLinks.map((link) => (
+              <a
+                class="scene-link scene-link-secondary ui-action"
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer nofollow"
+                aria-label={`${title}の購入先: ${link.label}`}
+              >
+                {link.label}
+              </a>
+            ))}
+            <p class="bridge-purchase-note">外部ストアへ移動します</p>
+          </div>
+        )}
         <a class="scene-link scene-link-secondary ui-action" href={aboutUrl}>About / world bridge へ</a>
       </div>
     </section>
@@ -436,6 +454,20 @@ const reviewBridgeCopy = relatedReview
     background:
       radial-gradient(circle at top left, rgba(205, 223, 236, 0.3), transparent 28%),
       linear-gradient(135deg, rgba(248, 249, 245, 0.98), rgba(236, 244, 247, 0.95));
+  }
+
+  .bridge-purchase-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    align-items: center;
+  }
+
+  .bridge-purchase-note {
+    margin: 0;
+    width: 100%;
+    font-size: 0.84rem;
+    color: rgba(66, 52, 35, 0.55);
   }
 
   .related-grid {
