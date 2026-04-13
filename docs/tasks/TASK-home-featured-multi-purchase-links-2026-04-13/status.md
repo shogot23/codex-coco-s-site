@@ -24,8 +24,8 @@
 
 ## Next Action
 
-- 残件: PR 作成判断
-- 次に見る人へのメモ: 以前の review gate 失敗 artifact は `/tmp/claude-review/diff-20260413-102226/` と `/tmp/claude-review/diff-retry-20260413-102428/`。再試行成功 artifact は `/tmp/claude-review/diff-20260413-111816/`。`src/pages/index.astro` の実装差分は worktree に復元済みで、`docs/tasks/_templates/plan.md` の既存差分には触れていない
+- 残件: 最新 main は取り込み済み。最終確認後、draft を外して merge 判断へ進む
+- 次に見る人へのメモ: 以前の review gate 失敗 artifact は `/tmp/claude-review/diff-20260413-102226/` と `/tmp/claude-review/diff-retry-20260413-102428/`。再試行成功 artifact は `/tmp/claude-review/diff-20260413-111816/`。`src/pages/index.astro` の責務は維持されており、PR #83 由来の template 変更は `main` 取り込み分としてのみ存在し、PR #82 の差分には含まれない
 
 ## Daily Record
 
