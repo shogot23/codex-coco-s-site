@@ -25,8 +25,6 @@ const base = import.meta.env.BASE_URL;
 const baseWithSlash = base.endsWith('/') ? base : `${base}/`;
 const galleryListUrl = `${baseWithSlash}gallery/`;
 const reviewsListUrl = `${baseWithSlash}reviews/`;
-const aboutUrl = `${baseWithSlash}about/`;
-
 const isAbsoluteUrl = (value: string) =>
   /^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(value);
 
@@ -190,7 +188,6 @@ const purchaseLinks = relatedReview?.data.purchaseLinks ?? [];
             <p class="bridge-purchase-note">外部ストアへ移動します</p>
           </div>
         )}
-        <a class="scene-link scene-link-secondary ui-action bridge-nav-link" href={aboutUrl}>About / world bridge へ</a>
       </div>
     </section>
 
@@ -371,10 +368,6 @@ const purchaseLinks = relatedReview?.data.purchaseLinks ?? [];
     flex-wrap: wrap;
     gap: 0.8rem;
     margin-top: 0.35rem;
-  }
-
-  .bridge-actions .bridge-nav-link {
-    margin-top: 0.6rem;
   }
 
   .scene-link {
