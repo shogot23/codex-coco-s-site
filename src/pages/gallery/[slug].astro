@@ -99,7 +99,7 @@ const reviewBridgeTitle = relatedReview
   ? 'この景色の向こうにある言葉を読む。'
   : '主導線の Reviews に戻って、言葉の輪郭を拾い直す。';
 const reviewBridgeCopy = relatedReview
-  ? 'この展示はレビューと地続きです。画像で受け取った余韻を、文章のほうからもう一度たどれます。'
+  ? ''
   : 'Gallery は景色の副導線です。読後の輪郭を言葉で確かめたいときは、Reviews の流れへ戻るのが自然です。';
 
 const purchaseLinks = relatedReview?.data.purchaseLinks ?? [];
@@ -167,7 +167,7 @@ const purchaseLinks = relatedReview?.data.purchaseLinks ?? [];
       <div class="bridge-copy">
         <p class="section-label">From Image To Words</p>
         <h2 id="review-bridge-title">{reviewBridgeTitle}</h2>
-        <p>{reviewBridgeCopy}</p>
+        {reviewBridgeCopy && <p>{reviewBridgeCopy}</p>}
       </div>
 
       <div class="bridge-actions ui-action-group ui-action-group--stack">
@@ -453,9 +453,9 @@ const purchaseLinks = relatedReview?.data.purchaseLinks ?? [];
 
   .review-bridge {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: clamp(1.2rem, 3vw, 2.2rem);
-    align-items: end;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.5fr);
+    gap: clamp(0.8rem, 2vw, 1.4rem);
+    align-items: start;
     background:
       radial-gradient(circle at top left, rgba(205, 223, 236, 0.3), transparent 28%),
       linear-gradient(135deg, rgba(248, 249, 245, 0.98), rgba(236, 244, 247, 0.95));
