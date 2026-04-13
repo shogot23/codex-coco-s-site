@@ -28,6 +28,7 @@ const {
   infographic,
   recommendedFor,
   excerpt,
+  readingCompass,
   purchaseLinks,
 } = review.data;
 const { Content } = await review.render();
@@ -111,6 +112,7 @@ const heroImage = infographic ?? cover ?? primaryRelatedGallery?.data.image ?? n
 const heroImageUrl = heroImage ? resolveImageUrl(heroImage) : null;
 const supplementalTitle = bookTitle && bookTitle !== title ? bookTitle : null;
 const hasGuidance = Boolean((recommendedFor && recommendedFor.length > 0) || (tags && tags.length > 0));
+const hasCompanionNote = Boolean(readingCompass);
 const primaryPurchaseLink = purchaseLinks?.[0] ?? null;
 const hasMultiplePurchaseLinks = (purchaseLinks?.length ?? 0) > 1;
 const openingPurchaseHref = hasMultiplePurchaseLinks ? '#review-purchase-shelf' : primaryPurchaseLink?.url;
@@ -236,21 +238,13 @@ const articleJsonLd = {
             )}
           </div>
 
-          <aside class="companion-note" aria-labelledby="companion-title">
-            <p class="companion-label">Reading Compass</p>
-            <h2 id="companion-title">読みはじめる前の、ひとこと。</h2>
-            <p>
-              ココちゃんと一緒に歩くように、まずはこの本がどんな気分の日に寄り添うのかを先に置いておきます。
-            </p>
-
-            {recommendedFor && recommendedFor.length > 0 && (
-              <ul class="companion-list">
-                {recommendedFor.slice(0, 3).map((item) => (
-                  <li>{item}</li>
-                ))}
-              </ul>
-            )}
-          </aside>
+          {hasCompanionNote && (
+            <aside class="companion-note" aria-labelledby="companion-title">
+              <p class="companion-label">Reading Compass</p>
+              <h2 id="companion-title">読みはじめる前の、ひとこと。</h2>
+              <p>{readingCompass}</p>
+            </aside>
+          )}
         </div>
       </header>
 
