@@ -24,8 +24,8 @@
 
 ## Next Action
 
-- 残件: commit / push / 別PR 作成判断
-- 次に見る人へのメモ: `stash@{0}` には `src/pages/index.astro` の差分も含まれるが、この task では `docs/tasks/_templates/plan.md` だけを復元済み。`src/pages/index.astro` は current branch に影響していない
+- 残件: PR は作成済み。最終確認後、draft を外して merge 判断へ進む
+- 次に見る人へのメモ: `stash@{0}` には `src/pages/index.astro` の差分も含まれるが、この task では `docs/tasks/_templates/plan.md` だけを復元済み。`src/pages/index.astro` は current branch に影響していない。PR #83 を最終確認してから draft 解除可否を判断する
 
 ## Daily Record
 
