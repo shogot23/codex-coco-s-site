@@ -62,6 +62,7 @@ const fallbackScenes =
 
 const pageDescription = description ?? note ?? `${genre ?? 'ギャラリー'}の展示作品`;
 const sceneMemo = note ?? description ?? '読後に残った空気を、画像の前でもう一度たしかめるための景色です。';
+const heroMemoVisible = sceneMemo !== pageDescription;
 const coverImageUrl = resolveAbsoluteImageUrl(image);
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site!).toString();
 const galleryJsonLd = {
@@ -126,7 +127,7 @@ const purchaseLinks = relatedReview?.data.purchaseLinks ?? [];
         <h1 id="gallery-title">{title}</h1>
         {author && <p class="author">著者: {author}</p>}
         <p class="scene-description">{pageDescription}</p>
-        <p class="scene-memo">{sceneMemo}</p>
+        {heroMemoVisible && <p class="scene-memo">{sceneMemo}</p>}
 
         <div class="scene-actions ui-action-group ui-action-group--stack">
           <a class="scene-link scene-link-primary ui-action" href={relatedReviewUrl}>
@@ -171,7 +172,7 @@ const purchaseLinks = relatedReview?.data.purchaseLinks ?? [];
 
       <div class="bridge-actions ui-action-group ui-action-group--stack">
         <a class="scene-link scene-link-primary ui-action" href={relatedReviewUrl}>
-          {relatedReview ? relatedReview.data.title : 'レビュー一覧を見る'}
+          {relatedReview ? 'レビューを読む' : 'レビュー一覧を見る'}
         </a>
         {purchaseLinks.length > 0 && (
           <div class="bridge-purchase-links ui-action-group">
@@ -189,7 +190,7 @@ const purchaseLinks = relatedReview?.data.purchaseLinks ?? [];
             <p class="bridge-purchase-note">外部ストアへ移動します</p>
           </div>
         )}
-        <a class="scene-link scene-link-secondary ui-action" href={aboutUrl}>About / world bridge へ</a>
+        <a class="scene-link scene-link-secondary ui-action bridge-nav-link" href={aboutUrl}>About / world bridge へ</a>
       </div>
     </section>
 
@@ -370,6 +371,10 @@ const purchaseLinks = relatedReview?.data.purchaseLinks ?? [];
     flex-wrap: wrap;
     gap: 0.8rem;
     margin-top: 0.35rem;
+  }
+
+  .bridge-actions .bridge-nav-link {
+    margin-top: 0.6rem;
   }
 
   .scene-link {
