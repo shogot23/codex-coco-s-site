@@ -65,6 +65,7 @@
 ## 10. Implementation Rules
 
 - 実装前に `visual thesis` / `content plan` / `interaction thesis` を短く残す。
+- 色・余白・角丸・影・フォントの判断は `DESIGN.md` を参照する。トークン値の正本は `src/styles/theme.css`。
 - typography / color / spacing を先に決め、component 分割は後から行う。
 - 既存の Astro 構成、content collections、brand tone を壊さない。
 - 新規 UI 案は「整っているか」ではなく「読書 with Coco らしいか」を先に評価する。

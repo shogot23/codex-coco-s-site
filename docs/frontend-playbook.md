@@ -1,6 +1,6 @@
 # Frontend Playbook
 
-ブランド固有の判断基準は `reading-with-coco-design-doctrine.md` を正本として参照し、この文書は実装前チェックと作業進行の標準として使う。
+ブランド固有の判断基準は `reading-with-coco-design-doctrine.md` を正本として参照し、この文書は実装前チェックと作業進行の標準として使う。色・余白・角丸・影・フォントの実装時判断は `DESIGN.md` を参照する（トークン値の正本は `src/styles/theme.css`）。
 
 ## 1. Pre-Implementation Check
 

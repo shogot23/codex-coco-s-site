@@ -2,6 +2,10 @@
 
 Canonical source: **AGENTS.md**（本ファイルは入口）
 
+## Design Reference
+
+- UI 設計の正本は `DESIGN.md`。新規 UI 追加・修正時はまず DESIGN.md と既存トークン（`src/styles/theme.css`）を確認する
+
 ## Skills
 
 - `/review-gate` — 変更後、commit / PR 前に必ず実行し `ok: true` を確認する

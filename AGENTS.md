@@ -2,7 +2,7 @@
 
 ## 参照の基本
 
-- 正本入口は `AGENTS.md` とし、repo 全体の判断が必要なときは `docs/parallel-dev-core.md` → `docs/parallel-dev-config.md` → `docs/reading-with-coco-design-doctrine.md` → `docs/frontend-playbook.md` の順で参照する。
+- 正本入口は `AGENTS.md` とし、repo 全体の判断が必要なときは `docs/parallel-dev-core.md` → `docs/parallel-dev-config.md` → `docs/reading-with-coco-design-doctrine.md` → `docs/frontend-playbook.md` の順で参照する。UI 設計・トークン・コンポーネント仕様の判断は `DESIGN.md` を参照する（トークン値の正本は `src/styles/theme.css`）。
 - `docs/parallel-dev-core.md` は共通ルールのみ、`docs/parallel-dev-config.md` はこの repo 固有値のみを扱う。
 
 ## Review Gate
