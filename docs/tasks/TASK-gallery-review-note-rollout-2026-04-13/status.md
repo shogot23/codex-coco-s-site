@@ -12,8 +12,9 @@
 - [x] PlanGate 文書作成
 - [x] note フィールド追加（5ファイル）
 - [x] 検証（lint / typecheck / build / verify:frontend）
-- [ ] Review gate
-- [ ] Commit / Push / PR
+- [x] Review gate（Codex arch ok:true / diff ok:true、blocking 0件）
+- [x] Commit / Push / PR（#88）
+- [x] Squash merge → `54cf043`
 
 ## Results
 
@@ -23,8 +24,10 @@
 - build: 81 pages built successfully
 - e2e: 14 tests passed (chromium + mobile-chrome)
 - verify:frontend: 全通過
+- Codex review gate: arch ok:true、diff ok:true（advisory 1件のみ）
+- CI checks: frontend-verify / Netlify / Cloudflare 全通過
+- PR #88 squash merge 完了、local/remote ブランチ cleanup 済み
 
 ## Remaining
 
-- Review gate 実行
-- Commit / Push / PR 作成
+なし
