@@ -60,7 +60,7 @@ const fallbackScenes =
 
 const pageDescription = description ?? note ?? `${genre ?? 'ギャラリー'}の展示作品`;
 const sceneMemo = note ?? description ?? '読後に残った空気を、画像の前でもう一度たしかめるための景色です。';
-const heroMemoVisible = sceneMemo !== pageDescription;
+const heroMemoVisible = sceneMemo !== pageDescription && !relatedReview;
 const coverImageUrl = resolveAbsoluteImageUrl(image);
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site!).toString();
 const galleryJsonLd = {
