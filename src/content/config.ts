@@ -107,6 +107,7 @@ const reviews = defineCollection({
     bookTitle: optionalString,
     author: optionalString,
     excerpt: optionalString,
+    readingCompass: optionalString,
     tags: z.preprocess(
       (value) => (Array.isArray(value) && value.length === 0 ? undefined : value),
       z.array(z.enum(REVIEW_TAGS)).optional()

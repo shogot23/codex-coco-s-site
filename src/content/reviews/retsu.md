@@ -2,8 +2,9 @@
 title: "列"
 bookTitle: "列"
 author: "中村文則"
-description: "比較の罠を抜けて、自分だけの物差しを見つける一冊。"
-excerpt: "比較ってしちゃダメだと思っていても、無意識のうちにしてしまいますよね。それでも自分の楽しみや物差しは、自分で見つけないといけない。"
+description: "他人の列に並び続ける息苦しさから離れて、自分の物差しを探し直す一冊。"
+excerpt: "比べたくなくても、人は勝手に列をつくってしまう。だからこそ、自分の楽しみや尺度は自分で見つけ直さないといけない。"
+readingCompass: "誰が前か後ろかを決める話として読むより、自分の心がどこでざわつくのかを観察しながら読むと、この小説の刺さり方は変わります。正解探しを少し脇に置いて、自分の足元にある感情を確かめるつもりで入るのが似合います。"
 date: 2026-04-02
 cover: /uploads/review/infographic/nakamura_fuminori_retsu.PNG
 infographic: /uploads/review/infographic/nakamura_fuminori_retsu.PNG

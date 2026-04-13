@@ -4,6 +4,7 @@ bookTitle: "楽園の楽園"
 author: "伊坂幸太郎"
 description: "AI暴走後の混沌を生きる「西遊記」モチーフの旅路。答えのない問いに足を踏み出す一冊。"
 excerpt: "人は因果で説明したがるけど、自然や死の前では無意味かもしれない。それでも、答えのないまま次の一歩を踏み出せるか。"
+readingCompass: "この本は、きれいな答えを期待するより、『わからなさと一緒に歩く』つもりで開くとしっくりきます。因果で説明できない揺らぎをそのまま抱えながら旅に同行すると、最後に残る問いが少しやさしくなります。"
 date: 2026-04-02
 cover: /uploads/review/infographic/isaka_kotaro_rakuen-no-rakuen.PNG
 infographic: /uploads/review/infographic/isaka_kotaro_rakuen-no-rakuen.PNG

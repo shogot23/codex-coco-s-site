@@ -4,6 +4,7 @@ bookTitle: "死ぬ瞬間の5つの後悔"
 author: "ブロニー・ウェア"
 description: "人生の最期に立ちはだかる「5つの後悔」。今からでも減らせることを教えてくれる実話エッセイ。"
 excerpt: "後悔ゼロは無理でも、後悔は減らせる。なんなら欲張って、いい人生だった！と思いたい。"
+readingCompass: "脅される気持ちで読むよりも、『まだ変えられることを拾いにいく』つもりでページを開くと、この本は説教ではなく伴走者になります。大きな決断より、今日の小さな言葉や行動をどう選ぶかに意識を向けると、後悔のリストが現在地の地図に変わっていきます。"
 date: 2026-04-02
 cover: /uploads/review/infographic/bronnie_ware_top-five-regrets-of-the-dying.PNG
 infographic: /uploads/review/infographic/bronnie_ware_top-five-regrets-of-the-dying.PNG

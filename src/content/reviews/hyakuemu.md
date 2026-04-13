@@ -4,6 +4,7 @@ bookTitle: "ひゃくえむ。"
 author: "魚豊"
 description: "たった10秒に懸ける覚悟と、自分の「走る理由」を問う物語。"
 excerpt: "「あなたが全てを懸けてもいいって思える自分だけの10秒間は、どこにある？」"
+readingCompass: "勝ち負けのドラマとして急いで読むよりも、『自分は何に全力を出したいのか』という問いを胸に置いて入ると、この物語の熱がまっすぐ届きます。たった10秒に凝縮された執念を、自分の時間に引き寄せながら読むのがおすすめです。"
 date: 2026-04-02
 cover: /uploads/review/infographic/uoyutaka_hyakuemu.PNG
 infographic: /uploads/review/infographic/uoyutaka_hyakuemu.PNG
@@ -14,7 +15,7 @@ tags:
 recommendedFor:
   - "一瞬に全てを懸ける覚悟が欲しい人"
   - "自分の「走る理由」を探している人"
-  - "スポーツ関係ないけど、何かに熱くなりたい人"
+  - "スポーツ以外でも、何かに熱くなりたい人"
 purchaseLinks:
   - label: 楽天で見る（上巻）
     url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F17065427%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbook%2Fi%2F20600589%2F"
