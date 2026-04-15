@@ -6,7 +6,8 @@ genre: "漫画"
 author: "安田剛士"
 description: "新選組の青春と戦いを熱く描き、幕末の激動を若者の視点で楽しめる歴史漫画。"
 note: "青さを抱えたまま刃を取る、その危ういまぶしさが残る。"
-needs_review: true
+needs_review: false
+relatedReview: "ao-no-miburo-shinsengumi-9"
 generated_at: "2026-03-08T08:40:32.492Z"
 source_file: "gallery/books/Blue_Miburo_Shinsengumi_9_Yasuda_Tsuyoshi.jpeg"
 published: true
