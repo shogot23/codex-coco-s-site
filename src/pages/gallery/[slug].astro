@@ -100,7 +100,9 @@ const reviewBridgeCopy = relatedReview
   ? ''
   : 'Gallery は景色の副導線です。読後の輪郭を言葉で確かめたいときは、Reviews の流れへ戻るのが自然です。';
 
-const purchaseLinks = relatedReview?.data.purchaseLinks ?? [];
+const galleryPurchaseLinks = entry.data.purchaseLinks ?? [];
+const purchaseLinks = relatedReview?.data.purchaseLinks ?? galleryPurchaseLinks;
+const hasPurchaseLinks = purchaseLinks.length > 0;
 ---
 
 <Layout
@@ -128,9 +130,22 @@ const purchaseLinks = relatedReview?.data.purchaseLinks ?? [];
         {heroMemoVisible && <p class="scene-memo">{sceneMemo}</p>}
 
         <div class="scene-actions ui-action-group ui-action-group--stack">
-          <a class="scene-link scene-link-primary ui-action" href={relatedReviewUrl}>
-            {relatedReview ? 'この景色の言葉を読む' : 'レビューの主導線へ戻る'}
-          </a>
+          {relatedReview ? (
+            <a class="scene-link scene-link-primary ui-action" href={relatedReviewUrl}>
+              この景色の言葉を読む
+            </a>
+          ) : hasPurchaseLinks ? (
+            <a class="scene-link scene-link-primary ui-action"
+               href={purchaseLinks[0].url}
+               target="_blank"
+               rel="noopener noreferrer nofollow">
+              この本を見る
+            </a>
+          ) : (
+            <a class="scene-link scene-link-primary ui-action" href={relatedReviewUrl}>
+              レビューの主導線へ戻る
+            </a>
+          )}
           <a class="scene-link scene-link-secondary ui-action" href={galleryListUrl}>Gallery に戻る</a>
         </div>
       </div>
@@ -169,24 +184,52 @@ const purchaseLinks = relatedReview?.data.purchaseLinks ?? [];
       </div>
 
       <div class="bridge-actions ui-action-group ui-action-group--stack">
-        <a class="scene-link scene-link-primary ui-action" href={relatedReviewUrl}>
-          {relatedReview ? 'レビューを読む' : 'レビュー一覧を見る'}
-        </a>
-        {purchaseLinks.length > 0 && (
-          <div class="bridge-purchase-links ui-action-group">
-            {purchaseLinks.map((link) => (
-              <a
-                class="scene-link scene-link-secondary ui-action"
-                href={link.url}
-                target="_blank"
-                rel="noopener noreferrer nofollow"
-                aria-label={`${title}の購入先: ${link.label}`}
-              >
-                {link.label}
-              </a>
-            ))}
-            <p class="bridge-purchase-note">外部ストアへ移動します</p>
-          </div>
+        {relatedReview ? (
+          <>
+            <a class="scene-link scene-link-primary ui-action" href={relatedReviewUrl}>
+              レビューを読む
+            </a>
+            {hasPurchaseLinks && (
+              <div class="bridge-purchase-links ui-action-group">
+                {purchaseLinks.map((link) => (
+                  <a
+                    class="scene-link scene-link-secondary ui-action"
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer nofollow"
+                    aria-label={`${title}の購入先: ${link.label}`}
+                  >
+                    {link.label}
+                  </a>
+                ))}
+                <p class="bridge-purchase-note">外部ストアへ移動します</p>
+              </div>
+            )}
+          </>
+        ) : hasPurchaseLinks ? (
+          <>
+            <div class="bridge-purchase-links ui-action-group">
+              {purchaseLinks.map((link) => (
+                <a
+                  class="scene-link scene-link-primary ui-action"
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer nofollow"
+                  aria-label={`${title}の購入先: ${link.label}`}
+                >
+                  {link.label}
+                </a>
+              ))}
+              <p class="bridge-purchase-note">外部ストアへ移動します</p>
+            </div>
+            <a class="scene-link scene-link-secondary ui-action" href={relatedReviewUrl}>
+              レビュー一覧を見る
+            </a>
+          </>
+        ) : (
+          <a class="scene-link scene-link-primary ui-action" href={relatedReviewUrl}>
+            レビュー一覧を見る
+          </a>
         )}
       </div>
     </section>
