@@ -4,6 +4,7 @@ image: "/uploads/gallery/books/Naruse_Follows_Her_Believed_Path_Miyajima_Mina.jp
 genre: "現代文学"
 author: "宮島未奈"
 description: "成瀬のぶれない行動が周囲の日常を少しずつ動かし、読後に前を向く勢いを残す連作小説。"
+note: "迷わず進む姿に触れるたび、日常の空気まで少し前向きに残る。"
 needs_review: false
 generated_at: "2026-03-08T08:40:22.509Z"
 source_file: "gallery/books/Naruse_Follows_Her_Believed_Path_Miyajima_Mina.jpeg"
