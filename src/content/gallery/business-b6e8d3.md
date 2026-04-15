@@ -4,6 +4,7 @@ image: "/uploads/gallery/books/How_Coincidence_Makes_You_Brian_Klass.jpeg"
 genre: "心理学"
 author: "ブライアン・クラス"
 description: "予測できない偶然が人生をどう形づくるのかをたどり、選択の見え方を大きく変える一冊。"
+note: "選べなかった出来事まで自分をつくっていると知る、不思議な納得が残る。"
 needs_review: false
 generated_at: "2026-03-08T08:40:25.219Z"
 source_file: "gallery/books/How_Coincidence_Makes_You_Brian_Klass.jpeg"

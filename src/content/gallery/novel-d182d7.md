@@ -4,6 +4,7 @@ image: "/uploads/gallery/books/Naruse_Runs_through_Capital_Miyajima_Mina.png"
 genre: "現代文学"
 author: "宮島未奈"
 description: "宮島未奈による物語の余韻をゆっくり味わえそうな一冊。"
+note: "軽やかな余韻のまま、もう少しこの物語に浸っていたくなる感覚が残る。"
 needs_review: false
 generated_at: "2026-03-15T02:12:26.636Z"
 source_file: "gallery/books/Naruse_Runs_through_Capital_Miyajima_Mina.png"
