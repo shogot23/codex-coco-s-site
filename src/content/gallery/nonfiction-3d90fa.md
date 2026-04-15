@@ -5,6 +5,7 @@ alt: "ココちゃんと『BORN TO RUN』（クリストファー・マクドゥ
 genre: "ノンフィクション"
 author: "クリストファー・マクドゥーガル"
 description: "人類が本来持つ走る能力の秘密を、メキシコの先住民と ultramarathon の世界から解き明かすノンフィクション。"
+note: "走ることは特別なことではなく、体が最初から覚えているのだと思い出す。"
 needs_review: true
 generated_at: "2026-04-15T06:03:01.770Z"
 source_file: "gallery/books/BORN_TO_RUN_McDougall.png"
