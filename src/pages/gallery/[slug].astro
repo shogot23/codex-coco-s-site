@@ -58,9 +58,9 @@ const fallbackScenes =
     ? relatedScenes
     : allGalleryEntries.filter((galleryEntry) => galleryEntry.slug !== entry.slug).slice(0, 3);
 
-const pageDescription = description ?? note ?? `${genre ?? 'ギャラリー'}の展示作品`;
-const sceneMemo = note ?? description ?? '読後に残った空気を、画像の前でもう一度たしかめるための景色です。';
-const heroMemoVisible = sceneMemo !== pageDescription && !relatedReview;
+const pageDescription = description ?? `${genre ?? 'ギャラリー'}の展示作品`;
+const sceneMemo = note ?? '読後に残った空気を、画像の前でもう一度たしかめるための景色です。';
+
 const coverImageUrl = resolveAbsoluteImageUrl(image);
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site!).toString();
 const galleryJsonLd = {
@@ -127,7 +127,7 @@ const hasPurchaseLinks = purchaseLinks.length > 0;
         <h1 id="gallery-title">{title}</h1>
         {author && <p class="author">著者: {author}</p>}
         <p class="scene-description">{pageDescription}</p>
-        {heroMemoVisible && <p class="scene-memo">{sceneMemo}</p>}
+
 
         <div class="scene-actions ui-action-group ui-action-group--stack">
           {relatedReview ? (
@@ -385,7 +385,6 @@ const hasPurchaseLinks = purchaseLinks.length > 0;
 
   .author,
   .scene-description,
-  .scene-memo,
   .note-card p,
   .bridge-copy p,
   .related-body p {
@@ -396,13 +395,6 @@ const hasPurchaseLinks = purchaseLinks.length > 0;
 
   .author {
     color: rgba(66, 52, 35, 0.74);
-  }
-
-  .scene-memo {
-    padding: 1rem 1.1rem;
-    border-radius: 20px;
-    background: rgba(255, 255, 255, 0.62);
-    border: 1px solid rgba(100, 76, 42, 0.1);
   }
 
   .scene-actions,
