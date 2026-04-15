@@ -152,6 +152,7 @@ const gallery = defineCollection({
     source_file: z.string().optional(),
     published: z.boolean().default(false),
     description: z.string().optional(),
+    purchaseLinks: optionalLinkList,
     relatedReview: z.preprocess(
       (val) => (val === '' ? undefined : val),
       reference('reviews').optional()

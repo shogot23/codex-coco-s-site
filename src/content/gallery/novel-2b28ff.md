@@ -10,5 +10,8 @@ needs_review: false
 generated_at: "2026-04-07T04:39:27.723Z"
 source_file: "gallery/books/Nibiiro_Genshikou_Onda_Riku.png"
 published: true
+purchaseLinks:
+  - label: "楽天で見る"
+    url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F17477420%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbook%2Fi%2F20935573%2F"
 ---
 

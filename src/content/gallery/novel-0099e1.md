@@ -9,4 +9,7 @@ needs_review: false
 generated_at: "2026-03-08T08:40:24.649Z"
 source_file: "gallery/books/Goodbye_Genius_Nakamura_Kei.jpeg"
 published: true
+purchaseLinks:
+  - label: "楽天で見る"
+    url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F18370865%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbook%2Fi%2F21738170%2F"
 ---
