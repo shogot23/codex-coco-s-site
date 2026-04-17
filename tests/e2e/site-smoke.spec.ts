@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Locator, type Page } from '@playwright/test';
 
 const SITE_BASE = '/codex-coco-s-site/';
 
@@ -8,6 +8,22 @@ const expectNoHorizontalOverflow = async (page: Page) => {
   });
 
   expect(hasOverflow).toBe(false);
+};
+
+const expectVisibleInViewport = async (page: Page, locator: Locator) => {
+  await expect(locator).toBeVisible();
+
+  const bounds = await locator.evaluate((element) => {
+    const rect = element.getBoundingClientRect();
+    return {
+      top: rect.top,
+      bottom: rect.bottom,
+    };
+  });
+  const viewportHeight = await page.evaluate(() => window.innerHeight);
+
+  expect(bounds.top).toBeGreaterThanOrEqual(0);
+  expect(bounds.bottom).toBeLessThanOrEqual(viewportHeight);
 };
 
 test('home first viewport shows brand and review-led hero CTA flow', async ({ page }) => {
@@ -127,6 +143,54 @@ test('gallery works as a scenic side path without breaking the review-led struct
   await expect(page.getByRole('heading', { name: '次の一冊をひらく前に、言葉の余韻をひとくち。' })).toBeVisible();
 });
 
+test('gallery detail keeps the review bridge intact for review-linked scenes', async ({ page }) => {
+  await page.goto(`${SITE_BASE}gallery/novel-seiten/`);
+
+  await expect(page.getByRole('heading', { name: '青天', exact: true }).first()).toBeVisible();
+  await expect(page.getByRole('heading', { name: '画像の前で立ち止まるための、短いメモ。' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'この景色の向こうにある言葉を読む。' })).toBeVisible();
+
+  const sceneImage = page.locator('.scene-visual img');
+  await expect(sceneImage).toBeVisible();
+  await expect(sceneImage).toHaveAttribute('src', /Blue_Sky_Wakabayashi_Masayasu\.png/);
+
+  await expectNoHorizontalOverflow(page);
+
+  const reviewBridgeLink = page.getByRole('link', { name: 'この景色の言葉を読む', exact: true });
+  await expect(reviewBridgeLink).toBeVisible();
+  await reviewBridgeLink.click();
+  await expect(page).toHaveURL(/\/codex-coco-s-site\/reviews\/seiten\/$/);
+  await expect(page.locator('#review-title')).toBeVisible();
+});
+
+test('gallery detail falls back to purchase links when no related review exists', async ({ page }) => {
+  await page.goto(`${SITE_BASE}gallery/business-0d597c/`);
+
+  await expect(page.getByRole('heading', { name: 'モモ', exact: true }).first()).toBeVisible();
+
+  const sceneImage = page.locator('.scene-visual img');
+  await expect(sceneImage).toBeVisible();
+  await expect(sceneImage).toHaveAttribute('src', /Momo_Michael_Ende\.jpeg/);
+
+  const topPurchaseLink = page.getByRole('link', { name: 'この本を見る', exact: true });
+  await expect(topPurchaseLink).toBeVisible();
+  await expect(topPurchaseLink).toHaveAttribute('href', /rakuten/i);
+  await expect(topPurchaseLink).toHaveAttribute('target', '_blank');
+  await expect(topPurchaseLink).toHaveAttribute('rel', /noopener/);
+
+  const bridgePurchaseLink = page.getByRole('link', { name: 'モモの購入先: 楽天で見る', exact: true });
+  await expect(bridgePurchaseLink).toBeVisible();
+  await expect(bridgePurchaseLink).toHaveAttribute('href', /rakuten/i);
+
+  await expectNoHorizontalOverflow(page);
+
+  const reviewListLink = page.getByRole('link', { name: 'レビュー一覧を見る', exact: true });
+  await expect(reviewListLink).toBeVisible();
+  await reviewListLink.click();
+  await expect(page).toHaveURL(/\/codex-coco-s-site\/reviews\/$/);
+  await expect(page.getByRole('heading', { name: '次の一冊をひらく前に、言葉の余韻をひとくち。' })).toBeVisible();
+});
+
 test('about page remains readable on small and large viewports', async ({ page }) => {
   await page.goto(`${SITE_BASE}about/`);
 
@@ -134,4 +198,28 @@ test('about page remains readable on small and large viewports', async ({ page }
   await expect(page.getByRole('heading', { name: '本 × ココちゃん × 学び は、余韻のなかでゆっくり交わる。' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'レビューを見る', exact: true }).first()).toBeVisible();
   await expectNoHorizontalOverflow(page);
+});
+
+test('home keeps nav and hero CTAs usable on mobile-chrome', async ({ page, isMobile }) => {
+  test.skip(!isMobile, 'mobile-chrome only');
+
+  await page.goto(SITE_BASE);
+
+  const primaryNav = page.getByRole('navigation', { name: 'Primary' });
+  const hero = page.locator('.hero');
+  const brandLink = page.getByRole('link', { name: '読書 with Coco' });
+  const reviewLink = primaryNav.getByRole('link', { name: 'Reviews', exact: true });
+  const galleryLink = primaryNav.getByRole('link', { name: 'Gallery', exact: true });
+  const heroReviewCta = hero.getByRole('link', { name: 'レビューを見る', exact: true });
+  const heroGalleryCta = hero.getByRole('link', { name: 'ギャラリーを見る', exact: true });
+
+  await expect(page.locator('main')).toBeVisible();
+  await expectNoHorizontalOverflow(page);
+
+  await expectVisibleInViewport(page, brandLink);
+  await expectVisibleInViewport(page, primaryNav);
+  await expectVisibleInViewport(page, reviewLink);
+  await expectVisibleInViewport(page, galleryLink);
+  await expectVisibleInViewport(page, heroReviewCta);
+  await expectVisibleInViewport(page, heroGalleryCta);
 });
