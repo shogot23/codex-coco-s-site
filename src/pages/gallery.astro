@@ -207,14 +207,14 @@ const chapterLinks = chapterSections.map((chapter) => ({
           <p class="hero-brand">読書 with Coco</p>
           <h1 id="gallery-page-title">読後の景色を、ココちゃんと静かに見返す。</h1>
           <p class="hero-lead">
-            レビューで受け取った言葉の余韻を、ここでは色や構図のほうから確かめます。主役はあくまで本。
-            そのそばでココちゃんが、読書から広がる景色をそっと案内します。
+            レビューで受け取った余韻を、ここでは色や構図のほうから確かめます。主役はあくまで本。
+            そのそばでココちゃんが、読書から広がる景色を静かに案内します。
           </p>
 
           {heroLeadEntry && (
             <p class="hero-note">
               いま先頭に置いている景色は <span>{heroLeadEntry.data.title}</span>。
-              Reviews 主導の流れを壊さないように、最初の一枚だけは言葉の余韻に近い場所から始めています。
+              Reviews 主導の流れを壊さないように、最初の一枚は言葉の余韻に近い場所から始めています。
             </p>
           )}
 
@@ -572,11 +572,11 @@ const chapterLinks = chapterSections.map((chapter) => ({
     display: grid;
     grid-template-columns: minmax(0, 0.88fr) minmax(320px, 1.12fr);
     gap: clamp(1.5rem, 3vw, 3rem);
-    padding: clamp(1.5rem, 4vw, 3rem);
+    padding: clamp(2rem, 4.5vw, 3.8rem);
     background:
-      radial-gradient(circle at top left, rgba(244, 220, 186, 0.88), transparent 32%),
-      radial-gradient(circle at bottom right, rgba(76, 106, 156, 0.22), transparent 34%),
-      linear-gradient(135deg, rgba(255, 250, 243, 0.98), rgba(237, 244, 248, 0.94));
+      radial-gradient(circle at top left, rgba(235, 224, 209, 0.74), transparent 32%),
+      radial-gradient(circle at bottom right, rgba(208, 219, 231, 0.24), transparent 34%),
+      linear-gradient(145deg, rgba(252, 249, 244, 0.98), rgba(245, 246, 244, 0.95));
   }
 
   .section-label,
@@ -593,10 +593,9 @@ const chapterLinks = chapterSections.map((chapter) => ({
   }
 
   .hero-brand {
-    margin: 0.6rem 0 0;
-    font-family: var(--font-display);
-    font-size: clamp(1.25rem, 2vw, 1.55rem);
-    color: rgba(32, 22, 15, 0.88);
+    margin: 0.85rem 0 0;
+    font-size: clamp(1.3rem, 1.9vw, 1.6rem);
+    color: color-mix(in srgb, var(--color-text) 92%, transparent);
   }
 
   .hero-copy h1,
@@ -604,8 +603,9 @@ const chapterLinks = chapterSections.map((chapter) => ({
   .chapter-intro h2,
   .bridge-copy h2 {
     margin: 0;
-    font-size: clamp(2.1rem, 4vw, 3.8rem);
-    line-height: 1.08;
+    font-size: clamp(2.15rem, 4vw, 3.55rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
   }
 
   .hero-copy,
@@ -632,7 +632,7 @@ const chapterLinks = chapterSections.map((chapter) => ({
 
   .hero-lead,
   .hero-note {
-    max-width: 35rem;
+    max-width: 31rem;
   }
 
   .hero-note span {
@@ -690,10 +690,10 @@ const chapterLinks = chapterSections.map((chapter) => ({
     display: grid;
     gap: 1rem;
     color: inherit;
-    background: rgba(255, 255, 255, 0.72);
-    border: 1px solid rgba(100, 76, 42, 0.12);
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid var(--color-border);
     border-radius: clamp(20px, 3vw, 28px);
-    box-shadow: 0 18px 36px rgba(83, 55, 28, 0.08);
+    box-shadow: 0 14px 32px rgba(83, 55, 28, 0.06);
     transition: transform 0.22s ease, box-shadow 0.22s ease;
   }
 

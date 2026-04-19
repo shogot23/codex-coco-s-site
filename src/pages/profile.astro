@@ -187,11 +187,11 @@ const updatedAtLabel = entry?.data?.updatedAt
     display: grid;
     grid-template-columns: minmax(0, 1.02fr) minmax(320px, 0.98fr);
     gap: clamp(1.5rem, 3vw, 3rem);
-    padding: clamp(1.6rem, 4vw, 3rem);
+    padding: clamp(2rem, 4.5vw, 3.8rem);
     background:
-      radial-gradient(circle at top left, rgba(247, 214, 176, 0.84), transparent 30%),
-      radial-gradient(circle at bottom right, rgba(62, 93, 139, 0.18), transparent 32%),
-      linear-gradient(135deg, rgba(255, 250, 243, 0.98), rgba(236, 242, 248, 0.92));
+      radial-gradient(circle at top left, rgba(235, 224, 209, 0.78), transparent 30%),
+      radial-gradient(circle at bottom right, rgba(209, 218, 228, 0.22), transparent 32%),
+      linear-gradient(145deg, rgba(252, 249, 244, 0.98), rgba(245, 245, 242, 0.94));
   }
 
   .character-room,
@@ -199,7 +199,7 @@ const updatedAtLabel = entry?.data?.updatedAt
   .sensitive-room,
   .closing-room {
     padding: clamp(1.35rem, 3vw, 2.3rem);
-    background: linear-gradient(180deg, rgba(255, 253, 249, 0.98), rgba(247, 240, 230, 0.88));
+    background: linear-gradient(180deg, rgba(255, 253, 249, 0.98), rgba(248, 245, 239, 0.92));
   }
 
   .favorites-room {
@@ -238,10 +238,9 @@ const updatedAtLabel = entry?.data?.updatedAt
   }
 
   .hero-brand {
-    margin: 0.85rem 0 0;
-    font-family: var(--font-display);
-    font-size: clamp(1.45rem, 2vw, 1.9rem);
-    color: #1f2430;
+    margin: 0.95rem 0 0;
+    font-size: clamp(1.4rem, 1.9vw, 1.75rem);
+    color: color-mix(in srgb, var(--color-text) 92%, transparent);
   }
 
   .section-caption {
@@ -266,9 +265,10 @@ const updatedAtLabel = entry?.data?.updatedAt
 
   .profile-hero h1 {
     margin-top: 1rem;
-    font-size: clamp(2.6rem, 5vw, 4.7rem);
-    max-width: 9ch;
+    font-size: clamp(2.7rem, 5vw, 4.5rem);
+    max-width: 10ch;
     text-wrap: balance;
+    letter-spacing: -0.025em;
   }
 
   .character-intro,
@@ -299,9 +299,9 @@ const updatedAtLabel = entry?.data?.updatedAt
   .hero-lead,
   .hero-bridge {
     margin: 1.2rem 0 0;
-    max-width: 34rem;
-    line-height: 1.9;
-    font-size: clamp(1rem, 1.3vw, 1.1rem);
+    max-width: 31rem;
+    line-height: 1.82;
+    font-size: var(--text-lead);
   }
 
   .hero-actions,
@@ -332,15 +332,15 @@ const updatedAtLabel = entry?.data?.updatedAt
   }
 
   .hero-link-primary {
-    background: #1f2430;
-    color: #fffaf1;
-    box-shadow: 0 18px 34px rgba(31, 36, 48, 0.18);
+    background: linear-gradient(180deg, rgba(50, 45, 41, 0.96), rgba(29, 27, 25, 0.96));
+    color: #fffdf9;
+    box-shadow: 0 18px 34px rgba(26, 22, 20, 0.16);
   }
 
   .hero-link-secondary {
-    border: 1px solid rgba(100, 76, 42, 0.16);
-    background: rgba(255, 255, 255, 0.72);
-    color: #5d3c20;
+    border: 1px solid var(--color-border);
+    background: rgba(255, 255, 255, 0.78);
+    color: color-mix(in srgb, var(--color-text) 84%, transparent);
   }
 
   .hero-footnote {
@@ -351,10 +351,9 @@ const updatedAtLabel = entry?.data?.updatedAt
     width: fit-content;
     margin-top: 1.5rem;
     padding: 0.8rem 1rem;
-    border: 1px solid rgba(100, 76, 42, 0.12);
+    border: 1px solid var(--color-border);
     border-radius: 18px;
-    background: rgba(255, 255, 255, 0.68);
-    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.76);
   }
 
   .hero-footnote p,

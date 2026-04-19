@@ -107,16 +107,17 @@ const latestReviewLabel = featuredReview ? featuredReview.dateLabel : null;
     <section class="hero" aria-labelledby="reviews-heading">
       <div class="hero-copy">
         <p class="hero-kicker">読書 with Coco / Reviews</p>
+        <p class="hero-brand">読書 with Coco</p>
         <h1 id="reviews-heading">次の一冊をひらく前に、言葉の余韻をひとくち。</h1>
         <p class="hero-lead">
-          トップページから続く主導線の先で、本を閉じたあとに残る感情や学びを、ココちゃんと一緒に静かにたどります。
+          トップページから続く主導線の先で、本を閉じたあとに残る感情や学びを静かにたどります。
           まずは今いちばん手前にある一冊からどうぞ。
         </p>
 
         {featuredReview && (
           <p class="hero-note">
             いま前にあるのは <span>{featuredReview.title}</span>。読む理由が先に見えるように、
-            余韻の輪郭を添えて並べています。
+            余韻の輪郭だけを添えて並べています。
           </p>
         )}
 
@@ -450,12 +451,12 @@ const latestReviewLabel = featuredReview ? featuredReview.dateLabel : null;
     display: grid;
     grid-template-columns: minmax(0, 1.25fr) minmax(18rem, 0.75fr);
     gap: clamp(1.5rem, 3vw, 2.5rem);
-    padding: clamp(1.5rem, 4vw, 3rem);
-    border: 1px solid rgba(99, 66, 32, 0.12);
+    padding: clamp(2rem, 4.5vw, 3.8rem);
+    border: 1px solid var(--color-border);
     border-radius: 2.3rem;
     background:
-      radial-gradient(circle at top left, rgba(243, 223, 180, 0.55), transparent 38%),
-      linear-gradient(145deg, rgba(255, 250, 243, 0.98), rgba(248, 240, 229, 0.9));
+      radial-gradient(circle at top left, rgba(235, 224, 209, 0.6), transparent 38%),
+      linear-gradient(145deg, rgba(252, 249, 244, 0.98), rgba(247, 244, 239, 0.92));
     box-shadow: var(--shadow-soft);
     overflow: hidden;
   }
@@ -499,11 +500,18 @@ const latestReviewLabel = featuredReview ? featuredReview.dateLabel : null;
     gap: 0.85rem;
   }
 
+  .hero-brand {
+    margin: 0;
+    font-size: clamp(1.35rem, 1.9vw, 1.65rem);
+    color: color-mix(in srgb, var(--color-text) 92%, transparent);
+  }
+
   .hero h1 {
     margin: 0;
-    max-width: 10ch;
-    font-size: clamp(2.4rem, 5vw, 4.4rem);
-    line-height: 1.04;
+    max-width: 10.5ch;
+    font-size: clamp(2.6rem, 5vw, 4.6rem);
+    line-height: 1.05;
+    letter-spacing: -0.025em;
   }
 
   .hero-lead,
@@ -521,7 +529,7 @@ const latestReviewLabel = featuredReview ? featuredReview.dateLabel : null;
 
   .hero-lead,
   .hero-note {
-    max-width: 34rem;
+    max-width: 31rem;
   }
 
   .hero-note span {
@@ -553,17 +561,17 @@ const latestReviewLabel = featuredReview ? featuredReview.dateLabel : null;
   }
 
   .hero-button-primary {
-    background: linear-gradient(135deg, #8f5b2f, #ae7443);
-    color: #fffaf2;
-    box-shadow: 0 20px 34px rgba(141, 91, 42, 0.22);
+    background: linear-gradient(180deg, rgba(50, 45, 41, 0.96), rgba(29, 27, 25, 0.96));
+    color: #fffdf9;
+    box-shadow: 0 18px 34px rgba(26, 22, 20, 0.16);
   }
 
   .hero-button-secondary,
   .stream-link {
-    background: rgba(255, 255, 255, 0.7);
-    color: #2b3240;
-    border: 1px solid rgba(100, 76, 42, 0.16);
-    box-shadow: 0 16px 28px rgba(28, 32, 40, 0.08);
+    background: rgba(255, 255, 255, 0.78);
+    color: color-mix(in srgb, var(--color-text) 86%, transparent);
+    border: 1px solid var(--color-border);
+    box-shadow: 0 10px 24px rgba(40, 30, 20, 0.05);
   }
 
   .hero-button:hover,
@@ -588,9 +596,8 @@ const latestReviewLabel = featuredReview ? featuredReview.dateLabel : null;
     gap: 1rem;
     padding: clamp(1.15rem, 2vw, 1.65rem);
     border-radius: 1.8rem;
-    background: rgba(255, 255, 255, 0.56);
-    border: 1px solid rgba(99, 66, 32, 0.1);
-    backdrop-filter: blur(8px);
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid var(--color-border);
   }
 
   .panel-stats {
@@ -712,9 +719,9 @@ const latestReviewLabel = featuredReview ? featuredReview.dateLabel : null;
     gap: clamp(1.5rem, 3vw, 2.8rem);
     padding: clamp(1.35rem, 3vw, 2.15rem);
     border-radius: 2rem;
-    border: 1px solid rgba(99, 66, 32, 0.12);
+    border: 1px solid var(--color-border);
     background:
-      linear-gradient(160deg, rgba(255, 255, 255, 0.84), rgba(255, 249, 239, 0.94)),
+      linear-gradient(160deg, rgba(255, 255, 255, 0.9), rgba(255, 250, 244, 0.96)),
       #fff;
     box-shadow: var(--shadow-soft);
   }
