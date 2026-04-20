@@ -1,7 +1,12 @@
 ---
 import { getEntry, type CollectionEntry } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
-import type { GalleryGenre } from '../content/config';
+import {
+  GALLERY_FICTION_GENRES,
+  GALLERY_HORIZON_GENRES,
+  GALLERY_LEARNING_GENRES,
+  type GalleryGenre,
+} from '../lib/gallery-taxonomy';
 import { getPublishedGallery, hasDetailContent, sortGalleryEntries } from '../utils/gallery';
 
 type GalleryEntry = CollectionEntry<'gallery'>;
@@ -100,7 +105,7 @@ const chapterBlueprints: ScenicChapterDefinition[] = [
     title: '物語と感情の気配を見返す。',
     description:
       '小説やノンフィクションのあとに残る温度を、すこし近い距離で並べる章です。読後に言葉へ戻る前の呼吸をここに置きます。',
-    genres: ['現代文学', 'ノンフィクション', 'エッセイ', '自伝'],
+    genres: GALLERY_FICTION_GENRES,
     mood: 'fiction',
   },
   {
@@ -109,7 +114,7 @@ const chapterBlueprints: ScenicChapterDefinition[] = [
     title: '学びが日常へ降りる瞬間を拾う。',
     description:
       'ビジネス、心理学、健康、新書、社会科学の本から見えた輪郭を、暮らしに近い景色として束ねます。学びを硬くしすぎない章です。',
-    genres: ['ビジネス', '心理学', '健康', '新書', '社会科学'],
+    genres: GALLERY_LEARNING_GENRES,
     mood: 'learning',
   },
   {
@@ -118,7 +123,7 @@ const chapterBlueprints: ScenicChapterDefinition[] = [
     title: '時代と熱量の遠景まで歩いていく。',
     description:
       '歴史、漫画、ホビーの本がひらく遠い景色を、ココちゃんの歩幅でゆっくりたどります。少し遠くへ行きたい日に向く章です。',
-    genres: ['歴史小説', '歴史教養', '漫画', 'ホビー'],
+    genres: GALLERY_HORIZON_GENRES,
     mood: 'horizon',
   },
 ];
@@ -178,14 +183,14 @@ addFeaturedMoment(
   'Learning Glow',
   '学びを景色に変える棚',
   '考え方や習慣の本が残す輪郭は、整った結論よりも、日々の見え方の変化として受け取りたいものです。',
-  pickScene(['ビジネス', '心理学', '健康', '新書', '社会科学'])
+  pickScene(GALLERY_LEARNING_GENRES)
 );
 
 addFeaturedMoment(
   'Far Horizon',
   '少し遠くへ連れていく景色',
   '歴史や漫画やホビーの本は、今いる場所から少し離れた地平を見せてくれます。その広がりを副導線として残します。',
-  pickScene(['歴史小説', '歴史教養', '漫画', 'ホビー'])
+  pickScene(GALLERY_HORIZON_GENRES)
 );
 
 const chapterLinks = chapterSections.map((chapter) => ({
