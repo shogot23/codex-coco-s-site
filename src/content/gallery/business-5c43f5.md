@@ -1,7 +1,7 @@
 ---
 title: "表参道のセレブ犬とカバーニャ要塞の野良犬"
 image: "/uploads/gallery/books/Omotesando_Celebrity_Dog_and_Fortress_Stray_Dog_Wakabayashi_Masayasu.jpeg"
-genre: "ホビー"
+genre: "エッセイ"
 author: "若林正恭"
 description: "キューバで出会う格差や空気を通して、自分の立ち位置とまなざしを見つめ直す紀行エッセイ。"
 note: "遠い異国の景色より、自分の視線の癖のほうが強く残ってくる。"
