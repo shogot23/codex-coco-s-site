@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { getEntry, type CollectionEntry } from 'astro:content';
+import { getGalleryGenreBucket } from '../../lib/gallery-taxonomy';
 import { getPublishedGallery, hasDetailContent, sortGalleryEntries } from '../../utils/gallery';
 
 export async function getStaticPaths() {
@@ -88,9 +89,10 @@ const relatedReviewUrl = relatedReview ? `${baseWithSlash}reviews/${relatedRevie
 const sceneShelfTitle = genre
   ? `${genre}の棚で見返す景色`
   : '読後の余韻を見返す棚';
-const sceneShelfCopy = genre && ['ビジネス', '心理学', '健康', '新書', '社会科学'].includes(genre)
+const genreBucket = getGalleryGenreBucket(genre);
+const sceneShelfCopy = genreBucket === 'learning'
   ? '学びが結論になる前の揺れを、暮らしに近い温度で受け止めるための棚です。'
-  : genre && ['歴史小説', '歴史教養', '漫画', 'ホビー'].includes(genre)
+  : genreBucket === 'horizon'
     ? '少し遠くの時代や熱量へ歩いていくときに、景色の広がりを静かに確かめるための棚です。'
     : '物語や感情の気配が先に残るとき、言葉の外側にある温度を見返すための棚です。';
 const reviewBridgeTitle = relatedReview

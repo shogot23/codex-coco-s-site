@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { getGalleryGenreSlugPrefix } from '../../src/lib/gallery-taxonomy.ts';
 
 function slugifyAscii(value: string): string {
   return value
@@ -10,41 +11,9 @@ function slugifyAscii(value: string): string {
     .replace(/-{2,}/g, '-');
 }
 
-function genrePrefix(genre?: string): string {
-  switch (genre) {
-    case '小説':
-    case '現代文学':
-    case '歴史小説':
-      return 'novel';
-    case '漫画':
-      return 'manga';
-    case 'ノンフィクション':
-      return 'nonfiction';
-    case 'ビジネス':
-      return 'business';
-    case '歴史':
-    case '歴史教養':
-      return 'history';
-    case '心理学':
-      return 'psychology';
-    case '健康':
-      return 'health';
-    case 'ホビー':
-      return 'hobby';
-    case '新書':
-      return 'shinsho';
-    case '自伝':
-      return 'autobiography';
-    case 'エッセイ':
-      return 'essay';
-    default:
-      return 'pending';
-  }
-}
-
 export function createGallerySlug(sourceFile: string, genre?: string): string {
   const hash = createHash('sha1').update(sourceFile).digest('hex').slice(0, 6);
-  return `${genrePrefix(genre)}-${hash}`;
+  return `${getGalleryGenreSlugPrefix(genre)}-${hash}`;
 }
 
 export function createGalleryAssetBasename(sourceStem: string, title?: string, author?: string): string {

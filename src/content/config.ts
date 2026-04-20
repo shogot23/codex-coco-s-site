@@ -1,4 +1,5 @@
 import { defineCollection, reference, z } from 'astro:content';
+import { GALLERY_GENRES, type GalleryGenre } from '../lib/gallery-taxonomy';
 
 const optionalString = z.preprocess(
   (value) => (value === '' ? undefined : value),
@@ -119,23 +120,7 @@ const reviews = defineCollection({
   }),
 });
 
-// Gallery genres - fixed list for filtering
-export const GALLERY_GENRES = [
-  '現代文学',
-  '歴史小説',
-  '漫画',
-  'ノンフィクション',
-  '歴史教養',
-  '心理学',
-  '健康',
-  'ホビー',
-  '新書',
-  '自伝',
-  'ビジネス',
-  'エッセイ',
-  '社会科学',
-] as const;
-export type GalleryGenre = typeof GALLERY_GENRES[number];
+export { GALLERY_GENRES, type GalleryGenre };
 
 const gallery = defineCollection({
   type: 'content',

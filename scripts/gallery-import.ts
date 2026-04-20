@@ -10,6 +10,11 @@ import {
   writeFileSync,
 } from 'node:fs';
 import path, { basename, extname } from 'node:path';
+import {
+  GALLERY_GENRES,
+  GALLERY_LEARNING_GENRES,
+  type GalleryGenre,
+} from '../src/lib/gallery-taxonomy.ts';
 import { extractGalleryMetadata, terminateOcrWorker } from './lib/ocr.ts';
 import { createGalleryAssetBasename, createGallerySlug } from './lib/slug.ts';
 import { canUseVisionOcr, extractVisionOcrLines, type VisionOcrLine } from './lib/vision-ocr.ts';
@@ -25,20 +30,6 @@ const GALLERY_DIR = path.resolve('src/content/gallery');
 const REVIEWS_DIR = path.resolve('src/content/reviews');
 const REPORT_PATH = path.resolve('reports/gallery-import-report.md');
 const SUPPORTED_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp']);
-const GALLERY_GENRES = [
-  '現代文学',
-  '歴史小説',
-  '漫画',
-  'ノンフィクション',
-  '歴史教養',
-  '心理学',
-  '健康',
-  'ホビー',
-  '新書',
-  '自伝',
-  'ビジネス',
-  'エッセイ',
-] as const;
 const MATCH_RULES = {
   import: {
     title: 0.72,
@@ -93,7 +84,6 @@ const OCR_NOISE_PATTERNS: Array<{ pattern: RegExp; penalty: number; reason: stri
 
 const NOISE_EXCLUSION_THRESHOLD = 0.7; // penalty 合計がこの値以上なら除外
 
-type GalleryGenre = (typeof GALLERY_GENRES)[number];
 type OverrideField = 'title' | 'author' | 'genre';
 
 type ExistingGalleryEntry = {
@@ -719,21 +709,23 @@ function buildDescription(title: string, author: string, genre?: GalleryGenre): 
           ? '実在の出来事や人物に深く触れられそうな一冊'
           : genre === '歴史教養'
             ? '歴史の流れや人物像を学び直す入口になりそうな一冊'
-            : genre === '心理学'
-              ? '心や行動の仕組みを知る手がかりになりそうな一冊'
-              : genre === '健康'
-                ? '日々の身体づくりや休息を見直すヒントを得られそうな一冊'
-                : genre === 'ホビー'
-                  ? '趣味や日々の楽しみを広げるきっかけになりそうな一冊'
-                  : genre === '新書'
-                    ? '社会や時代を手早く考える視点をくれそうな一冊'
-                    : genre === '自伝'
-                      ? '本人の歩みや選択から人生を見つめ直せそうな一冊'
-                      : genre === 'ビジネス'
-                        ? '視点や行動を整えるヒントを受け取れそうな一冊'
-                        : genre === 'エッセイ'
-                          ? '個人的な観察や語り口をゆっくり味わえそうな一冊'
-                          : '現代の感情や関係性を映す物語の余韻を味わえそうな一冊';
+            : genre === 'ホビー'
+              ? '趣味や日々の楽しみを広げるきっかけになりそうな一冊'
+              : genre === '自伝'
+                ? '本人の歩みや選択から人生を見つめ直せそうな一冊'
+                : genre === 'エッセイ'
+                  ? '個人的な観察や語り口をゆっくり味わえそうな一冊'
+                  : genre && GALLERY_LEARNING_GENRES.includes(genre)
+                    ? genre === '社会科学'
+                      ? '社会や暮らしの見え方を少し深く捉え直すきっかけになりそうな一冊'
+                      : genre === '新書'
+                        ? '社会や時代を手早く考える視点をくれそうな一冊'
+                        : genre === '心理学'
+                          ? '心や行動の仕組みを知る手がかりになりそうな一冊'
+                          : genre === '健康'
+                            ? '日々の身体づくりや休息を見直すヒントを得られそうな一冊'
+                            : '視点や行動を整えるヒントを受け取れそうな一冊'
+                    : '現代の感情や関係性を映す物語の余韻を味わえそうな一冊';
 
   return {
     value: `『${title}』は、${author}による${genreDescription}。`,
@@ -1513,7 +1505,7 @@ function buildCliOptions(args: string[]): CliOptions {
 
     if (current === '--help') {
       throw new Error(
-        'Usage: npm run gallery:import -- [--dry-run] [--report-json <path>] [--file <path>] [--title <title>] [--author <author>] [--genre <現代文学|歴史小説|漫画|ノンフィクション|歴史教養|心理学|健康|ホビー|新書|自伝|ビジネス|エッセイ>] [--override <source_file>]'
+        'Usage: npm run gallery:import -- [--dry-run] [--report-json <path>] [--file <path>] [--title <title>] [--author <author>] [--genre <現代文学|歴史小説|漫画|ノンフィクション|歴史教養|心理学|健康|ホビー|新書|自伝|ビジネス|エッセイ|社会科学>] [--override <source_file>]'
       );
     }
 
@@ -1687,7 +1679,7 @@ function buildFrontmatterTemplate(result: ProcessedImageResult): string {
     `title: ${result.metadata.title ? quote(result.metadata.title) : '"<タイトルを入力>"'}`,
     `image: ${quote(imagePublicPath)}`,
     `alt: ${result.metadata.alt ? quote(result.metadata.alt) : '"<alt を入力>"'}`,
-    `genre: ${result.metadata.genre ? quote(result.metadata.genre) : '"<現代文学 | 歴史小説 | 漫画 | ノンフィクション | 歴史教養 | 心理学 | 健康 | ホビー | 新書 | 自伝 | ビジネス | エッセイ>"'}`,
+    `genre: ${result.metadata.genre ? quote(result.metadata.genre) : '"<現代文学 | 歴史小説 | 漫画 | ノンフィクション | 歴史教養 | 心理学 | 健康 | ホビー | 新書 | 自伝 | ビジネス | エッセイ | 社会科学>"'}`,
     `author: ${result.metadata.author ? quote(result.metadata.author) : '"<著者を入力>"'}`,
     `description: ${result.metadata.description ? quote(result.metadata.description) : '"<紹介文を入力>"'}`,
     'needs_review: true',
