@@ -1,7 +1,7 @@
 ---
 title: "社会は、静かにあなたを「呪う」"
 image: "/uploads/gallery/books/Society_Quietly_Curses_You_Suzuki_Tasuku.jpeg"
-genre: "心理学"
+genre: "ビジネス"
 author: "鈴木祐"
 description: "思考と感情を侵食する社会の呪いを見える化し、自分の輪郭を守るための視点をくれる一冊。"
 note: "知らないうちに背負っていた声を下ろし、自分を守る輪郭が残る。"

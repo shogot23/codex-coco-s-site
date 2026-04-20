@@ -133,6 +133,7 @@ export const GALLERY_GENRES = [
   '自伝',
   'ビジネス',
   'エッセイ',
+  '社会科学',
 ] as const;
 export type GalleryGenre = typeof GALLERY_GENRES[number];
 
