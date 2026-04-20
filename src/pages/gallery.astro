@@ -73,7 +73,6 @@ const getSceneHref = (entry: GalleryEntry) =>
 
 const galleryEntries = sortGalleryEntries(await getPublishedGallery());
 const detailedEntries = galleryEntries.filter((entry) => hasDetailContent(entry));
-const uniqueGenres = new Set(galleryEntries.map((entry) => entry.data.genre).filter(Boolean));
 const linkedReviewCount = (await Promise.all(
   galleryEntries.map(async (entry) => {
     if (!entry.data.relatedReview) return false;
@@ -329,10 +328,6 @@ const chapterLinks = chapterSections.map((chapter) => ({
               <div>
                 <dt>公開中の景色</dt>
                 <dd>{galleryEntries.length}</dd>
-              </div>
-              <div>
-                <dt>ひらいている棚</dt>
-                <dd>{uniqueGenres.size}</dd>
               </div>
               <div>
                 <dt>Review につながる入口</dt>
@@ -821,7 +816,7 @@ const chapterLinks = chapterSections.map((chapter) => ({
 
   .panel-stats {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.85rem;
     margin: 0;
   }
