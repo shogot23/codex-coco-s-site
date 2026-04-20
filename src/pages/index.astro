@@ -64,6 +64,7 @@ const formatReviewDate = (value: Date) =>
   }).format(value);
 
 const reviewsUrl = withBase('reviews/');
+const threeBooksUrl = withBase('3books/');
 const galleryUrl = withBase('gallery/');
 const aboutUrl = withBase('about/');
 const profileUrl = withBase('profile/');
@@ -351,6 +352,9 @@ const worldAsideCopy =
               </a>
               <a class="inline-button inline-button-secondary ui-action" href={reviewsUrl}>
                 すべてのレビューを見る
+              </a>
+              <a class="inline-button inline-button-secondary ui-action" href={threeBooksUrl}>
+                3booksへ
               </a>
               {featuredReview.purchaseLinks.length > 0 && (
                 <div class="review-purchase-links ui-action-group ui-action-group--stack">

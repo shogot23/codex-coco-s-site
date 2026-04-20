@@ -45,6 +45,18 @@ test('home first viewport shows brand and review-led hero CTA flow', async ({ pa
   await expect(page.locator('#review-stream')).toBeVisible();
 });
 
+test('home offers a secondary shortcut to the 3books landing page', async ({ page }) => {
+  await page.goto(SITE_BASE);
+
+  const threeBooksLink = page.getByRole('link', { name: '3booksへ', exact: true });
+  await expect(threeBooksLink).toBeVisible();
+  await threeBooksLink.click();
+
+  await expect(page).toHaveURL(/\/codex-coco-s-site\/3books\/$/);
+  await expect(page.getByRole('heading', { name: '最初の3冊から、読書 with Coco をひらく。' })).toBeVisible();
+  await expectNoHorizontalOverflow(page);
+});
+
 test('primary navigation keeps review-led links and excludes the video library shortcut', async ({ page }) => {
   await page.goto(SITE_BASE);
 
@@ -161,6 +173,48 @@ test('gallery detail keeps the review bridge intact for review-linked scenes', a
   await reviewBridgeLink.click();
   await expect(page).toHaveURL(/\/codex-coco-s-site\/reviews\/seiten\/$/);
   await expect(page.locator('#review-title')).toBeVisible();
+});
+
+test('3books landing guides readers into the three new reviews', async ({ page }) => {
+  await page.goto(`${SITE_BASE}3books/`);
+
+  await expect(page.getByRole('heading', { name: '最初の3冊から、読書 with Coco をひらく。' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '今日は、どの入口からひらく？' })).toBeVisible();
+
+  const chapterTitles = page.locator('.chapter h3');
+  await expect(chapterTitles).toHaveText([
+    '偶然はどのようにあなたをつくるのか',
+    'イン・ザ・メガチャーチ',
+    '人生後半の戦略書',
+  ]);
+
+  await expect(page.getByRole('link', { name: 'レビューを読む', exact: true }).nth(0)).toBeVisible();
+  await expect(page.getByRole('link', { name: 'レビューを読む', exact: true }).nth(1)).toBeVisible();
+  await expect(page.getByRole('link', { name: 'レビューを読む', exact: true }).nth(2)).toBeVisible();
+  await expectNoHorizontalOverflow(page);
+
+  await page.getByRole('link', { name: 'レビューを読む', exact: true }).nth(0).click();
+  await expect(page).toHaveURL(/\/codex-coco-s-site\/reviews\/guzen-ha-donoyouni-anata-wo-tsukurunoka\/$/);
+  await expect(page.locator('#review-title')).toHaveText('偶然はどのようにあなたをつくるのか');
+  await expect(page.getByTestId('review-purchase-shelf')).toBeVisible();
+  await expect(page.getByRole('link', { name: 'この本から広がる景色へ' })).toBeVisible();
+});
+
+test('new review details preserve gallery links and fallback reading flow', async ({ page }) => {
+  await page.goto(`${SITE_BASE}reviews/jinsei-kouhan-no-senryakusho/`);
+
+  await expect(page.locator('#review-title')).toHaveText('人生後半の戦略書');
+  await expect(page.getByTestId('review-purchase-shelf')).toBeVisible();
+  await expect(page.getByRole('link', { name: 'この本から広がる景色へ' })).toBeVisible();
+  await page.getByRole('link', { name: 'この本から広がる景色へ' }).click();
+  await expect(page).toHaveURL(/\/codex-coco-s-site\/gallery\/business-193591\/$/);
+  await expect(page.getByRole('heading', { name: '人生後半の戦略書', exact: true }).first()).toBeVisible();
+
+  await page.goto(`${SITE_BASE}reviews/in-the-megachurch/`);
+  await expect(page.locator('#review-title')).toHaveText('イン・ザ・メガチャーチ');
+  await expect(page.getByRole('link', { name: '次の一冊を探す', exact: true })).toBeVisible();
+  await expect(page.getByTestId('review-purchase-shelf')).toBeVisible();
+  await expectNoHorizontalOverflow(page);
 });
 
 test('gallery detail falls back to purchase links when no related review exists', async ({ page }) => {

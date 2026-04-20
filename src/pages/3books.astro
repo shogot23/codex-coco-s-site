@@ -1,0 +1,460 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getEntry } from 'astro:content';
+import { getPublishedReviews } from '../utils/reviews';
+
+const base = import.meta.env.BASE_URL;
+const baseWithSlash = base.endsWith('/') ? base : `${base}/`;
+const reviewsUrl = `${baseWithSlash}reviews/`;
+const galleryUrl = `${baseWithSlash}gallery/`;
+
+const isAbsoluteUrl = (value: string) =>
+  /^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(value);
+
+const withBase = (assetPath: string) => {
+  if (!assetPath) return baseWithSlash;
+  if (isAbsoluteUrl(assetPath)) return assetPath;
+  if (assetPath.startsWith(baseWithSlash)) return assetPath;
+  return `${baseWithSlash}${assetPath.replace(/^\/+/, '')}`;
+};
+
+type LandingConfig = {
+  slug: string;
+  chapter: string;
+  lead: string;
+};
+
+const landingBooks: LandingConfig[] = [
+  {
+    slug: 'guzen-ha-donoyouni-anata-wo-tsukurunoka',
+    chapter: 'Chapter 01 / Start With Wonder',
+    lead: '偶然の積み重なりでできた「今」を見つめ直すと、不安の中でも今日の一歩が少し選びやすくなる。',
+  },
+  {
+    slug: 'in-the-megachurch',
+    chapter: 'Chapter 02 / Revisit Your Heat',
+    lead: '失ったように見える熱狂を、忙しさではなく成長や立場の変化から見直していく読書。',
+  },
+  {
+    slug: 'jinsei-kouhan-no-senryakusho',
+    chapter: 'Chapter 03 / Rebuild The Long Run',
+    lead: '成功を追い続ける働き方から少し降りて、人生後半の知恵の使い方を考え直す一冊。',
+  },
+];
+
+const reviewEntries = await getPublishedReviews();
+const reviewMap = new Map(reviewEntries.map((entry) => [entry.slug, entry]));
+
+const books = landingBooks.map((item) => {
+  const review = reviewMap.get(item.slug);
+  if (!review) {
+    throw new Error(`Missing review entry for ${item.slug}`);
+  }
+
+  return {
+    chapter: item.chapter,
+    lead: item.lead,
+    slug: review.slug,
+    title: review.data.title,
+    author: review.data.author,
+    recommendedFor: review.data.recommendedFor ?? [],
+    purchaseLinks: review.data.purchaseLinks ?? [],
+    image: review.data.cover ?? review.data.infographic ?? '',
+    href: `${baseWithSlash}reviews/${review.slug}/`,
+  };
+});
+
+let avatar = '/uploads/img_6088.png';
+
+try {
+  const profile = await getEntry('profile', 'profile');
+  avatar = profile?.data?.avatar ?? avatar;
+} catch {
+  // Profile content is optional during local content setup.
+}
+
+const avatarUrl = withBase(avatar);
+---
+
+<Layout
+  title="3books | 読書 with Coco"
+  description="SNSから来た人に向けた、読書 with Coco の最初の入口。まずはおすすめ3冊からどうぞ。"
+  image={avatarUrl}
+>
+  <div class="three-books-story">
+    <section class="three-books-hero" aria-labelledby="three-books-heading">
+      <div class="hero-copy">
+        <p class="hero-kicker">読書 with Coco / Start Here</p>
+        <p class="hero-brand">読書 with Coco</p>
+        <h1 id="three-books-heading">最初の3冊から、読書 with Coco をひらく。</h1>
+        <p class="hero-lead">
+          SNSから来てくれた人へ。まずは、世界の見え方が変わる一冊、熱狂との距離を見つめる一冊、
+          これからの働き方を考える一冊からどうぞ。
+        </p>
+
+        <div class="hero-actions ui-action-group ui-action-group--stack">
+          <a class="hero-button hero-button-primary ui-action" href="#three-books-list">3冊を見る</a>
+          <a class="hero-button hero-button-secondary ui-action" href={reviewsUrl}>レビュー一覧へ</a>
+        </div>
+      </div>
+
+      <div class="hero-aside">
+        <div class="coco-note">
+          <img
+            class="coco-avatar"
+            src={avatarUrl}
+            alt="読書 with Coco の案内役、ココちゃん"
+            width="320"
+            height="320"
+            loading="eager"
+            decoding="async"
+          />
+          <p class="coco-label">Coco&apos;s Note</p>
+          <p>
+            入口だけを、静かに明るく。まずは気になる一冊から、言葉のほうへどうぞ。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="three-books-list" id="three-books-list" aria-labelledby="three-books-list-heading">
+      <div class="section-head">
+        <div>
+          <p class="section-label">Three Books</p>
+          <h2 id="three-books-list-heading">今日は、どの入口からひらく？</h2>
+        </div>
+        <p class="section-copy">
+          3冊の違いがすぐわかるように、読む理由を先に短く添えています。主導線は review detail、
+          購入導線は必要な人のためだけに静かに置きます。
+        </p>
+      </div>
+
+      <div class="chapters">
+        {books.map((book) => (
+          <article class="chapter" aria-labelledby={`${book.slug}-title`}>
+            <div class="chapter-media">
+              <img
+                src={withBase(book.image)}
+                alt={`${book.title}のカバー画像`}
+                loading="lazy"
+                decoding="async"
+                width="720"
+                height="900"
+              />
+            </div>
+
+            <div class="chapter-copy">
+              <p class="chapter-label">{book.chapter}</p>
+              <h3 id={`${book.slug}-title`}>{book.title}</h3>
+              {book.author && <p class="chapter-author">著者: {book.author}</p>}
+              <p class="chapter-lead">{book.lead}</p>
+
+              {book.recommendedFor.length > 0 && (
+                <div class="chapter-for">
+                  <p class="chapter-for-label">こんな人へ</p>
+                  <ul>
+                    {book.recommendedFor.slice(0, 3).map((item) => (
+                      <li>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              <div class="chapter-actions ui-action-group ui-action-group--stack">
+                <a class="hero-button hero-button-primary ui-action" href={book.href}>
+                  レビューを読む
+                </a>
+                {book.purchaseLinks.length > 0 && (
+                  <div class="chapter-purchase-links ui-action-group ui-action-group--stack">
+                    {book.purchaseLinks.map((link) => (
+                      <a
+                        class="hero-button hero-button-secondary ui-action"
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer nofollow"
+                      >
+                        {link.label}
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section class="three-books-footer" aria-labelledby="three-books-footer-heading">
+      <p class="section-label">After The First Three</p>
+      <h2 id="three-books-footer-heading">この3冊のあとに、ほかのレビューへ。</h2>
+      <p>
+        気になったテーマが見つかったら、レビュー一覧とギャラリーで、もう少しゆっくり寄り道できます。
+      </p>
+      <div class="footer-actions ui-action-group ui-action-group--stack">
+        <a class="hero-button hero-button-primary ui-action" href={reviewsUrl}>レビュー一覧を見る</a>
+        <a class="hero-button hero-button-secondary ui-action" href={galleryUrl}>ギャラリーを見る</a>
+      </div>
+    </section>
+  </div>
+</Layout>
+
+<style>
+  .three-books-story {
+    display: grid;
+    gap: clamp(2.4rem, 4vw, 4rem);
+    padding: clamp(0.5rem, 1vw, 1rem) 0 clamp(2rem, 4vw, 3rem);
+  }
+
+  .three-books-hero,
+  .three-books-list,
+  .three-books-footer {
+    position: relative;
+  }
+
+  .three-books-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(18rem, 0.7fr);
+    gap: clamp(1.5rem, 3vw, 2.6rem);
+    align-items: center;
+    padding: clamp(2rem, 4vw, 3.6rem);
+    border: 1px solid var(--color-border);
+    border-radius: clamp(28px, 4vw, 40px);
+    background:
+      radial-gradient(circle at top left, rgba(235, 224, 209, 0.62), transparent 34%),
+      linear-gradient(145deg, rgba(252, 249, 244, 0.98), rgba(247, 244, 239, 0.94));
+    box-shadow: var(--shadow-medium);
+    overflow: hidden;
+  }
+
+  .hero-copy,
+  .hero-aside,
+  .chapter-copy {
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-kicker,
+  .section-label,
+  .chapter-label,
+  .coco-label,
+  .chapter-for-label {
+    margin: 0;
+    color: var(--color-accent);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .hero-copy {
+    display: grid;
+    gap: 0.9rem;
+  }
+
+  .hero-brand {
+    margin: 0;
+    font-size: clamp(1.35rem, 1.9vw, 1.65rem);
+    color: color-mix(in srgb, var(--color-text) 92%, transparent);
+  }
+
+  .three-books-hero h1 {
+    margin: 0;
+    max-width: 11ch;
+    font-size: clamp(2.4rem, 5vw, 4.3rem);
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+  }
+
+  .hero-lead,
+  .section-copy,
+  .chapter-lead,
+  .three-books-footer p,
+  .coco-note p {
+    margin: 0;
+    color: var(--color-muted);
+    font-size: var(--text-lead);
+    line-height: 1.78;
+  }
+
+  .hero-actions,
+  .chapter-actions,
+  .chapter-purchase-links,
+  .footer-actions {
+    display: flex;
+    gap: 0.85rem;
+    align-items: flex-start;
+  }
+
+  .hero-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: 0.85rem 1.35rem;
+    border-radius: 999px;
+    font-weight: 700;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease,
+      background-color 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  .hero-button-primary {
+    background: linear-gradient(180deg, rgba(50, 45, 41, 0.96), rgba(29, 27, 25, 0.96));
+    color: #fffdf9;
+    box-shadow: 0 18px 34px rgba(26, 22, 20, 0.16);
+  }
+
+  .hero-button-secondary {
+    background: rgba(255, 255, 255, 0.72);
+    color: color-mix(in srgb, var(--color-text) 84%, transparent);
+    border: 1px solid var(--color-border);
+    box-shadow: 0 10px 24px rgba(40, 30, 20, 0.05);
+  }
+
+  .hero-button:hover {
+    transform: translateY(-2px);
+  }
+
+  .coco-note {
+    display: grid;
+    gap: 0.9rem;
+    padding: clamp(1.25rem, 2vw, 1.75rem);
+    border: 1px solid color-mix(in srgb, var(--color-border) 90%, transparent);
+    border-radius: 1.8rem;
+    background: rgba(255, 252, 248, 0.78);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .coco-avatar {
+    width: min(100%, 15rem);
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 1.6rem;
+    background: rgba(63, 42, 25, 0.08);
+  }
+
+  .section-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 1.2rem;
+    align-items: end;
+    margin-bottom: clamp(1.35rem, 2.5vw, 2rem);
+  }
+
+  .section-head h2,
+  .three-books-footer h2,
+  .chapter h3 {
+    margin: 0;
+    line-height: 1.14;
+    letter-spacing: -0.02em;
+  }
+
+  .section-head h2,
+  .three-books-footer h2 {
+    font-size: clamp(2rem, 4vw, 3rem);
+  }
+
+  .chapters {
+    display: grid;
+    gap: clamp(1.4rem, 2.5vw, 2rem);
+  }
+
+  .chapter {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.1fr);
+    gap: clamp(1.5rem, 3vw, 2.4rem);
+    align-items: center;
+    padding: clamp(1.4rem, 3vw, 2rem);
+    border: 1px solid var(--color-border);
+    border-radius: 2rem;
+    background: linear-gradient(145deg, rgba(255, 252, 248, 0.94), rgba(250, 245, 238, 0.9));
+    box-shadow: var(--shadow-soft);
+  }
+
+  .chapter:nth-child(2n) .chapter-media {
+    order: 2;
+  }
+
+  .chapter:nth-child(2n) .chapter-copy {
+    order: 1;
+  }
+
+  .chapter-media img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 0.88 / 1;
+    object-fit: cover;
+    border-radius: clamp(20px, 2vw, 26px);
+    background: rgba(63, 42, 25, 0.08);
+  }
+
+  .chapter-copy {
+    display: grid;
+    gap: 0.9rem;
+  }
+
+  .chapter-author {
+    margin: -0.1rem 0 0;
+    color: var(--color-muted);
+  }
+
+  .chapter-for {
+    display: grid;
+    gap: 0.7rem;
+    padding-top: 0.35rem;
+  }
+
+  .chapter-for ul {
+    display: grid;
+    gap: 0.55rem;
+    margin: 0;
+    padding-left: 1.1rem;
+    color: var(--color-text);
+  }
+
+  .three-books-footer {
+    display: grid;
+    gap: 0.9rem;
+    padding: clamp(1.8rem, 3vw, 2.4rem);
+    border: 1px solid var(--color-border);
+    border-radius: 2rem;
+    background: rgba(255, 252, 248, 0.82);
+    box-shadow: var(--shadow-soft);
+  }
+
+  @media (max-width: 960px) {
+    .three-books-hero,
+    .chapter,
+    .section-head {
+      grid-template-columns: 1fr;
+    }
+
+    .section-head {
+      align-items: start;
+    }
+
+    .chapter:nth-child(2n) .chapter-media,
+    .chapter:nth-child(2n) .chapter-copy {
+      order: initial;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .hero-actions,
+    .chapter-actions,
+    .chapter-purchase-links,
+    .footer-actions {
+      flex-direction: column;
+    }
+
+    .hero-actions > .ui-action,
+    .chapter-actions > .ui-action,
+    .chapter-purchase-links > .ui-action,
+    .footer-actions > .ui-action {
+      width: 100%;
+    }
+  }
+</style>
