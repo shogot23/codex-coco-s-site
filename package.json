@@ -18,7 +18,8 @@
     "gallery:ocr": "node scripts/ocr-gallery-images.ts",
     "gallery:apply-corrections": "node scripts/apply-gallery-corrections.ts",
     "gallery:generate": "node scripts/generate-gallery-md.ts",
-    "gallery:sync": "npm run gallery:ocr && npm run gallery:apply-corrections && npm run gallery:generate"
+    "gallery:sync": "npm run gallery:ocr && npm run gallery:apply-corrections && npm run gallery:generate",
+    "test:gallery-generate": "node --test scripts/generate-gallery-md.test.ts"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.0",
