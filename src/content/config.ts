@@ -136,6 +136,7 @@ const gallery = defineCollection({
       z.string().optional()
     ),
     source_file: z.string().optional(),
+    managed_by: z.string().optional(),
     published: z.boolean().default(false),
     description: z.string().optional(),
     purchaseLinks: optionalLinkList,
