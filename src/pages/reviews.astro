@@ -96,7 +96,6 @@ const readingCues = Array.from(
 
 const galleryUrl = `${baseWithSlash}gallery/`;
 const reviewCountLabel = `${reviewCards.length}冊のレビュー`;
-const latestReviewLabel = featuredReview ? featuredReview.dateLabel : null;
 ---
 
 <Layout
@@ -144,12 +143,6 @@ const latestReviewLabel = featuredReview ? featuredReview.dateLabel : null;
             <dt>棚にある言葉</dt>
             <dd>{reviewCountLabel}</dd>
           </div>
-          {latestReviewLabel && (
-            <div>
-              <dt>いちばん新しい一冊</dt>
-              <dd>{latestReviewLabel}</dd>
-            </div>
-          )}
         </dl>
 
         {spotlightThemes.length > 0 && (
