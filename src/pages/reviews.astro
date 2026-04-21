@@ -78,21 +78,18 @@ const reviewCards = sortedReviews.map((review) => {
 const featuredReview = reviewCards[0] ?? null;
 const remainingReviews = reviewCards.slice(1);
 
-const themeCounts = reviewCards.reduce<Record<string, number>>((acc, review) => {
-  for (const tag of review.tags) {
-    acc[tag] = (acc[tag] ?? 0) + 1;
-  }
-  return acc;
-}, {});
+const spotlightThemes = [
+  "再起と自己理解",
+  "青春とまっすぐさ",
+  "働き方と人生の問い",
+  "世界の見え方をひらく本",
+];
 
-const spotlightThemes = Object.entries(themeCounts)
-  .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "ja"))
-  .slice(0, 4)
-  .map(([name]) => name);
-
-const readingCues = Array.from(
-  new Set(reviewCards.flatMap((review) => review.recommendedFor))
-).slice(0, 3);
+const readingCues = [
+  "今の自分に合う一冊があるか、まず一覧をのぞきたい日",
+  "物語の熱と、立ち止まって考える読書の両方を見比べたい日",
+  "テーマや抜粋から、読む前の距離感をつかみたい日",
+];
 
 const galleryUrl = `${baseWithSlash}gallery/`;
 const reviewCountLabel = `${reviewCards.length}冊のレビュー`;
