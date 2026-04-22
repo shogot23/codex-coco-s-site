@@ -53,7 +53,7 @@ test('home offers a secondary shortcut to the 3books landing page', async ({ pag
   await threeBooksLink.click();
 
   await expect(page).toHaveURL(/\/codex-coco-s-site\/3books\/$/);
-  await expect(page.getByRole('heading', { name: '最初の3冊から、読書 with Coco をひらく。' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '忙しい日々に、本で視界を整える最初の3冊。' })).toBeVisible();
   await expectNoHorizontalOverflow(page);
 });
 
@@ -178,7 +178,7 @@ test('gallery detail keeps the review bridge intact for review-linked scenes', a
 test('3books landing guides readers into the three new reviews', async ({ page }) => {
   await page.goto(`${SITE_BASE}3books/`);
 
-  await expect(page.getByRole('heading', { name: '最初の3冊から、読書 with Coco をひらく。' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '忙しい日々に、本で視界を整える最初の3冊。' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '今日は、どの入口からひらく？' })).toBeVisible();
 
   const chapterTitles = page.locator('.chapter h3');
