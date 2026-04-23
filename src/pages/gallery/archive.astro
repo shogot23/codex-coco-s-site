@@ -1,0 +1,349 @@
+---
+import { getEntry } from 'astro:content';
+import GalleryBrowse from '../../components/gallery/GalleryBrowse.astro';
+import Layout from '../../layouts/Layout.astro';
+import {
+  buildGalleryBrowseModel,
+  getPublishedGallery,
+  hasDetailContent,
+  sortGalleryEntries,
+} from '../../utils/gallery';
+
+const baseWithSlash = import.meta.env.BASE_URL.endsWith('/')
+  ? import.meta.env.BASE_URL
+  : `${import.meta.env.BASE_URL}/`;
+
+const galleryUrl = `${baseWithSlash}gallery/`;
+const reviewsUrl = `${baseWithSlash}reviews/`;
+
+const galleryEntries = sortGalleryEntries(await getPublishedGallery());
+const browseModel = buildGalleryBrowseModel(galleryEntries, baseWithSlash);
+const linkedReviewCount = (await Promise.all(
+  galleryEntries.map(async (entry) => {
+    if (!entry.data.relatedReview) return false;
+    const linked = await getEntry(entry.data.relatedReview);
+    return linked?.data.published === true;
+  })
+)).filter(Boolean).length;
+const detailReadyCount = galleryEntries.filter((entry) => hasDetailContent(entry)).length;
+---
+
+<Layout
+  title="Gallery Archive | 読書 with Coco"
+  description="Gallery に並ぶ景色を、ジャンルや並び順で探しやすく見返す archive 目録。"
+>
+  {browseModel.items.length ? (
+    <div class="archive-world">
+      <section class="archive-hero" aria-labelledby="archive-page-title">
+        <div class="archive-copy">
+          <nav class="breadcrumb" aria-label="Breadcrumb">
+            <a href={galleryUrl}>Gallery</a>
+            <span class="separator" aria-hidden="true">/</span>
+            <span class="current" aria-current="page">Archive</span>
+          </nav>
+
+          <p class="section-label">Gallery / Archive</p>
+          <p class="archive-brand">読書 with Coco</p>
+          <h1 id="archive-page-title">気になった景色を、目録として探し直す。</h1>
+          <p class="archive-lead">
+            ここは展示室の余韻を壊さずに、作品を探すためだけに整えた棚です。比較しやすい並びで全体を見返し、
+            気になった一枚からまた展示やレビューへ戻れるようにしています。
+          </p>
+
+          <div class="archive-actions ui-action-group ui-action-group--stack">
+            <a class="archive-link archive-link-primary ui-action" href={galleryUrl}>展示室を見る</a>
+            <a class="archive-link archive-link-secondary ui-action" href={reviewsUrl}>レビューの主導線へ戻る</a>
+          </div>
+        </div>
+
+        <aside class="archive-panel" aria-label="Archive のしおり">
+          <p class="panel-label">Catalog Notes</p>
+          <dl class="archive-stats">
+            <div>
+              <dt>Archive items</dt>
+              <dd>{browseModel.items.length}</dd>
+            </div>
+            <div>
+              <dt>Review bridge</dt>
+              <dd>{linkedReviewCount}</dd>
+            </div>
+            <div>
+              <dt>Detail ready</dt>
+              <dd>{detailReadyCount}</dd>
+            </div>
+            <div>
+              <dt>Curated chapters</dt>
+              <dd>{browseModel.chapters.length}</dd>
+            </div>
+          </dl>
+          <p class="archive-note">
+            Grid を既定にして比較しやすさを優先しつつ、Curated へ切り替えると chapter ごとの空気でも見返せます。
+          </p>
+        </aside>
+      </section>
+
+      <section class="archive-room" aria-labelledby="archive-room-title">
+        <div class="archive-intro">
+          <div class="archive-intro-copy">
+            <p class="section-label">Search The Shelf</p>
+            <h2 id="archive-room-title">件数が増えても、ここでは迷わず探せるように。</h2>
+            <p>
+              genre と sort は archive 側で管理し、展示室とは役割を分けます。まず比較しやすい grid を置き、
+              必要なら curated に戻って景色のまとまりごと見返せるようにしました。
+            </p>
+          </div>
+
+          <div class="archive-intro-side">
+            <p class="archive-note archive-note-side">
+              no-JS でも archive の既定状態は grid / 最新順のまま見られます。将来の pagination や incremental loading は、
+              この catalog 側の責務として足せる骨格に留めています。
+            </p>
+          </div>
+        </div>
+
+        <GalleryBrowse
+          browseModel={browseModel}
+          defaultView="grid"
+          defaultSort="latest"
+          enableSort={true}
+          testId="gallery-archive-browse"
+          noScriptMessage="JavaScript を使わない環境でも、archive は Grid / 最新順の目録としてそのまま見返せます。"
+          statusLabel="Grid view / 最新順 / すべての景色"
+        />
+      </section>
+    </div>
+  ) : (
+    <section class="archive-empty">
+      <h1>Gallery Archive</h1>
+      <p>公開中の作品はまだありません。</p>
+    </section>
+  )}
+</Layout>
+
+<style>
+  .archive-world {
+    display: grid;
+    gap: clamp(1.9rem, 4vw, 3.2rem);
+  }
+
+  .archive-hero,
+  .archive-room {
+    position: relative;
+    overflow: clip;
+    border: 1px solid rgba(100, 76, 42, 0.14);
+    border-radius: clamp(26px, 4vw, 40px);
+    box-shadow: 0 24px 70px rgba(83, 55, 28, 0.1);
+  }
+
+  .archive-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(300px, 0.55fr);
+    gap: clamp(1.5rem, 3vw, 3rem);
+    padding: clamp(2rem, 4.5vw, 3.4rem);
+    background:
+      radial-gradient(circle at top left, rgba(235, 224, 209, 0.72), transparent 34%),
+      radial-gradient(circle at bottom right, rgba(205, 223, 236, 0.26), transparent 32%),
+      linear-gradient(145deg, rgba(252, 249, 244, 0.98), rgba(244, 246, 244, 0.95));
+  }
+
+  .archive-room {
+    display: grid;
+    gap: 1.5rem;
+    padding: clamp(1.7rem, 4vw, 3rem);
+    background:
+      radial-gradient(circle at top left, rgba(228, 216, 198, 0.3), transparent 28%),
+      linear-gradient(180deg, rgba(253, 249, 243, 0.98), rgba(247, 244, 238, 0.95));
+  }
+
+  .section-label,
+  .panel-label {
+    margin: 0;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(66, 52, 35, 0.62);
+  }
+
+  .archive-brand {
+    margin: 0.85rem 0 0;
+    font-size: clamp(1.3rem, 1.9vw, 1.6rem);
+    color: color-mix(in srgb, var(--color-text) 92%, transparent);
+  }
+
+  .archive-copy {
+    display: grid;
+    align-content: start;
+    gap: 0.85rem;
+  }
+
+  .archive-copy h1,
+  .archive-intro-copy h2 {
+    margin: 0;
+    font-size: clamp(2.15rem, 4vw, 3.55rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  .archive-lead,
+  .archive-intro-copy p,
+  .archive-note {
+    margin: 0;
+    line-height: 1.8;
+    color: rgba(32, 22, 15, 0.84);
+  }
+
+  .archive-lead {
+    max-width: 34rem;
+  }
+
+  .archive-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    margin-top: 0.5rem;
+  }
+
+  .archive-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: 0.9rem 1.3rem;
+    border-radius: 999px;
+    border: 1px solid rgba(82, 56, 28, 0.16);
+    font-weight: 700;
+    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  }
+
+  .archive-link:hover {
+    transform: translateY(-3px);
+  }
+
+  .archive-link-primary {
+    background: rgba(255, 252, 248, 0.94);
+    box-shadow: 0 16px 32px rgba(83, 55, 28, 0.1);
+  }
+
+  .archive-link-secondary {
+    background: rgba(255, 255, 255, 0.52);
+  }
+
+  .archive-panel {
+    display: grid;
+    gap: 1rem;
+    padding: 1.1rem 1.2rem 1.2rem;
+    border-radius: 24px;
+    background: rgba(248, 242, 233, 0.9);
+    border: 1px solid rgba(100, 76, 42, 0.12);
+    align-content: start;
+  }
+
+  .archive-stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.85rem;
+    margin: 0;
+  }
+
+  .archive-stats div {
+    padding: 0.9rem;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.74);
+    border: 1px solid rgba(100, 76, 42, 0.08);
+  }
+
+  .archive-stats dt {
+    margin: 0;
+    font-size: 0.8rem;
+    color: rgba(66, 52, 35, 0.62);
+  }
+
+  .archive-stats dd {
+    margin: 0.35rem 0 0;
+    font-family: var(--font-headline);
+    font-size: clamp(1.35rem, 2vw, 1.85rem);
+  }
+
+  .archive-note {
+    padding: 1rem 1.1rem;
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(100, 76, 42, 0.1);
+  }
+
+  .archive-intro {
+    display: grid;
+    grid-template-columns: minmax(0, 0.72fr) minmax(260px, 0.28fr);
+    gap: clamp(1.2rem, 3vw, 2rem);
+    align-items: start;
+  }
+
+  .archive-intro-copy {
+    display: grid;
+    gap: 0.85rem;
+  }
+
+  .archive-intro-side {
+    display: grid;
+  }
+
+  .archive-note-side {
+    height: 100%;
+  }
+
+  .breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin: 0 0 0.4rem;
+    color: rgba(66, 52, 35, 0.72);
+    font-size: 0.92rem;
+  }
+
+  .breadcrumb a {
+    color: inherit;
+  }
+
+  .separator {
+    opacity: 0.6;
+  }
+
+  .archive-empty {
+    padding: 2rem 0;
+  }
+
+  @media (max-width: 1140px) {
+    .archive-hero,
+    .archive-intro {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 820px) {
+    .archive-copy h1,
+    .archive-intro-copy h2 {
+      font-size: clamp(1.9rem, 8vw, 2.8rem);
+    }
+
+    .archive-stats {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .archive-world {
+      gap: 1.35rem;
+    }
+
+    .archive-hero,
+    .archive-room {
+      border-radius: 26px;
+      padding: 1.2rem;
+    }
+
+    .archive-link {
+      width: 100%;
+    }
+  }
+</style>

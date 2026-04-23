@@ -25,6 +25,7 @@ export type GalleryBrowseItem = {
   title: string;
   image: string;
   imageSrc: string;
+  generatedAt?: string;
   author?: string;
   genre?: GalleryGenre;
   genreBucket: GalleryGenreBucket | null;
@@ -43,6 +44,14 @@ export type GalleryBrowseModel = {
   genres: readonly GalleryGenre[];
   chapters: GalleryBrowseChapter[];
 };
+
+export type GalleryBrowseSort = 'latest' | 'title';
+
+export const GALLERY_BROWSE_DEFAULT_GENRE = 'all' as const;
+export const GALLERY_BROWSE_DEFAULT_VIEW = 'curated' as const;
+export const GALLERY_ARCHIVE_DEFAULT_VIEW = 'grid' as const;
+export const GALLERY_BROWSE_DEFAULT_SORT: GalleryBrowseSort = 'latest';
+export const GALLERY_ARCHIVE_DEFAULT_SORT = GALLERY_BROWSE_DEFAULT_SORT;
 
 export const GALLERY_BROWSE_CHAPTERS: readonly GalleryBrowseChapterDefinition[] = [
   {
@@ -171,6 +180,7 @@ export function buildGalleryBrowseModel(
       title: entry.data.title,
       image: entry.data.image,
       imageSrc: withGalleryBase(entry.data.image, baseWithSlash),
+      generatedAt: entry.data.generated_at,
       author: entry.data.author,
       genre,
       genreBucket: getGalleryGenreBucket(genre),
@@ -216,4 +226,29 @@ export function sortGalleryEntries(
 
     return left.data.title.localeCompare(right.data.title, 'ja');
   });
+}
+
+export function sortGalleryBrowseItems(
+  items: GalleryBrowseItem[],
+  sort: GalleryBrowseSort
+): GalleryBrowseItem[] {
+  return [...items].sort((left, right) => {
+    if (sort === 'title') {
+      return left.title.localeCompare(right.title, 'ja');
+    }
+
+    const timeDiff = getGalleryTimestamp(right.generatedAt) - getGalleryTimestamp(left.generatedAt);
+    if (timeDiff !== 0) return timeDiff;
+    return left.title.localeCompare(right.title, 'ja');
+  });
+}
+
+export function sortGalleryBrowseChapters(
+  chapters: GalleryBrowseChapter[],
+  sort: GalleryBrowseSort
+): GalleryBrowseChapter[] {
+  return chapters.map((chapter) => ({
+    ...chapter,
+    items: sortGalleryBrowseItems(chapter.items, sort),
+  }));
 }
