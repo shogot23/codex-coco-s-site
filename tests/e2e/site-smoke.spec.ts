@@ -26,6 +26,17 @@ const expectVisibleInViewport = async (page: Page, locator: Locator) => {
   expect(bounds.bottom).toBeLessThanOrEqual(viewportHeight);
 };
 
+const expectMediaHeightsAligned = async (locator: Locator, sampleCount = 3, tolerance = 2) => {
+  const heights = await locator.evaluateAll((elements, count) => {
+    return elements
+      .slice(0, Number(count))
+      .map((element) => Math.round(element.getBoundingClientRect().height));
+  }, sampleCount);
+
+  expect(heights.length).toBeGreaterThan(0);
+  expect(Math.max(...heights) - Math.min(...heights)).toBeLessThanOrEqual(tolerance);
+};
+
 test('home first viewport shows brand and review-led hero CTA flow', async ({ page }) => {
   await page.goto(SITE_BASE);
 
@@ -154,19 +165,29 @@ test('gallery works as a scenic side path without breaking the review-led struct
 
   const fictionChapter = browse.locator('[data-chapter-section="fiction"]');
   const fictionMoreButton = browse.locator('[data-chapter-more="fiction"]');
+  const leadPiece = fictionChapter.locator('[data-gallery-piece]').first();
 
   await expect(fictionChapter).toBeVisible();
   await expect(fictionMoreButton).toBeVisible();
+  await expect(leadPiece.locator('[data-gallery-piece-media]')).toHaveCount(1);
+  await expect(leadPiece.locator('[data-gallery-piece-caption]')).toHaveCount(1);
+  await expect(fictionChapter.locator('[data-curated-item]').first().locator('[data-gallery-piece-media]')).toHaveCount(1);
+  await expect(fictionChapter.locator('[data-curated-item]').first().locator('[data-gallery-piece-caption]')).toHaveCount(1);
 
   const trailCountBefore = await fictionChapter.locator('[data-curated-item]').count();
   await fictionMoreButton.click();
   await expect(browse.locator('[data-chapter-more="fiction"]')).toHaveText('閉じる');
   const trailCountAfter = await fictionChapter.locator('[data-curated-item]').count();
   expect(trailCountAfter).toBeGreaterThan(trailCountBefore);
+  await expect(fictionChapter.locator('[data-curated-item]').last().locator('[data-gallery-piece-media]')).toHaveCount(1);
+  await expect(fictionChapter.locator('[data-curated-item]').last().locator('[data-gallery-piece-caption]')).toHaveCount(1);
 
   await page.getByRole('button', { name: 'Grid', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Grid', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(browse.locator('[data-grid-card]').first()).toBeVisible();
+  await expect(browse.locator('[data-grid-card]').first().locator('[data-gallery-piece-media]')).toHaveCount(1);
+  await expect(browse.locator('[data-grid-card]').first().locator('[data-gallery-piece-caption]')).toHaveCount(1);
+  await expect(browse.locator('[data-grid-card]').first().locator('.scene-action, .scene-status')).toHaveCount(1);
 
   await page.getByRole('button', { name: 'ビジネス', exact: true }).click();
   await expect(page.getByRole('button', { name: 'ビジネス', exact: true })).toHaveAttribute('aria-pressed', 'true');
@@ -217,10 +238,14 @@ test('gallery archive works as a searchable catalog with grid-first state sync',
   await expect(page.getByRole('button', { name: 'Grid', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(sortSelect).toHaveValue('latest');
   await expect(browse.locator('[data-grid-card]').first()).toBeVisible();
+  await expect(browse.locator('[data-grid-card]').first().locator('[data-gallery-piece-media]')).toHaveCount(1);
+  await expect(browse.locator('[data-grid-card]').first().locator('[data-gallery-piece-caption]')).toHaveCount(1);
+  await expectMediaHeightsAligned(browse.locator('[data-grid-card] [data-gallery-piece-media]'));
 
   await page.getByRole('button', { name: 'ビジネス', exact: true }).click();
   await expect(page.getByRole('button', { name: 'ビジネス', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(browse.locator('.grid-card .grid-badge').first()).toHaveText('ビジネス');
+  await expectMediaHeightsAligned(browse.locator('[data-grid-card] [data-gallery-piece-media]'));
 
   await sortSelect.selectOption('title');
   await expect(sortSelect).toHaveValue('title');
