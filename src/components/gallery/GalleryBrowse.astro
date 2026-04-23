@@ -163,44 +163,61 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
             <div class="chapter-stage">
               {chapter.items[0] && (
                 chapter.items[0].href ? (
-                  <a class="chapter-lead" href={chapter.items[0].href} aria-label={`${chapter.items[0].title}の景色を見る`}>
-                    <div class="chapter-lead-media">
-                      <img
-                        src={chapter.items[0].imageSrc}
-                        alt={`${chapter.items[0].title}の展示画像`}
-                        loading="lazy"
-                        decoding="async"
-                        width="960"
-                        height="720"
-                      />
-                    </div>
-                    <div class="chapter-lead-body">
-                      {chapter.items[0].genre && <p class="genre-label">{chapter.items[0].genre}</p>}
-                      <h3>{chapter.items[0].title}</h3>
-                      {chapter.items[0].author && <p class="scene-author">著者: {chapter.items[0].author}</p>}
-                      <p class="scene-summary">{chapter.items[0].summary}</p>
-                      <span class="scene-action">景色をひらく</span>
-                    </div>
+                  <a
+                    class="chapter-lead gallery-piece gallery-piece-lead"
+                    href={chapter.items[0].href}
+                    aria-label={`${chapter.items[0].title}の景色を見る`}
+                    data-gallery-piece
+                  >
+                    <figure class="gallery-piece-figure gallery-piece-figure-lead">
+                      <div class="chapter-lead-media gallery-piece-media" data-gallery-piece-media>
+                        <img
+                          src={chapter.items[0].imageSrc}
+                          alt={`${chapter.items[0].title}の展示画像`}
+                          loading="lazy"
+                          decoding="async"
+                          width="960"
+                          height="720"
+                        />
+                      </div>
+                      <figcaption class="chapter-lead-body gallery-piece-caption" data-gallery-piece-caption>
+                        <div class="gallery-piece-copy">
+                          {chapter.items[0].genre && <p class="genre-label">{chapter.items[0].genre}</p>}
+                          <h3>{chapter.items[0].title}</h3>
+                          <p class="scene-summary">{chapter.items[0].summary}</p>
+                        </div>
+                        <div class="gallery-piece-meta">
+                          {chapter.items[0].author && <p class="scene-author">著者: {chapter.items[0].author}</p>}
+                          <span class="scene-action">景色をひらく</span>
+                        </div>
+                      </figcaption>
+                    </figure>
                   </a>
                 ) : (
-                  <article class="chapter-lead">
-                    <div class="chapter-lead-media">
-                      <img
-                        src={chapter.items[0].imageSrc}
-                        alt={`${chapter.items[0].title}の展示画像`}
-                        loading="lazy"
-                        decoding="async"
-                        width="960"
-                        height="720"
-                      />
-                    </div>
-                    <div class="chapter-lead-body">
-                      {chapter.items[0].genre && <p class="genre-label">{chapter.items[0].genre}</p>}
-                      <h3>{chapter.items[0].title}</h3>
-                      {chapter.items[0].author && <p class="scene-author">著者: {chapter.items[0].author}</p>}
-                      <p class="scene-summary">{chapter.items[0].summary}</p>
-                      <span class="scene-status">展示中</span>
-                    </div>
+                  <article class="chapter-lead gallery-piece gallery-piece-lead" data-gallery-piece>
+                    <figure class="gallery-piece-figure gallery-piece-figure-lead">
+                      <div class="chapter-lead-media gallery-piece-media" data-gallery-piece-media>
+                        <img
+                          src={chapter.items[0].imageSrc}
+                          alt={`${chapter.items[0].title}の展示画像`}
+                          loading="lazy"
+                          decoding="async"
+                          width="960"
+                          height="720"
+                        />
+                      </div>
+                      <figcaption class="chapter-lead-body gallery-piece-caption" data-gallery-piece-caption>
+                        <div class="gallery-piece-copy">
+                          {chapter.items[0].genre && <p class="genre-label">{chapter.items[0].genre}</p>}
+                          <h3>{chapter.items[0].title}</h3>
+                          <p class="scene-summary">{chapter.items[0].summary}</p>
+                        </div>
+                        <div class="gallery-piece-meta">
+                          {chapter.items[0].author && <p class="scene-author">著者: {chapter.items[0].author}</p>}
+                          <span class="scene-status">展示中</span>
+                        </div>
+                      </figcaption>
+                    </figure>
                   </article>
                 )
               )}
@@ -209,40 +226,66 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
                 <div class="chapter-trail">
                   {chapter.items.slice(1).map((item) => (
                     item.href ? (
-                      <a class="trail-card" href={item.href} aria-label={`${item.title}の景色を見る`} data-curated-item>
-                        <div class="trail-media">
-                          <img
-                            src={item.imageSrc}
-                            alt={`${item.title}の展示画像`}
-                            loading="lazy"
-                            decoding="async"
-                            width="640"
-                            height="480"
-                          />
-                        </div>
-                        <div class="trail-body">
-                          {item.genre && <p class="genre-label">{item.genre}</p>}
-                          <h3>{item.title}</h3>
-                          <p>{item.summary}</p>
-                        </div>
+                      <a
+                        class="trail-card gallery-piece gallery-piece-compact"
+                        href={item.href}
+                        aria-label={`${item.title}の景色を見る`}
+                        data-curated-item
+                        data-gallery-piece
+                      >
+                        <figure class="gallery-piece-figure gallery-piece-figure-compact">
+                          <div class="trail-media gallery-piece-media" data-gallery-piece-media>
+                            <img
+                              src={item.imageSrc}
+                              alt={`${item.title}の展示画像`}
+                              loading="lazy"
+                              decoding="async"
+                              width="640"
+                              height="480"
+                            />
+                          </div>
+                          <figcaption class="trail-body gallery-piece-caption" data-gallery-piece-caption>
+                            <div class="gallery-piece-copy">
+                              {item.genre && <p class="genre-label">{item.genre}</p>}
+                              <h3>{item.title}</h3>
+                              <p class="scene-summary">{item.summary}</p>
+                            </div>
+                            <div class="gallery-piece-meta">
+                              {item.author && <p class="scene-author">著者: {item.author}</p>}
+                              <span class="scene-action">景色をひらく</span>
+                            </div>
+                          </figcaption>
+                        </figure>
                       </a>
                     ) : (
-                      <article class="trail-card trail-card-static" data-curated-item>
-                        <div class="trail-media">
-                          <img
-                            src={item.imageSrc}
-                            alt={`${item.title}の展示画像`}
-                            loading="lazy"
-                            decoding="async"
-                            width="640"
-                            height="480"
-                          />
-                        </div>
-                        <div class="trail-body">
-                          {item.genre && <p class="genre-label">{item.genre}</p>}
-                          <h3>{item.title}</h3>
-                          <p>{item.summary}</p>
-                        </div>
+                      <article
+                        class="trail-card trail-card-static gallery-piece gallery-piece-compact"
+                        data-curated-item
+                        data-gallery-piece
+                      >
+                        <figure class="gallery-piece-figure gallery-piece-figure-compact">
+                          <div class="trail-media gallery-piece-media" data-gallery-piece-media>
+                            <img
+                              src={item.imageSrc}
+                              alt={`${item.title}の展示画像`}
+                              loading="lazy"
+                              decoding="async"
+                              width="640"
+                              height="480"
+                            />
+                          </div>
+                          <figcaption class="trail-body gallery-piece-caption" data-gallery-piece-caption>
+                            <div class="gallery-piece-copy">
+                              {item.genre && <p class="genre-label">{item.genre}</p>}
+                              <h3>{item.title}</h3>
+                              <p class="scene-summary">{item.summary}</p>
+                            </div>
+                            <div class="gallery-piece-meta">
+                              {item.author && <p class="scene-author">著者: {item.author}</p>}
+                              <span class="scene-status">展示中</span>
+                            </div>
+                          </figcaption>
+                        </figure>
                       </article>
                     )
                   ))}
@@ -264,52 +307,66 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
         {serverItems.length ? (
           serverItems.map((item) => (
             item.href ? (
-              <a class="grid-card" href={item.href} aria-label={`${item.title}の景色を見る`} data-grid-card>
-                <div class="grid-card-media">
-                  <img
-                    src={item.imageSrc}
-                    alt={`${item.title}の展示画像`}
-                    loading="lazy"
-                    decoding="async"
-                    width="720"
-                    height="860"
-                  />
-                </div>
-                <div class="grid-card-body">
-                  <div class="grid-card-meta">
-                    {item.genre ? (
-                      <span class="grid-badge">{item.genre}</span>
-                    ) : (
-                      <span class="grid-badge grid-badge-muted">展示</span>
-                    )}
+              <a class="grid-card gallery-piece gallery-piece-grid" href={item.href} aria-label={`${item.title}の景色を見る`} data-grid-card data-gallery-piece>
+                <figure class="gallery-piece-figure gallery-piece-figure-grid">
+                  <div class="grid-card-media gallery-piece-media" data-gallery-piece-media>
+                    <img
+                      src={item.imageSrc}
+                      alt={`${item.title}の展示画像`}
+                      loading="lazy"
+                      decoding="async"
+                      width="720"
+                      height="860"
+                    />
                   </div>
-                  <h3>{item.title}</h3>
-                  {item.author && <p class="grid-card-author">{item.author}</p>}
-                </div>
+                  <figcaption class="grid-card-body gallery-piece-caption" data-gallery-piece-caption>
+                    <div class="gallery-piece-copy">
+                      <div class="grid-card-meta">
+                        {item.genre ? (
+                          <span class="grid-badge">{item.genre}</span>
+                        ) : (
+                          <span class="grid-badge grid-badge-muted">展示</span>
+                        )}
+                      </div>
+                      <h3>{item.title}</h3>
+                    </div>
+                    <div class="gallery-piece-meta">
+                      {item.author && <p class="grid-card-author">{item.author}</p>}
+                      <span class="scene-action">景色をひらく</span>
+                    </div>
+                  </figcaption>
+                </figure>
               </a>
             ) : (
-              <article class="grid-card grid-card-static" data-grid-card>
-                <div class="grid-card-media">
-                  <img
-                    src={item.imageSrc}
-                    alt={`${item.title}の展示画像`}
-                    loading="lazy"
-                    decoding="async"
-                    width="720"
-                    height="860"
-                  />
-                </div>
-                <div class="grid-card-body">
-                  <div class="grid-card-meta">
-                    {item.genre ? (
-                      <span class="grid-badge">{item.genre}</span>
-                    ) : (
-                      <span class="grid-badge grid-badge-muted">展示</span>
-                    )}
+              <article class="grid-card grid-card-static gallery-piece gallery-piece-grid" data-grid-card data-gallery-piece>
+                <figure class="gallery-piece-figure gallery-piece-figure-grid">
+                  <div class="grid-card-media gallery-piece-media" data-gallery-piece-media>
+                    <img
+                      src={item.imageSrc}
+                      alt={`${item.title}の展示画像`}
+                      loading="lazy"
+                      decoding="async"
+                      width="720"
+                      height="860"
+                    />
                   </div>
-                  <h3>{item.title}</h3>
-                  {item.author && <p class="grid-card-author">{item.author}</p>}
-                </div>
+                  <figcaption class="grid-card-body gallery-piece-caption" data-gallery-piece-caption>
+                    <div class="gallery-piece-copy">
+                      <div class="grid-card-meta">
+                        {item.genre ? (
+                          <span class="grid-badge">{item.genre}</span>
+                        ) : (
+                          <span class="grid-badge grid-badge-muted">展示</span>
+                        )}
+                      </div>
+                      <h3>{item.title}</h3>
+                    </div>
+                    <div class="gallery-piece-meta">
+                      {item.author && <p class="grid-card-author">{item.author}</p>}
+                      <span class="scene-status">展示中</span>
+                    </div>
+                  </figcaption>
+                </figure>
               </article>
             )
           ))
@@ -420,7 +477,7 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
       const author = item.author ? `<p class="scene-author">著者: ${escapeHtml(item.author)}</p>` : '';
       const summary = `<p class="scene-summary">${escapeHtml(item.summary)}</p>`;
       const media = `
-        <div class="chapter-lead-media">
+        <div class="chapter-lead-media gallery-piece-media" data-gallery-piece-media>
           <img
             src="${escapeHtml(item.imageSrc || item.image)}"
             alt="${escapeHtml(item.title)}の展示画像"
@@ -432,43 +489,92 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
         </div>
       `;
       const body = `
-        <div class="chapter-lead-body">
-          ${genre}
-          <h3>${escapeHtml(item.title)}</h3>
-          ${author}
-          ${summary}
-          <span class="${item.href ? 'scene-action' : 'scene-status'}">${item.href ? '景色をひらく' : '展示中'}</span>
-        </div>
+        <figcaption class="chapter-lead-body gallery-piece-caption" data-gallery-piece-caption>
+          <div class="gallery-piece-copy">
+            ${genre}
+            <h3>${escapeHtml(item.title)}</h3>
+            ${summary}
+          </div>
+          <div class="gallery-piece-meta">
+            ${author}
+            <span class="${item.href ? 'scene-action' : 'scene-status'}">${item.href ? '景色をひらく' : '展示中'}</span>
+          </div>
+        </figcaption>
       `;
+      const figure = `<figure class="gallery-piece-figure gallery-piece-figure-lead">${media}${body}</figure>`;
 
       return item.href
-        ? `<a class="chapter-lead" href="${escapeHtml(item.href)}" aria-label="${escapeHtml(item.title)}の景色を見る">${media}${body}</a>`
-        : `<article class="chapter-lead">${media}${body}</article>`;
+        ? `<a class="chapter-lead gallery-piece gallery-piece-lead" href="${escapeHtml(item.href)}" aria-label="${escapeHtml(item.title)}の景色を見る" data-gallery-piece>${figure}</a>`
+        : `<article class="chapter-lead gallery-piece gallery-piece-lead" data-gallery-piece>${figure}</article>`;
     };
 
     const renderTrailCard = (item) => {
       const genre = item.genre ? `<p class="genre-label">${escapeHtml(item.genre)}</p>` : '';
+      const author = item.author ? `<p class="scene-author">著者: ${escapeHtml(item.author)}</p>` : '';
       const content = `
-        <div class="trail-media">
-          <img
-            src="${escapeHtml(item.imageSrc || item.image)}"
-            alt="${escapeHtml(item.title)}の展示画像"
-            loading="lazy"
-            decoding="async"
-            width="640"
-            height="480"
-          />
-        </div>
-        <div class="trail-body">
-          ${genre}
-          <h3>${escapeHtml(item.title)}</h3>
-          <p>${escapeHtml(item.summary)}</p>
-        </div>
+        <figure class="gallery-piece-figure gallery-piece-figure-compact">
+          <div class="trail-media gallery-piece-media" data-gallery-piece-media>
+            <img
+              src="${escapeHtml(item.imageSrc || item.image)}"
+              alt="${escapeHtml(item.title)}の展示画像"
+              loading="lazy"
+              decoding="async"
+              width="640"
+              height="480"
+            />
+          </div>
+          <figcaption class="trail-body gallery-piece-caption" data-gallery-piece-caption>
+            <div class="gallery-piece-copy">
+              ${genre}
+              <h3>${escapeHtml(item.title)}</h3>
+              <p class="scene-summary">${escapeHtml(item.summary)}</p>
+            </div>
+            <div class="gallery-piece-meta">
+              ${author}
+              <span class="${item.href ? 'scene-action' : 'scene-status'}">${item.href ? '景色をひらく' : '展示中'}</span>
+            </div>
+          </figcaption>
+        </figure>
       `;
 
       return item.href
-        ? `<a class="trail-card" href="${escapeHtml(item.href)}" aria-label="${escapeHtml(item.title)}の景色を見る" data-curated-item>${content}</a>`
-        : `<article class="trail-card trail-card-static" data-curated-item>${content}</article>`;
+        ? `<a class="trail-card gallery-piece gallery-piece-compact" href="${escapeHtml(item.href)}" aria-label="${escapeHtml(item.title)}の景色を見る" data-curated-item data-gallery-piece>${content}</a>`
+        : `<article class="trail-card trail-card-static gallery-piece gallery-piece-compact" data-curated-item data-gallery-piece>${content}</article>`;
+    };
+
+    const renderGridCard = (item) => {
+      const genre = item.genre
+        ? `<span class="grid-badge">${escapeHtml(item.genre)}</span>`
+        : `<span class="grid-badge grid-badge-muted">展示</span>`;
+      const author = item.author ? `<p class="grid-card-author">${escapeHtml(item.author)}</p>` : '';
+      const content = `
+        <figure class="gallery-piece-figure gallery-piece-figure-grid">
+          <div class="grid-card-media gallery-piece-media" data-gallery-piece-media>
+            <img
+              src="${escapeHtml(item.imageSrc || item.image)}"
+              alt="${escapeHtml(item.title)}の展示画像"
+              loading="lazy"
+              decoding="async"
+              width="720"
+              height="860"
+            />
+          </div>
+          <figcaption class="grid-card-body gallery-piece-caption" data-gallery-piece-caption>
+            <div class="gallery-piece-copy">
+              <div class="grid-card-meta">${genre}</div>
+              <h3>${escapeHtml(item.title)}</h3>
+            </div>
+            <div class="gallery-piece-meta">
+              ${author}
+              <span class="${item.href ? 'scene-action' : 'scene-status'}">${item.href ? '景色をひらく' : '展示中'}</span>
+            </div>
+          </figcaption>
+        </figure>
+      `;
+
+      return item.href
+        ? `<a class="grid-card gallery-piece gallery-piece-grid" href="${escapeHtml(item.href)}" aria-label="${escapeHtml(item.title)}の景色を見る" data-grid-card data-gallery-piece>${content}</a>`
+        : `<article class="grid-card grid-card-static gallery-piece gallery-piece-grid" data-grid-card data-gallery-piece>${content}</article>`;
     };
 
     const renderCurated = () => {
@@ -532,34 +638,6 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
           `;
         })
         .join('');
-    };
-
-    const renderGridCard = (item) => {
-      const genre = item.genre
-        ? `<span class="grid-badge">${escapeHtml(item.genre)}</span>`
-        : `<span class="grid-badge grid-badge-muted">展示</span>`;
-      const author = item.author ? `<p class="grid-card-author">${escapeHtml(item.author)}</p>` : '';
-      const content = `
-        <div class="grid-card-media">
-          <img
-            src="${escapeHtml(item.imageSrc || item.image)}"
-            alt="${escapeHtml(item.title)}の展示画像"
-            loading="lazy"
-            decoding="async"
-            width="720"
-            height="860"
-          />
-        </div>
-        <div class="grid-card-body">
-          <div class="grid-card-meta">${genre}</div>
-          <h3>${escapeHtml(item.title)}</h3>
-          ${author}
-        </div>
-      `;
-
-      return item.href
-        ? `<a class="grid-card" href="${escapeHtml(item.href)}" aria-label="${escapeHtml(item.title)}の景色を見る" data-grid-card>${content}</a>`
-        : `<article class="grid-card grid-card-static" data-grid-card>${content}</article>`;
     };
 
     const renderGrid = () => {
@@ -934,7 +1012,7 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
 
   .chapter-intro p,
   .scene-summary,
-  .trail-body p {
+  .gallery-piece-copy p {
     margin: 0;
     line-height: 1.8;
     color: rgba(32, 22, 15, 0.84);
@@ -956,22 +1034,36 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
     gap: 1rem;
   }
 
+  .gallery-piece,
   .chapter-lead,
+  .trail-card,
   .grid-card {
-    display: grid;
-    gap: 1rem;
+    display: block;
     color: inherit;
-    background: rgba(255, 255, 255, 0.8);
-    border: 1px solid var(--color-border);
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(248, 244, 238, 0.92));
+    border: 1px solid rgba(100, 76, 42, 0.14);
     border-radius: clamp(20px, 3vw, 28px);
-    box-shadow: 0 14px 32px rgba(83, 55, 28, 0.06);
+    box-shadow: 0 16px 34px rgba(83, 55, 28, 0.07);
     transition: transform 0.22s ease, box-shadow 0.22s ease;
+    overflow: hidden;
+    min-height: 100%;
   }
 
-  .chapter-lead {
-    grid-template-columns: minmax(0, 1.02fr) minmax(260px, 0.98fr);
-    padding: 1rem;
-    align-items: center;
+  .gallery-piece-figure {
+    margin: 0;
+    display: grid;
+    min-height: 100%;
+  }
+
+  .gallery-piece-figure-lead {
+    grid-template-columns: minmax(0, 1.04fr) minmax(280px, 0.96fr);
+    align-items: stretch;
+  }
+
+  .gallery-piece-figure-compact,
+  .gallery-piece-figure-grid {
+    grid-template-rows: auto 1fr;
   }
 
   .chapter-lead:hover,
@@ -984,12 +1076,11 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
   .trail-media,
   .grid-card-media {
     overflow: hidden;
-    border-radius: clamp(18px, 2vw, 24px);
     background: rgba(63, 42, 25, 0.08);
   }
 
   .chapter-lead-media {
-    aspect-ratio: 1.24 / 1;
+    aspect-ratio: 5 / 4;
   }
 
   .trail-media {
@@ -997,7 +1088,7 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
   }
 
   .grid-card-media {
-    aspect-ratio: 0.88 / 1;
+    aspect-ratio: 5 / 6;
   }
 
   .chapter-lead-media img,
@@ -1014,11 +1105,39 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
   .grid-card-body {
     display: grid;
     align-content: start;
-    gap: 0.65rem;
+    gap: 0.8rem;
+    padding: 1rem 1.05rem 1.05rem;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.8), rgba(249, 246, 240, 0.9));
+  }
+
+  .chapter-lead-body {
+    padding: clamp(1.1rem, 2vw, 1.45rem);
+  }
+
+  .gallery-piece-copy {
+    display: grid;
+    align-content: start;
+    gap: 0.55rem;
+  }
+
+  .gallery-piece-figure-compact .gallery-piece-caption,
+  .gallery-piece-figure-grid .gallery-piece-caption {
+    border-top: 1px solid rgba(100, 76, 42, 0.12);
+  }
+
+  .gallery-piece-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 0.8rem;
+    padding-top: 0.2rem;
   }
 
   .chapter-lead-body h3,
-  .trail-body h3 {
+  .trail-body h3,
+  .grid-card-body h3 {
     margin: 0;
     font-size: clamp(1.3rem, 2.2vw, 1.85rem);
     line-height: 1.2;
@@ -1035,9 +1154,9 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
     display: inline-flex;
     align-items: center;
     gap: 0.45rem;
-    margin-top: 0.2rem;
     font-size: 0.92rem;
     font-weight: 700;
+    white-space: nowrap;
   }
 
   .scene-action {
@@ -1059,13 +1178,7 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
   }
 
   .trail-card {
-    display: grid;
-    gap: 0.8rem;
-    align-content: start;
-    padding-top: 0.9rem;
-    border-top: 1px solid rgba(100, 76, 42, 0.14);
-    color: inherit;
-    transition: transform 0.22s ease;
+    height: 100%;
   }
 
   .trail-card-static,
@@ -1097,16 +1210,11 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
   }
 
   .grid-card {
-    grid-template-rows: auto 1fr;
-    overflow: hidden;
-    gap: 0;
-    min-height: 100%;
+    height: 100%;
   }
 
   .grid-card-body {
-    gap: 0.45rem;
-    padding: 0.9rem 0.95rem 1rem;
-    min-height: 8.6rem;
+    min-height: 8.9rem;
   }
 
   .grid-card h3 {
@@ -1144,6 +1252,7 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
   .grid-card-author {
     font-size: 0.9rem;
     line-height: 1.5;
+    color: rgba(66, 52, 35, 0.72);
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
@@ -1155,7 +1264,7 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
       grid-template-columns: 1fr;
     }
 
-    .chapter-lead {
+    .gallery-piece-figure-lead {
       grid-template-columns: 1fr;
     }
 
@@ -1203,8 +1312,24 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
       padding: 1.2rem;
     }
 
+    .chapter-stage {
+      gap: 0.9rem;
+    }
+
+    .chapter-lead-body,
+    .trail-body,
     .grid-card-body {
       min-height: auto;
+      padding: 0.95rem 0.95rem 1rem;
+    }
+
+    .gallery-piece-meta {
+      justify-content: start;
+    }
+
+    .scene-action,
+    .scene-status {
+      font-size: 0.88rem;
     }
   }
 </style>
