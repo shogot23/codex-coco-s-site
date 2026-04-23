@@ -142,11 +142,57 @@ test('review detail keeps the reading flow and afterglow link intact', async ({ 
 
 test('gallery works as a scenic side path without breaking the review-led structure', async ({ page }) => {
   await page.goto(`${SITE_BASE}gallery/`);
+  const browse = page.getByTestId('gallery-browse');
 
   await expect(page.getByRole('heading', { name: '読後の景色を、ココちゃんと静かに見返す。' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '本から生まれた景色を、先に3つだけひらく。' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'レビューの主導線へ戻る', exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: 'About / world bridge へ', exact: true })).toBeVisible();
+  await expect(browse).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Curated', exact: true })).toHaveAttribute('aria-pressed', 'true');
+
+  const fictionChapter = browse.locator('[data-chapter-section="fiction"]');
+  const fictionMoreButton = browse.locator('[data-chapter-more="fiction"]');
+
+  await expect(fictionChapter).toBeVisible();
+  await expect(fictionMoreButton).toBeVisible();
+
+  const trailCountBefore = await fictionChapter.locator('[data-curated-item]').count();
+  await fictionMoreButton.click();
+  await expect(browse.locator('[data-chapter-more="fiction"]')).toHaveText('閉じる');
+  const trailCountAfter = await fictionChapter.locator('[data-curated-item]').count();
+  expect(trailCountAfter).toBeGreaterThan(trailCountBefore);
+
+  await page.getByRole('button', { name: 'Grid', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Grid', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(browse.locator('[data-grid-card]').first()).toBeVisible();
+
+  await page.getByRole('button', { name: 'ビジネス', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'ビジネス', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('button', { name: 'Grid', exact: true })).toHaveAttribute('aria-pressed', 'true');
+
+  const currentUrl = new URL(page.url());
+  expect(currentUrl.searchParams.get('view')).toBe('grid');
+  expect(currentUrl.searchParams.get('genre')).toBe('ビジネス');
+
+  const gridBadges = await browse.locator('.grid-card .grid-badge').allTextContents();
+  expect(gridBadges.every((badge) => badge === 'ビジネス')).toBe(true);
+
+  await page.getByRole('button', { name: 'Curated', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Curated', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(browse.locator('[data-chapter-section]')).toHaveCount(1);
+  await expect(browse.getByRole('heading', { name: '学びが日常へ降りる瞬間を拾う。' })).toBeVisible();
+  await expect(browse.getByRole('heading', { name: '物語と感情の気配を見返す。' })).toHaveCount(0);
+
+  await page.goBack();
+  await expect(page.getByRole('button', { name: 'Grid', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('button', { name: 'ビジネス', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(browse.locator('[data-grid-card]').first()).toBeVisible();
+
+  await page.goForward();
+  await expect(page.getByRole('button', { name: 'Curated', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('button', { name: 'ビジネス', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(browse.locator('[data-chapter-section]')).toHaveCount(1);
 
   await expectNoHorizontalOverflow(page);
 
