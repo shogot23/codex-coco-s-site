@@ -148,6 +148,7 @@ test('gallery works as a scenic side path without breaking the review-led struct
   await expect(page.getByRole('heading', { name: '本から生まれた景色を、先に3つだけひらく。' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'レビューの主導線へ戻る', exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: 'About / world bridge へ', exact: true })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'archive で探す', exact: true })).toBeVisible();
   await expect(browse).toBeVisible();
   await expect(page.getByRole('button', { name: 'Curated', exact: true })).toHaveAttribute('aria-pressed', 'true');
 
@@ -199,6 +200,58 @@ test('gallery works as a scenic side path without breaking the review-led struct
   await page.getByRole('link', { name: 'レビューの主導線へ戻る', exact: true }).click();
   await expect(page).toHaveURL(/\/codex-coco-s-site\/reviews\/$/);
   await expect(page.getByRole('heading', { name: '次の一冊をひらく前に、言葉の余韻をひとくち。' })).toBeVisible();
+});
+
+test('gallery archive works as a searchable catalog with grid-first state sync', async ({ page }) => {
+  await page.goto(`${SITE_BASE}gallery/`);
+  await page.getByRole('link', { name: 'archive で探す', exact: true }).click();
+
+  const browse = page.getByTestId('gallery-archive-browse');
+  const sortSelect = page.getByLabel('並び順');
+
+  await expect(page).toHaveURL(/\/codex-coco-s-site\/gallery\/archive\/$/);
+  await expect(page.getByRole('heading', { name: '気になった景色を、目録として探し直す。' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '件数が増えても、ここでは迷わず探せるように。' })).toBeVisible();
+  await expect(page.getByRole('link', { name: '展示室を見る', exact: true })).toBeVisible();
+  await expect(browse).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Grid', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(sortSelect).toHaveValue('latest');
+  await expect(browse.locator('[data-grid-card]').first()).toBeVisible();
+
+  await page.getByRole('button', { name: 'ビジネス', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'ビジネス', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(browse.locator('.grid-card .grid-badge').first()).toHaveText('ビジネス');
+
+  await sortSelect.selectOption('title');
+  await expect(sortSelect).toHaveValue('title');
+
+  const currentUrl = new URL(page.url());
+  expect(currentUrl.searchParams.get('genre')).toBe('ビジネス');
+  expect(currentUrl.searchParams.get('sort')).toBe('title');
+  expect(currentUrl.searchParams.get('view')).toBeNull();
+
+  await page.getByRole('button', { name: 'Curated', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Curated', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(browse.locator('[data-chapter-section]')).toHaveCount(1);
+
+  const curatedUrl = new URL(page.url());
+  expect(curatedUrl.searchParams.get('view')).toBe('curated');
+  expect(curatedUrl.searchParams.get('genre')).toBe('ビジネス');
+  expect(curatedUrl.searchParams.get('sort')).toBe('title');
+
+  await page.goBack();
+  await expect(page.getByRole('button', { name: 'Grid', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('button', { name: 'ビジネス', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(sortSelect).toHaveValue('title');
+  await expect(browse.locator('[data-grid-card]').first()).toBeVisible();
+
+  await page.goForward();
+  await expect(page.getByRole('button', { name: 'Curated', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('button', { name: 'ビジネス', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(sortSelect).toHaveValue('title');
+  await expect(browse.locator('[data-chapter-section]')).toHaveCount(1);
+
+  await expectNoHorizontalOverflow(page);
 });
 
 test('gallery detail keeps the review bridge intact for review-linked scenes', async ({ page }) => {
