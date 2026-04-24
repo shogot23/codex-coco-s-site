@@ -37,6 +37,21 @@ const expectMediaHeightsAligned = async (locator: Locator, sampleCount = 3, tole
   expect(Math.max(...heights) - Math.min(...heights)).toBeLessThanOrEqual(tolerance);
 };
 
+const expectImageObjectFitCover = async (locator: Locator) => {
+  const objectFit = await locator.evaluate((element) => {
+    const image =
+      element instanceof HTMLImageElement ? element : element.querySelector('img');
+
+    if (!(image instanceof HTMLImageElement)) {
+      throw new Error('Expected gallery media to include an image element.');
+    }
+
+    return getComputedStyle(image).objectFit;
+  });
+
+  expect(objectFit).toBe('cover');
+};
+
 test('home first viewport shows brand and review-led hero CTA flow', async ({ page }) => {
   await page.goto(SITE_BASE);
 
@@ -171,6 +186,7 @@ test('gallery works as a scenic side path without breaking the review-led struct
   await expect(fictionMoreButton).toBeVisible();
   await expect(leadPiece.locator('[data-gallery-piece-media]')).toHaveCount(1);
   await expect(leadPiece.locator('[data-gallery-piece-caption]')).toHaveCount(1);
+  await expectImageObjectFitCover(leadPiece.locator('[data-gallery-piece-media]'));
   await expect(fictionChapter.locator('[data-curated-item]').first().locator('[data-gallery-piece-media]')).toHaveCount(1);
   await expect(fictionChapter.locator('[data-curated-item]').first().locator('[data-gallery-piece-caption]')).toHaveCount(1);
 
@@ -205,6 +221,9 @@ test('gallery works as a scenic side path without breaking the review-led struct
   await expect(browse.locator('[data-chapter-section]')).toHaveCount(1);
   await expect(browse.getByRole('heading', { name: '学びが日常へ降りる瞬間を拾う。' })).toBeVisible();
   await expect(browse.getByRole('heading', { name: '物語と感情の気配を見返す。' })).toHaveCount(0);
+  await expectImageObjectFitCover(
+    browse.locator('[data-chapter-section]').first().locator('.chapter-lead [data-gallery-piece-media]')
+  );
 
   await page.goBack();
   await expect(page.getByRole('button', { name: 'Grid', exact: true })).toHaveAttribute('aria-pressed', 'true');
@@ -215,6 +234,9 @@ test('gallery works as a scenic side path without breaking the review-led struct
   await expect(page.getByRole('button', { name: 'Curated', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(page.getByRole('button', { name: 'ビジネス', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(browse.locator('[data-chapter-section]')).toHaveCount(1);
+  await expectImageObjectFitCover(
+    browse.locator('[data-chapter-section]').first().locator('.chapter-lead [data-gallery-piece-media]')
+  );
 
   await expectNoHorizontalOverflow(page);
 
@@ -258,6 +280,9 @@ test('gallery archive works as a searchable catalog with grid-first state sync',
   await page.getByRole('button', { name: 'Curated', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Curated', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(browse.locator('[data-chapter-section]')).toHaveCount(1);
+  await expectImageObjectFitCover(
+    browse.locator('[data-chapter-section]').first().locator('.chapter-lead [data-gallery-piece-media]')
+  );
 
   const curatedUrl = new URL(page.url());
   expect(curatedUrl.searchParams.get('view')).toBe('curated');

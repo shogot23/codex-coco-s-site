@@ -807,8 +807,8 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
   }
 </script>
 
-<style>
-  .browse-noscript {
+<style is:global>
+  :where([data-gallery-browse-shell]) .browse-noscript {
     margin: 0;
     padding: 0.95rem 1rem;
     border-radius: 20px;
@@ -817,7 +817,7 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
     color: rgba(66, 52, 35, 0.76);
   }
 
-  .browse-controls {
+  :where([data-gallery-browse-shell]) .browse-controls {
     display: grid;
     gap: 1rem;
     padding: 1rem 1.1rem 1.15rem;
@@ -826,14 +826,14 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
     border: 1px solid rgba(100, 76, 42, 0.1);
   }
 
-  .browse-control-group {
+  :where([data-gallery-browse-shell]) .browse-control-group {
     display: grid;
     gap: 0.7rem;
   }
 
-  .browse-control-label,
-  .section-label,
-  .genre-label {
+  :where([data-gallery-browse-shell]) .browse-control-label,
+  :where([data-gallery-browse-shell]) .section-label,
+  :where([data-gallery-browse-shell]) .genre-label {
     margin: 0;
     font-size: 0.78rem;
     font-weight: 700;
@@ -842,7 +842,7 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
     color: rgba(66, 52, 35, 0.62);
   }
 
-  .view-switch {
+  :where([data-gallery-browse-shell]) .view-switch {
     display: inline-grid;
     grid-auto-flow: column;
     gap: 0.35rem;
@@ -853,22 +853,22 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
     border: 1px solid rgba(100, 76, 42, 0.1);
   }
 
-  .view-switch-button,
-  .genre-chip,
-  .chapter-more,
-  .sort-select {
+  :where([data-gallery-browse-shell]) .view-switch-button,
+  :where([data-gallery-browse-shell]) .genre-chip,
+  :where([data-gallery-browse-shell]) .chapter-more,
+  :where([data-gallery-browse-shell]) .sort-select {
     appearance: none;
     font: inherit;
   }
 
-  .view-switch-button,
-  .genre-chip,
-  .chapter-more {
+  :where([data-gallery-browse-shell]) .view-switch-button,
+  :where([data-gallery-browse-shell]) .genre-chip,
+  :where([data-gallery-browse-shell]) .chapter-more {
     border: 0;
     cursor: pointer;
   }
 
-  .view-switch-button {
+  :where([data-gallery-browse-shell]) .view-switch-button {
     min-height: 44px;
     padding: 0.72rem 1.1rem;
     border-radius: 999px;
@@ -878,19 +878,19 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
     transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
   }
 
-  .view-switch-button.is-active {
+  :where([data-gallery-browse-shell]) .view-switch-button.is-active {
     background: linear-gradient(180deg, rgba(49, 44, 40, 0.96), rgba(30, 27, 25, 0.96));
     color: #fffdf9;
     box-shadow: 0 12px 22px rgba(26, 22, 20, 0.14);
   }
 
-  .genre-chips {
+  :where([data-gallery-browse-shell]) .genre-chips {
     display: flex;
     flex-wrap: wrap;
     gap: 0.55rem;
   }
 
-  .genre-chip {
+  :where([data-gallery-browse-shell]) .genre-chip {
     min-height: 42px;
     padding: 0.62rem 0.95rem;
     border-radius: 999px;
@@ -903,24 +903,24 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
     transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
   }
 
-  .genre-chip.is-active {
+  :where([data-gallery-browse-shell]) .genre-chip.is-active {
     background: rgba(235, 224, 209, 0.96);
     border-color: rgba(100, 76, 42, 0.18);
     color: rgba(32, 22, 15, 0.94);
     transform: translateY(-1px);
   }
 
-  .browse-control-group-sort {
+  :where([data-gallery-browse-shell]) .browse-control-group-sort {
     align-items: start;
   }
 
-  .sort-field {
+  :where([data-gallery-browse-shell]) .sort-field {
     display: inline-flex;
     width: fit-content;
     min-width: 12rem;
   }
 
-  .sort-select {
+  :where([data-gallery-browse-shell]) .sort-select {
     min-height: 44px;
     width: 100%;
     padding: 0.72rem 2.5rem 0.72rem 0.95rem;
@@ -934,20 +934,20 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
     box-shadow: 0 10px 22px rgba(83, 55, 28, 0.06);
   }
 
-  .browse-status {
+  :where([data-gallery-browse-shell]) .browse-status {
     margin: 0;
     font-size: 0.92rem;
     color: rgba(66, 52, 35, 0.72);
   }
 
-  .browse-panels,
-  .browse-curated,
-  .browse-grid {
+  :where([data-gallery-browse-shell]) .browse-panels,
+  :where([data-gallery-browse-shell]) .browse-curated,
+  :where([data-gallery-browse-shell]) .browse-grid {
     display: grid;
     gap: 1.2rem;
   }
 
-  .browse-empty-state {
+  :where([data-gallery-browse-shell]) .browse-empty-state {
     display: grid;
     gap: 0.6rem;
     padding: clamp(1.4rem, 3vw, 1.8rem);
@@ -956,18 +956,18 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
     background: rgba(255, 255, 255, 0.64);
   }
 
-  .browse-empty-state h3,
-  .grid-card h3 {
+  :where([data-gallery-browse-shell]) .browse-empty-state h3,
+  :where([data-gallery-browse-shell]) .grid-card h3 {
     margin: 0;
   }
 
-  .browse-empty-state p,
-  .grid-card-author {
+  :where([data-gallery-browse-shell]) .browse-empty-state p,
+  :where([data-gallery-browse-shell]) .grid-card-author {
     margin: 0;
     color: rgba(66, 52, 35, 0.72);
   }
 
-  .chapter-room {
+  :where([data-gallery-browse-shell]) .chapter-room {
     position: relative;
     overflow: clip;
     display: grid;
@@ -979,46 +979,46 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
     box-shadow: 0 24px 70px rgba(83, 55, 28, 0.1);
   }
 
-  .chapter-room-fiction {
+  :where([data-gallery-browse-shell]) .chapter-room-fiction {
     background:
       radial-gradient(circle at top left, rgba(248, 226, 199, 0.34), transparent 28%),
       linear-gradient(135deg, rgba(255, 250, 243, 0.98), rgba(245, 239, 232, 0.94));
   }
 
-  .chapter-room-learning {
+  :where([data-gallery-browse-shell]) .chapter-room-learning {
     background:
       radial-gradient(circle at top right, rgba(205, 223, 236, 0.4), transparent 32%),
       linear-gradient(135deg, rgba(248, 249, 245, 0.98), rgba(236, 244, 247, 0.95));
   }
 
-  .chapter-room-horizon {
+  :where([data-gallery-browse-shell]) .chapter-room-horizon {
     background:
       radial-gradient(circle at bottom left, rgba(232, 215, 193, 0.42), transparent 30%),
       linear-gradient(135deg, rgba(252, 247, 239, 0.98), rgba(238, 237, 247, 0.93));
   }
 
-  .chapter-intro {
+  :where([data-gallery-browse-shell]) .chapter-intro {
     display: grid;
     align-content: start;
     gap: 0.85rem;
   }
 
-  .chapter-intro h2 {
+  :where([data-gallery-browse-shell]) .chapter-intro h2 {
     margin: 0;
     font-size: clamp(2rem, 4vw, 3.1rem);
     line-height: 1.1;
     letter-spacing: -0.02em;
   }
 
-  .chapter-intro p,
-  .scene-summary,
-  .gallery-piece-copy p {
+  :where([data-gallery-browse-shell]) .chapter-intro p,
+  :where([data-gallery-browse-shell]) .scene-summary,
+  :where([data-gallery-browse-shell]) .gallery-piece-copy p {
     margin: 0;
     line-height: 1.8;
     color: rgba(32, 22, 15, 0.84);
   }
 
-  .chapter-count {
+  :where([data-gallery-browse-shell]) .chapter-count {
     display: inline-flex;
     width: fit-content;
     padding: 0.35rem 0.75rem;
@@ -1029,15 +1029,15 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
     color: rgba(66, 52, 35, 0.7);
   }
 
-  .chapter-stage {
+  :where([data-gallery-browse-shell]) .chapter-stage {
     display: grid;
     gap: 1rem;
   }
 
-  .gallery-piece,
-  .chapter-lead,
-  .trail-card,
-  .grid-card {
+  :where([data-gallery-browse-shell]) .gallery-piece,
+  :where([data-gallery-browse-shell]) .chapter-lead,
+  :where([data-gallery-browse-shell]) .trail-card,
+  :where([data-gallery-browse-shell]) .grid-card {
     display: block;
     color: inherit;
     background:
@@ -1050,59 +1050,59 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
     min-height: 100%;
   }
 
-  .gallery-piece-figure {
+  :where([data-gallery-browse-shell]) .gallery-piece-figure {
     margin: 0;
     display: grid;
     min-height: 100%;
   }
 
-  .gallery-piece-figure-lead {
+  :where([data-gallery-browse-shell]) .gallery-piece-figure-lead {
     grid-template-columns: minmax(0, 1.04fr) minmax(280px, 0.96fr);
     align-items: stretch;
   }
 
-  .gallery-piece-figure-compact,
-  .gallery-piece-figure-grid {
+  :where([data-gallery-browse-shell]) .gallery-piece-figure-compact,
+  :where([data-gallery-browse-shell]) .gallery-piece-figure-grid {
     grid-template-rows: auto 1fr;
   }
 
-  .chapter-lead:hover,
-  .trail-card:hover,
-  .grid-card:hover {
+  :where([data-gallery-browse-shell]) .chapter-lead:hover,
+  :where([data-gallery-browse-shell]) .trail-card:hover,
+  :where([data-gallery-browse-shell]) .grid-card:hover {
     transform: translateY(-3px);
   }
 
-  .chapter-lead-media,
-  .trail-media,
-  .grid-card-media {
+  :where([data-gallery-browse-shell]) .chapter-lead-media,
+  :where([data-gallery-browse-shell]) .trail-media,
+  :where([data-gallery-browse-shell]) .grid-card-media {
     overflow: hidden;
     background: rgba(63, 42, 25, 0.08);
   }
 
-  .chapter-lead-media {
+  :where([data-gallery-browse-shell]) .chapter-lead-media {
     aspect-ratio: 5 / 4;
   }
 
-  .trail-media {
+  :where([data-gallery-browse-shell]) .trail-media {
     aspect-ratio: 4 / 3;
   }
 
-  .grid-card-media {
+  :where([data-gallery-browse-shell]) .grid-card-media {
     aspect-ratio: 5 / 6;
   }
 
-  .chapter-lead-media img,
-  .trail-media img,
-  .grid-card-media img {
+  :where([data-gallery-browse-shell]) .chapter-lead-media img,
+  :where([data-gallery-browse-shell]) .trail-media img,
+  :where([data-gallery-browse-shell]) .grid-card-media img {
     display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
 
-  .chapter-lead-body,
-  .trail-body,
-  .grid-card-body {
+  :where([data-gallery-browse-shell]) .chapter-lead-body,
+  :where([data-gallery-browse-shell]) .trail-body,
+  :where([data-gallery-browse-shell]) .grid-card-body {
     display: grid;
     align-content: start;
     gap: 0.8rem;
@@ -1111,22 +1111,22 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
       linear-gradient(180deg, rgba(255, 255, 255, 0.8), rgba(249, 246, 240, 0.9));
   }
 
-  .chapter-lead-body {
+  :where([data-gallery-browse-shell]) .chapter-lead-body {
     padding: clamp(1.1rem, 2vw, 1.45rem);
   }
 
-  .gallery-piece-copy {
+  :where([data-gallery-browse-shell]) .gallery-piece-copy {
     display: grid;
     align-content: start;
     gap: 0.55rem;
   }
 
-  .gallery-piece-figure-compact .gallery-piece-caption,
-  .gallery-piece-figure-grid .gallery-piece-caption {
+  :where([data-gallery-browse-shell]) .gallery-piece-figure-compact .gallery-piece-caption,
+  :where([data-gallery-browse-shell]) .gallery-piece-figure-grid .gallery-piece-caption {
     border-top: 1px solid rgba(100, 76, 42, 0.12);
   }
 
-  .gallery-piece-meta {
+  :where([data-gallery-browse-shell]) .gallery-piece-meta {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -1135,22 +1135,22 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
     padding-top: 0.2rem;
   }
 
-  .chapter-lead-body h3,
-  .trail-body h3,
-  .grid-card-body h3 {
+  :where([data-gallery-browse-shell]) .chapter-lead-body h3,
+  :where([data-gallery-browse-shell]) .trail-body h3,
+  :where([data-gallery-browse-shell]) .grid-card-body h3 {
     margin: 0;
     font-size: clamp(1.3rem, 2.2vw, 1.85rem);
     line-height: 1.2;
   }
 
-  .scene-author {
+  :where([data-gallery-browse-shell]) .scene-author {
     margin: 0;
     color: rgba(66, 52, 35, 0.72);
     font-size: 0.94rem;
   }
 
-  .scene-action,
-  .scene-status {
+  :where([data-gallery-browse-shell]) .scene-action,
+  :where([data-gallery-browse-shell]) .scene-status {
     display: inline-flex;
     align-items: center;
     gap: 0.45rem;
@@ -1159,34 +1159,34 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
     white-space: nowrap;
   }
 
-  .scene-action {
+  :where([data-gallery-browse-shell]) .scene-action {
     color: #0a4a8b;
   }
 
-  .scene-action::after {
+  :where([data-gallery-browse-shell]) .scene-action::after {
     content: '→';
   }
 
-  .scene-status {
+  :where([data-gallery-browse-shell]) .scene-status {
     color: rgba(66, 52, 35, 0.72);
   }
 
-  .chapter-trail {
+  :where([data-gallery-browse-shell]) .chapter-trail {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1rem 1.1rem;
   }
 
-  .trail-card {
+  :where([data-gallery-browse-shell]) .trail-card {
     height: 100%;
   }
 
-  .trail-card-static,
-  .grid-card-static {
+  :where([data-gallery-browse-shell]) .trail-card-static,
+  :where([data-gallery-browse-shell]) .grid-card-static {
     opacity: 0.94;
   }
 
-  .chapter-more {
+  :where([data-gallery-browse-shell]) .chapter-more {
     justify-self: start;
     min-height: 46px;
     padding: 0.8rem 1.05rem;
@@ -1198,26 +1198,26 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
 
-  .chapter-more:hover {
+  :where([data-gallery-browse-shell]) .chapter-more:hover {
     transform: translateY(-1px);
     box-shadow: 0 10px 20px rgba(83, 55, 28, 0.08);
   }
 
-  .grid-catalog {
+  :where([data-gallery-browse-shell]) .grid-catalog {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 1rem;
   }
 
-  .grid-card {
+  :where([data-gallery-browse-shell]) .grid-card {
     height: 100%;
   }
 
-  .grid-card-body {
+  :where([data-gallery-browse-shell]) .grid-card-body {
     min-height: 8.9rem;
   }
 
-  .grid-card h3 {
+  :where([data-gallery-browse-shell]) .grid-card h3 {
     font-size: 1.08rem;
     line-height: 1.3;
     display: -webkit-box;
@@ -1226,13 +1226,13 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
     overflow: hidden;
   }
 
-  .grid-card-meta {
+  :where([data-gallery-browse-shell]) .grid-card-meta {
     display: flex;
     flex-wrap: wrap;
     gap: 0.45rem;
   }
 
-  .grid-badge {
+  :where([data-gallery-browse-shell]) .grid-badge {
     display: inline-flex;
     align-items: center;
     min-height: 28px;
@@ -1244,12 +1244,12 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
     font-weight: 700;
   }
 
-  .grid-badge-muted {
+  :where([data-gallery-browse-shell]) .grid-badge-muted {
     background: rgba(243, 241, 236, 0.92);
     color: rgba(66, 52, 35, 0.68);
   }
 
-  .grid-card-author {
+  :where([data-gallery-browse-shell]) .grid-card-author {
     font-size: 0.9rem;
     line-height: 1.5;
     color: rgba(66, 52, 35, 0.72);
@@ -1260,40 +1260,40 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
   }
 
   @media (max-width: 1140px) {
-    .chapter-room {
+    :where([data-gallery-browse-shell]) .chapter-room {
       grid-template-columns: 1fr;
     }
 
-    .gallery-piece-figure-lead {
+    :where([data-gallery-browse-shell]) .gallery-piece-figure-lead {
       grid-template-columns: 1fr;
     }
 
-    .grid-catalog {
+    :where([data-gallery-browse-shell]) .grid-catalog {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
 
   @media (max-width: 820px) {
-    .chapter-trail,
-    .grid-catalog {
+    :where([data-gallery-browse-shell]) .chapter-trail,
+    :where([data-gallery-browse-shell]) .grid-catalog {
       grid-template-columns: 1fr;
     }
 
-    .chapter-intro h2 {
+    :where([data-gallery-browse-shell]) .chapter-intro h2 {
       font-size: clamp(1.9rem, 8vw, 2.8rem);
     }
 
-    .view-switch {
+    :where([data-gallery-browse-shell]) .view-switch {
       width: 100%;
       grid-auto-columns: 1fr;
     }
 
-    .sort-field {
+    :where([data-gallery-browse-shell]) .sort-field {
       width: 100%;
       min-width: 0;
     }
 
-    .genre-chips {
+    :where([data-gallery-browse-shell]) .genre-chips {
       flex-wrap: nowrap;
       overflow-x: auto;
       padding-bottom: 0.2rem;
@@ -1301,34 +1301,34 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
       padding-inline: 0.1rem;
     }
 
-    .genre-chip {
+    :where([data-gallery-browse-shell]) .genre-chip {
       flex: 0 0 auto;
     }
   }
 
   @media (max-width: 640px) {
-    .chapter-room {
+    :where([data-gallery-browse-shell]) .chapter-room {
       border-radius: 26px;
       padding: 1.2rem;
     }
 
-    .chapter-stage {
+    :where([data-gallery-browse-shell]) .chapter-stage {
       gap: 0.9rem;
     }
 
-    .chapter-lead-body,
-    .trail-body,
-    .grid-card-body {
+    :where([data-gallery-browse-shell]) .chapter-lead-body,
+    :where([data-gallery-browse-shell]) .trail-body,
+    :where([data-gallery-browse-shell]) .grid-card-body {
       min-height: auto;
       padding: 0.95rem 0.95rem 1rem;
     }
 
-    .gallery-piece-meta {
+    :where([data-gallery-browse-shell]) .gallery-piece-meta {
       justify-content: start;
     }
 
-    .scene-action,
-    .scene-status {
+    :where([data-gallery-browse-shell]) .scene-action,
+    :where([data-gallery-browse-shell]) .scene-status {
       font-size: 0.88rem;
     }
   }
