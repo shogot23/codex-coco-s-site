@@ -120,6 +120,7 @@ addFeaturedMoment(
 const chapterLinks = browseChapters.map((chapter) => ({
   href: `#${getChapterSectionId(chapter)}`,
   label: chapter.title,
+  subtitle: chapter.subtitle,
   count: chapter.items.length,
 }));
 ---
