@@ -15,7 +15,7 @@ export type GalleryBrowseChapterDefinition = {
   id: GalleryBrowseChapterId;
   eyebrow: string;
   title: string;
-  description: string;
+  subtitle: string;
   genres: readonly GalleryGenre[];
   mood: GalleryBrowseChapterId;
 };
@@ -57,27 +57,24 @@ export const GALLERY_BROWSE_CHAPTERS: readonly GalleryBrowseChapterDefinition[] 
   {
     id: 'fiction',
     eyebrow: 'Chapter 01',
-    title: '物語と感情の気配を見返す。',
-    description:
-      '小説やノンフィクションのあとに残る温度を、すこし近い距離で並べる章です。読後に言葉へ戻る前の呼吸をここに置きます。',
+    title: '物語にひたる',
+    subtitle: '物語と感情の気配を見返す。',
     genres: GALLERY_FICTION_GENRES,
     mood: 'fiction',
   },
   {
     id: 'learning',
     eyebrow: 'Chapter 02',
-    title: '学びが日常へ降りる瞬間を拾う。',
-    description:
-      'ビジネス、心理学、健康、新書、社会科学の本から見えた輪郭を、暮らしに近い景色として束ねます。学びを硬くしすぎない章です。',
+    title: '学びを持ち帰る',
+    subtitle: '学びが日常へ降りる瞬間を拾う。',
     genres: GALLERY_LEARNING_GENRES,
     mood: 'learning',
   },
   {
     id: 'horizon',
     eyebrow: 'Chapter 03',
-    title: '時代と熱量の遠景まで歩いていく。',
-    description:
-      '歴史、漫画、ホビーの本がひらく遠い景色を、ココちゃんの歩幅でゆっくりたどります。少し遠くへ行きたい日に向く章です。',
+    title: '歴史と熱量にふれる',
+    subtitle: '時代と熱量の遠景まで歩いていく。',
     genres: GALLERY_HORIZON_GENRES,
     mood: 'horizon',
   },

@@ -225,8 +225,8 @@ test('gallery works as a scenic side path without breaking the review-led struct
   await expect(page.getByRole('button', { name: '章で見る', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(browseStatus).toHaveText('ビジネスの景色を章の流れで眺める');
   await expect(browse.locator('[data-chapter-section]')).toHaveCount(1);
-  await expect(browse.getByRole('heading', { name: '学びが日常へ降りる瞬間を拾う。' })).toBeVisible();
-  await expect(browse.getByRole('heading', { name: '物語と感情の気配を見返す。' })).toHaveCount(0);
+  await expect(browse.getByRole('heading', { name: '学びを持ち帰る' })).toBeVisible();
+  await expect(browse.getByRole('heading', { name: '物語にひたる' })).toHaveCount(0);
   await expectImageObjectFitCover(
     browse.locator('[data-chapter-section]').first().locator('.chapter-lead [data-gallery-piece-media]')
   );
