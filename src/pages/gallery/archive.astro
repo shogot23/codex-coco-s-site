@@ -46,8 +46,7 @@ const detailReadyCount = galleryEntries.filter((entry) => hasDetailContent(entry
           <p class="archive-brand">読書 with Coco</p>
           <h1 id="archive-page-title">気になった景色を、目録として探し直す。</h1>
           <p class="archive-lead">
-            ここは展示室の余韻を壊さずに、作品を探すためだけに整えた棚です。比較しやすい並びで全体を見返し、
-            気になった一枚からまた展示やレビューへ戻れるようにしています。
+            気になる一冊の景色を、一覧で比べながら探せる棚です。見つけたら、そのまま展示やレビューへ戻れます。
           </p>
 
           <div class="archive-actions ui-action-group ui-action-group--stack">
@@ -57,27 +56,27 @@ const detailReadyCount = galleryEntries.filter((entry) => hasDetailContent(entry
         </div>
 
         <aside class="archive-panel" aria-label="Archive のしおり">
-          <p class="panel-label">Catalog Notes</p>
+          <p class="panel-label">この棚でできること</p>
           <dl class="archive-stats">
             <div>
-              <dt>Archive items</dt>
+              <dt>探せる景色</dt>
               <dd>{browseModel.items.length}</dd>
             </div>
             <div>
-              <dt>Review bridge</dt>
+              <dt>レビューへ戻れる景色</dt>
               <dd>{linkedReviewCount}</dd>
             </div>
             <div>
-              <dt>Detail ready</dt>
+              <dt>展示をひらける景色</dt>
               <dd>{detailReadyCount}</dd>
             </div>
             <div>
-              <dt>Curated chapters</dt>
+              <dt>章で眺めるまとまり</dt>
               <dd>{browseModel.chapters.length}</dd>
             </div>
           </dl>
           <p class="archive-note">
-            Grid を既定にして比較しやすさを優先しつつ、Curated へ切り替えると chapter ごとの空気でも見返せます。
+            まずは一覧で比べて、気になった景色だけを静かに見つけられます。
           </p>
         </aside>
       </section>
@@ -86,17 +85,15 @@ const detailReadyCount = galleryEntries.filter((entry) => hasDetailContent(entry
         <div class="archive-intro">
           <div class="archive-intro-copy">
             <p class="section-label">Search The Shelf</p>
-            <h2 id="archive-room-title">件数が増えても、ここでは迷わず探せるように。</h2>
+            <h2 id="archive-room-title">一覧で比べながら、気になる景色を探す。</h2>
             <p>
-              genre と sort は archive 側で管理し、展示室とは役割を分けます。まず比較しやすい grid を置き、
-              必要なら curated に戻って景色のまとまりごと見返せるようにしました。
+              ここではまず一覧で見つけやすく、気分に合わせて章ごとの眺め方にも切り替えられます。
             </p>
           </div>
 
           <div class="archive-intro-side">
             <p class="archive-note archive-note-side">
-              no-JS でも archive の既定状態は grid / 最新順のまま見られます。将来の pagination や incremental loading は、
-              この catalog 側の責務として足せる骨格に留めています。
+              迷ったら一覧で比べて、気になったら章ごとの流れでも見返せます。
             </p>
           </div>
         </div>
@@ -107,8 +104,6 @@ const detailReadyCount = galleryEntries.filter((entry) => hasDetailContent(entry
           defaultSort="latest"
           enableSort={true}
           testId="gallery-archive-browse"
-          noScriptMessage="JavaScript を使わない環境でも、archive は Grid / 最新順の目録としてそのまま見返せます。"
-          statusLabel="Grid view / 最新順 / すべての景色"
         />
       </section>
     </div>

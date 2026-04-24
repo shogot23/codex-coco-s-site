@@ -347,30 +347,28 @@ const chapterLinks = browseChapters.map((chapter) => ({
         <div class="browse-intro">
           <div class="browse-copy">
             <p class="section-label">Browse The Shelf</p>
-            <h2 id="browse-room-title">展示の余韻は残したまま、ここからは探しやすく。</h2>
+            <h2 id="browse-room-title">章ごとに景色をめくり、気になる一枚を拾う。</h2>
             <p>
-              ここでは展示の空気を残した補助棚だけを置きます。気になる一枚を静かに拾う役目はこのままにして、
-              全体を探したいときは archive の目録へ自然に渡せるようにします。
+              ここでは章のまとまりごとに景色を眺めます。比べながら探したいときだけ、一覧の棚へ渡れるようにしています。
             </p>
           </div>
 
           <div class="browse-side">
             <p class="browse-note">
-              ここは展示の補助棚です。件数が増えても比べやすい一覧は
-              <span>/gallery/archive/</span> に切り出し、Gallery 本体は余韻をめくる入口として保ちます。
+              Gallery は章ごとに眺める場所です。一覧で探したくなったら、archive で気になる景色を比べられます。
             </p>
             <dl class="browse-stats">
               <div>
-                <dt>Browse items</dt>
+                <dt>並んでいる景色</dt>
                 <dd>{browseModel.items.length}</dd>
               </div>
               <div>
-                <dt>Curated chapters</dt>
+                <dt>章のまとまり</dt>
                 <dd>{browseChapters.length}</dd>
               </div>
             </dl>
             <div class="browse-actions ui-action-group ui-action-group--stack">
-              <a class="hero-link hero-link-primary ui-action" href={archiveUrl}>archive で探す</a>
+              <a class="hero-link hero-link-primary ui-action" href={archiveUrl}>一覧で探す</a>
               <a class="hero-link hero-link-secondary ui-action" href="#scene-featured">展示へ戻る</a>
             </div>
           </div>
@@ -379,8 +377,6 @@ const chapterLinks = browseChapters.map((chapter) => ({
         <GalleryBrowse
           browseModel={browseModel}
           testId="gallery-browse"
-          noScriptMessage="JavaScript を使わない環境では、Gallery は Curated view のまま静かに眺められる構成にしています。"
-          statusLabel="Curated view / すべての景色"
         />
       </section>
 
