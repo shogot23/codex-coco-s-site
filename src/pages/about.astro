@@ -188,6 +188,20 @@ const bridgeSteps = [
       </div>
     </section>
 
+    <section class="philosophy-room" aria-labelledby="philosophy-title">
+      <div class="philosophy-copy">
+        <p class="section-label">Living Philosophy</p>
+        <h2 id="philosophy-title">本と暮らしのあいだで</h2>
+        <p>読書withCocoは、本を正しく要約するためだけの場所ではありません。</p>
+        <p>
+          一冊の本をきっかけに、自分の暮らし、働き方、学び方、弱さ、回復、これからの生き方を
+          少しだけ見つめ直すための場所です。
+        </p>
+        <p>本の中にある知識を、今日の行動に変える。<br />難しい言葉を、自分の生活に置き直す。<br />読み終えたあとに残る感覚を、ココちゃんと一緒にそっと拾い上げる。</p>
+        <p>そんな読書の記録を、ここに残していきます。</p>
+      </div>
+    </section>
+
     <section class="bridge-room" aria-labelledby="bridge-title">
       <div class="bridge-intro">
         <p class="section-label">World Bridge</p>
@@ -236,6 +250,7 @@ const bridgeSteps = [
 
   .about-hero,
   .manifesto-room,
+  .philosophy-room,
   .bridge-room,
   .closing-room {
     position: relative;
@@ -257,6 +272,7 @@ const bridgeSteps = [
   }
 
   .manifesto-room,
+  .philosophy-room,
   .bridge-room,
   .closing-room {
     padding: clamp(1.35rem, 3vw, 2.3rem);
@@ -267,6 +283,7 @@ const bridgeSteps = [
   .hero-copy,
   .hero-visual,
   .bridge-intro,
+  .philosophy-copy,
   .closing-copy {
     position: relative;
     z-index: 1;
@@ -300,6 +317,7 @@ const bridgeSteps = [
   .manifesto-intro h2,
   .bridge-intro h2,
   .bridge-body h3,
+  .philosophy-copy h2,
   .closing-copy h2 {
     margin: 0;
     font-family: var(--font-display);
@@ -320,6 +338,7 @@ const bridgeSteps = [
   .hero-bridge,
   .bridge-intro p,
   .bridge-body p,
+  .philosophy-copy p,
   .closing-copy p,
   .hero-note-copy p {
     color: rgba(33, 23, 16, 0.78);
@@ -468,6 +487,17 @@ const bridgeSteps = [
     gap: 1.6rem;
   }
 
+  .philosophy-room {
+    display: grid;
+    gap: 1.6rem;
+  }
+
+  .philosophy-copy {
+    display: grid;
+    gap: 0.95rem;
+    max-width: 40rem;
+  }
+
   .manifesto-intro {
     display: grid;
     gap: 0.65rem;
@@ -476,6 +506,7 @@ const bridgeSteps = [
 
   .manifesto-intro h2,
   .bridge-intro h2,
+  .philosophy-copy h2,
   .closing-copy h2 {
     font-size: clamp(2rem, 3vw, 2.8rem);
     text-wrap: balance;
@@ -528,6 +559,7 @@ const bridgeSteps = [
   }
 
   .bridge-intro p,
+  .philosophy-copy p,
   .closing-copy p {
     margin: 0;
     line-height: 1.85;
@@ -623,6 +655,7 @@ const bridgeSteps = [
 
     .about-hero,
     .manifesto-room,
+    .philosophy-room,
     .bridge-room,
     .closing-room {
       border-radius: 28px;
@@ -654,6 +687,7 @@ const bridgeSteps = [
     .about-hero h1,
     .manifesto-intro h2,
     .bridge-intro h2,
+    .philosophy-copy h2,
     .closing-copy h2 {
       font-size: 2rem;
     }
