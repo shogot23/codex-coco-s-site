@@ -2,8 +2,9 @@
 
 ## 参照の基本
 
-- 正本入口は `AGENTS.md` とし、repo 全体の判断が必要なときは `docs/parallel-dev-core.md` → `docs/parallel-dev-config.md` → `docs/reading-with-coco-design-doctrine.md` → `docs/frontend-playbook.md` の順で参照する。UI 設計・トークン・コンポーネント仕様の判断は `DESIGN.md` を参照する（トークン値の正本は `src/styles/theme.css`）。
+- 正本入口は `AGENTS.md` とし、repo 全体の判断が必要なときは `docs/parallel-dev-core.md` → `docs/parallel-dev-config.md` → `docs/brand/reading-with-coco-brand-strategy.md` → `docs/brand/reading-with-coco-content-guidelines.md` → `docs/brand/reading-with-coco-ai-operations.md` → `docs/reading-with-coco-design-doctrine.md` → `docs/frontend-playbook.md` の順で参照する。UI 設計・トークン・コンポーネント仕様の判断は `DESIGN.md` を参照する（トークン値の正本は `src/styles/theme.css`）。
 - `docs/parallel-dev-core.md` は共通ルールのみ、`docs/parallel-dev-config.md` はこの repo 固有値のみを扱う。
+- ブランド戦略、投稿制作、AI作業判断の正本は `docs/brand/` 配下の3文書とする。詳細本文は入口文書へ貼りすぎず、必要時に該当文書を参照する。
 
 ## Review Gate
 
@@ -73,6 +74,13 @@
 - Section は narrative でつなぐ。情報の羅列より「読後の余韻が深まる順番」を優先する。
 - Cards は一覧や比較に必要な場面だけで使う。安易に `card` を量産しない。
 - Desktop / mobile の両方で視認性、余白、CTA 到達性を確認する。
+
+## Brand Reference
+
+- ブランド原典は `docs/brand/reading-with-coco-brand-strategy.md` を参照する。
+- レビュー文、SNS投稿、ギャラリー文、画像プロンプト、CTA文言は `docs/brand/reading-with-coco-content-guidelines.md` を参照する。
+- Codex / Claude Code の作業判断、参照順、PR前報告は `docs/brand/reading-with-coco-ai-operations.md` を参照する。
+- 最重要問いは常に「この投稿は、読者の中に問いか行動を残しているか？」とする。
 
 ## Design Doctrine Reference
 
