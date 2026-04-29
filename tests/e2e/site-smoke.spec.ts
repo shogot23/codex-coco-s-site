@@ -52,6 +52,31 @@ const expectImageObjectFitCover = async (locator: Locator) => {
   expect(objectFit).toBe('cover');
 };
 
+const expectVideoCardsFitViewport = async (page: Page) => {
+  const videoCards = page.locator('.fragment-card').filter({ has: page.locator('video') });
+  await expect(videoCards).toHaveCount(3);
+
+  const cardMetrics = await videoCards.evaluateAll((elements) => {
+    return elements.map((element) => {
+      const rect = element.getBoundingClientRect();
+      const video = element.querySelector('video');
+      return {
+        height: Math.ceil(rect.height),
+        viewportHeight: window.innerHeight,
+        title: element.querySelector('h3')?.textContent?.trim() ?? 'untitled',
+        videoObjectFit: video ? getComputedStyle(video).objectFit : '',
+      };
+    });
+  });
+
+  for (const metric of cardMetrics) {
+    expect(metric.height, `${metric.title} card should fit in one viewport`).toBeLessThanOrEqual(
+      metric.viewportHeight
+    );
+    expect(metric.videoObjectFit).toBe('contain');
+  }
+};
+
 test('home first viewport shows brand and review-led hero CTA flow', async ({ page }) => {
   await page.goto(SITE_BASE);
 
@@ -110,6 +135,15 @@ test('about page guides interested readers to the moving fragments room', async 
   await expect(page).toHaveURL(/\/codex-coco-s-site\/videos\/$/);
   await expect(page.getByRole('heading', { name: '読後の余韻を、少しだけ動かして置いておく。' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'レビューへ戻る', exact: true })).toBeVisible();
+  await expectNoHorizontalOverflow(page);
+});
+
+test('videos page keeps self-hosted video cards inside one viewport', async ({ page }) => {
+  await page.goto(`${SITE_BASE}videos/`);
+
+  await expect(page.getByRole('heading', { name: '読後の余韻を、少しだけ動かして置いておく。' })).toBeVisible();
+  await expect(page.locator('.fragment-card video').first()).toBeVisible();
+  await expectVideoCardsFitViewport(page);
   await expectNoHorizontalOverflow(page);
 });
 
