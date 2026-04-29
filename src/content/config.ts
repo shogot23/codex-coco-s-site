@@ -182,8 +182,10 @@ const videos = defineCollection({
   schema: z.object({
     title: z.string(),
     date: z.coerce.date(),
-    thumbnail: z.string(),
+    thumbnail: optionalString,
     url: videoUrlSchema,
+    videoSrc: optionalString,
+    note: optionalString,
   }),
 });
 

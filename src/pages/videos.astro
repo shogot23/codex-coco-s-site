@@ -22,7 +22,8 @@ const videos = [...videoEntries]
     title: entry.data.title,
     thumbnail: entry.data.thumbnail,
     url: entry.data.url,
-    note: fragmentNotes[index % fragmentNotes.length],
+    videoSrc: entry.data.videoSrc,
+    note: entry.data.note ?? fragmentNotes[index % fragmentNotes.length],
     sequence: `Fragment ${String(index + 1).padStart(2, "0")}`,
   }));
 
@@ -146,6 +147,10 @@ function getEmbedInfo(url: string | undefined): { type: "youtube" | "instagram" 
                     title={v.title}
                     loading="lazy"
                   />
+                ) : v.videoSrc ? (
+                  <video controls preload="metadata" aria-label={v.title}>
+                    <source src={`${baseWithSlash}${v.videoSrc.replace(/^\//, '')}`} type="video/mp4" />
+                  </video>
                 ) : (
                   <img src={v.thumbnail} alt={v.title} loading="lazy" decoding="async" width="800" height="520" />
                 )}
