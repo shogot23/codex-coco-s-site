@@ -93,6 +93,9 @@ test('home first viewport shows brand and review-led hero CTA flow', async ({ pa
   await expect(page).toHaveURL(/\/codex-coco-s-site\/reviews\/$/);
   await expect(page.getByRole('heading', { name: '次の一冊をひらく前に、言葉の余韻をひとくち。' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'まずは、この一冊から。' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '今日の小さな一歩' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '最近の余韻' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'これまでの棚' })).toBeVisible();
   await expect(page.locator('#review-stream')).toBeVisible();
 });
 
@@ -207,8 +210,8 @@ test('gallery works as a scenic side path without breaking the review-led struct
 
   await expect(page.getByRole('heading', { name: '読後の景色を、ココちゃんと静かに見返す。' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '本から生まれた景色を、先に3つだけひらく。' })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'レビューの主導線へ戻る', exact: true })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'About / world bridge へ', exact: true })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'レビューを読む', exact: true })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'About へ', exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: '一覧で探す', exact: true })).toBeVisible();
   await expect(browse).toBeVisible();
   await expect(page.getByRole('button', { name: '章で見る', exact: true })).toHaveAttribute('aria-pressed', 'true');
@@ -280,7 +283,7 @@ test('gallery works as a scenic side path without breaking the review-led struct
 
   await expectNoHorizontalOverflow(page);
 
-  await page.getByRole('link', { name: 'レビューの主導線へ戻る', exact: true }).click();
+  await page.getByRole('link', { name: 'レビューを読む', exact: true }).click();
   await expect(page).toHaveURL(/\/codex-coco-s-site\/reviews\/$/);
   await expect(page.getByRole('heading', { name: '次の一冊をひらく前に、言葉の余韻をひとくち。' })).toBeVisible();
 });

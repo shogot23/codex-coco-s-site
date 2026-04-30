@@ -77,6 +77,26 @@ const reviewCards = sortedReviews.map((review) => {
 
 const featuredReview = reviewCards[0] ?? null;
 const remainingReviews = reviewCards.slice(1);
+const recentReviews = remainingReviews.slice(0, 3);
+const shelfReviews = remainingReviews.slice(3);
+const reviewGroups = [
+  {
+    id: "recent",
+    eyebrow: "最近届いた言葉",
+    title: "最近の余韻",
+    copy: "新しく届いた言葉から、いまの気分に近い一冊をそっと選べます。",
+    reviews: recentReviews,
+    startOrder: 2,
+  },
+  {
+    id: "shelf",
+    eyebrow: "静かな本棚",
+    title: "これまでの棚",
+    copy: "少し前に置いた本も、問いや抜粋から今の生活へ持ち帰れるように並べています。",
+    reviews: shelfReviews,
+    startOrder: 2 + recentReviews.length,
+  },
+].filter((group) => group.reviews.length > 0);
 
 const spotlightThemes = [
   "再起と自己理解",
@@ -106,7 +126,7 @@ const reviewCountLabel = `${reviewCards.length}冊のレビュー`;
         <p class="hero-brand">読書 with Coco</p>
         <h1 id="reviews-heading">次の一冊をひらく前に、言葉の余韻をひとくち。</h1>
         <p class="hero-lead">
-          トップページから続く主導線の先で、本を閉じたあとに残る感情や学びを静かにたどります。
+          本を閉じたあとに残る感情や学びを、暮らしの言葉で静かにたどります。
           まずは今いちばん手前にある一冊からどうぞ。
         </p>
 
@@ -175,8 +195,8 @@ const reviewCountLabel = `${reviewCards.length}冊のレビュー`;
               <h2 id="featured-review-heading">まずは、この一冊から。</h2>
             </div>
             <p class="section-copy">
-              一覧の先頭は、トップページから続く最初の入口です。短い抜粋とおすすめ対象から、
-              その日の距離感で読みはじめられるようにしています。
+              最初に置く一冊は、いまの気持ちへ近づきやすい入口です。短い抜粋とおすすめ対象から、
+              その日の距離感で読みはじめられます。
             </p>
           </div>
 
@@ -191,6 +211,7 @@ const reviewCountLabel = `${reviewCards.length}冊のレビュー`;
                   src={withBase(featuredReview.thumbnail)}
                   alt={`${featuredReview.title}のレビューイメージ`}
                   loading="eager"
+                  fetchpriority="high"
                   decoding="async"
                   width="520"
                   height="640"
@@ -265,6 +286,15 @@ const reviewCountLabel = `${reviewCards.length}冊のレビュー`;
               </div>
             </div>
           </article>
+
+          <aside class="today-step" aria-labelledby="today-step-title">
+            <p class="section-label">Today&apos;s Small Step</p>
+            <h3 id="today-step-title">今日の小さな一歩</h3>
+            <p>
+              気になる一文をひとつだけ選び、「今の自分なら何に名前をつけたいか」をメモする。
+              読み切る前でも、そこから一冊との距離が少し近づきます。
+            </p>
+          </aside>
         </section>
 
         {remainingReviews.length > 0 ? (
@@ -275,86 +305,99 @@ const reviewCountLabel = `${reviewCards.length}冊のレビュー`;
                 <h2 id="review-stream-heading">気になる余韻から、次の一冊へ。</h2>
               </div>
               <p class="section-copy">
-                すべてを同じ強さでは並べず、テーマ、抜粋、おすすめ対象のどこからでも入れる流れにしています。
+                新しく届いた余韻と、これまでの棚を少し分けて置きました。
+                テーマ、抜粋、おすすめ対象のどこからでも入れます。
               </p>
             </div>
 
-            <ol class="review-stream">
-              {remainingReviews.map((review, index) => (
-                <li class="stream-item">
-                  <div class="stream-aside">
-                    <p class="stream-order">{String(index + 2).padStart(2, "0")}</p>
-                    <time class="stream-date" datetime={review.date.toISOString()}>{review.dateLabel}</time>
-                    <a
-                      class="stream-media"
-                      href={review.href}
-                      aria-label={`${review.title}のレビューを読む`}
-                    >
-                      {review.thumbnail ? (
-                        <img
-                          src={withBase(review.thumbnail)}
-                          alt={`${review.title}のレビューイメージ`}
-                          loading="lazy"
-                          decoding="async"
-                          width="260"
-                          height="320"
-                        />
-                      ) : (
-                        <div class="media-fallback media-fallback-small" aria-hidden="true">
-                          <span>Review</span>
-                          <strong>{review.title}</strong>
+            <div class="stream-groups">
+              {reviewGroups.map((group) => (
+                <section class="stream-group" aria-labelledby={`review-group-${group.id}`}>
+                  <div class="stream-group-header">
+                    <p class="section-label">{group.eyebrow}</p>
+                    <h3 id={`review-group-${group.id}`}>{group.title}</h3>
+                    <p>{group.copy}</p>
+                  </div>
+
+                  <ol class="review-stream" start={group.startOrder}>
+                    {group.reviews.map((review, index) => (
+                      <li class="stream-item">
+                        <div class="stream-aside">
+                          <p class="stream-order">{String(group.startOrder + index).padStart(2, "0")}</p>
+                          <time class="stream-date" datetime={review.date.toISOString()}>{review.dateLabel}</time>
+                          <a
+                            class="stream-media"
+                            href={review.href}
+                            aria-label={`${review.title}のレビューを読む`}
+                          >
+                            {review.thumbnail ? (
+                              <img
+                                src={withBase(review.thumbnail)}
+                                alt={`${review.title}のレビューイメージ`}
+                                loading="lazy"
+                                decoding="async"
+                                width="260"
+                                height="320"
+                              />
+                            ) : (
+                              <div class="media-fallback media-fallback-small" aria-hidden="true">
+                                <span>Review</span>
+                                <strong>{review.title}</strong>
+                              </div>
+                            )}
+                          </a>
                         </div>
-                      )}
-                    </a>
-                  </div>
 
-                  <div class="stream-body">
-                    <p class="stream-theme">
-                      {review.tags.length > 0 ? review.tags.slice(0, 2).join(" / ") : "Review"}
-                    </p>
-                    <h3>
-                      <a href={review.href}>{review.title}</a>
-                    </h3>
-                    {review.supplementalTitle && <p class="stream-book-title">{review.supplementalTitle}</p>}
+                        <div class="stream-body">
+                          <p class="stream-theme">
+                            {review.tags.length > 0 ? review.tags.slice(0, 2).join(" / ") : "Review"}
+                          </p>
+                          <h3>
+                            <a href={review.href}>{review.title}</a>
+                          </h3>
+                          {review.supplementalTitle && <p class="stream-book-title">{review.supplementalTitle}</p>}
 
-                    <div class="stream-meta">
-                      {review.author && <span>著者: {review.author}</span>}
-                    </div>
-
-                    {review.summary && <p class="stream-summary">{review.summary}</p>}
-                    {review.quote && <p class="stream-quote">“{review.quote}”</p>}
-
-                    <div class="stream-footer">
-                      {review.recommendedFor[0] && (
-                        <p class="stream-cue">
-                          <span>こんな人に</span>
-                          {review.recommendedFor[0]}
-                        </p>
-                      )}
-
-                      <div class="stream-actions">
-                        <a class="stream-link ui-action" href={review.href}>レビューを読む</a>
-                        {review.purchaseLinks.length > 0 && (
-                          <div class="stream-purchase-links ui-action-group ui-action-group--stack">
-                            {review.purchaseLinks.map((link) => (
-                              <a
-                                class="stream-purchase ui-action"
-                                href={link.url}
-                                target="_blank"
-                                rel="noopener noreferrer nofollow"
-                                aria-label={`${review.supplementalTitle ?? review.title}の購入先: ${link.label ?? "この本を見る"}`}
-                              >
-                                {link.label ?? "この本を見る"}
-                              </a>
-                            ))}
+                          <div class="stream-meta">
+                            {review.author && <span>著者: {review.author}</span>}
                           </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </li>
+
+                          {review.summary && <p class="stream-summary">{review.summary}</p>}
+                          {review.quote && <p class="stream-quote">“{review.quote}”</p>}
+
+                          <div class="stream-footer">
+                            {review.recommendedFor[0] && (
+                              <p class="stream-cue">
+                                <span>こんな人に</span>
+                                {review.recommendedFor[0]}
+                              </p>
+                            )}
+
+                            <div class="stream-actions">
+                              <a class="stream-link ui-action" href={review.href}>レビューを読む</a>
+                              {review.purchaseLinks.length > 0 && (
+                                <div class="stream-purchase-links ui-action-group ui-action-group--stack">
+                                  {review.purchaseLinks.map((link) => (
+                                    <a
+                                      class="stream-purchase ui-action"
+                                      href={link.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer nofollow"
+                                      aria-label={`${review.supplementalTitle ?? review.title}の購入先: ${link.label ?? "この本を見る"}`}
+                                    >
+                                      {link.label ?? "この本を見る"}
+                                    </a>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                    ))}
+                  </ol>
+                </section>
               ))}
-            </ol>
+            </div>
           </section>
         ) : (
           <section class="compass-section" id="review-stream" aria-labelledby="compass-heading">
@@ -813,6 +856,32 @@ const reviewCountLabel = `${reviewCards.length}冊のレビュー`;
     gap: 1rem;
   }
 
+  .today-step {
+    display: grid;
+    gap: 0.65rem;
+    margin-top: 1.1rem;
+    padding: clamp(1.1rem, 2.5vw, 1.45rem);
+    border-radius: 1.6rem;
+    border: 1px solid rgba(99, 66, 32, 0.12);
+    background:
+      radial-gradient(circle at top left, rgba(243, 223, 180, 0.28), transparent 36%),
+      rgba(255, 250, 243, 0.86);
+  }
+
+  .today-step h3,
+  .stream-group-header h3 {
+    margin: 0;
+    font-size: clamp(1.35rem, 2.4vw, 1.8rem);
+    line-height: 1.25;
+  }
+
+  .today-step p:last-child,
+  .stream-group-header p:last-child {
+    margin: 0;
+    color: rgba(32, 22, 15, 0.82);
+    line-height: 1.8;
+  }
+
   .reader-note {
     display: grid;
     gap: 0.75rem;
@@ -824,6 +893,27 @@ const reviewCountLabel = `${reviewCards.length}冊のレビュー`;
 
   .stream-section {
     padding: 0.45rem 0;
+  }
+
+  .stream-groups {
+    display: grid;
+    gap: clamp(1.75rem, 4vw, 2.6rem);
+  }
+
+  .stream-group {
+    display: grid;
+    gap: 0.95rem;
+  }
+
+  .stream-group + .stream-group {
+    padding-top: clamp(1rem, 3vw, 1.6rem);
+    border-top: 1px solid rgba(99, 66, 32, 0.12);
+  }
+
+  .stream-group-header {
+    display: grid;
+    gap: 0.45rem;
+    max-width: 42rem;
   }
 
   .review-stream {

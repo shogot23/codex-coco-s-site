@@ -97,23 +97,23 @@ const addFeaturedMoment = (
 };
 
 addFeaturedMoment(
-  'From Review',
+  'レビューから',
   '言葉から景色へ渡る一枚',
-  '主導線のレビューから離れすぎないように、最初の一枚は読後の余韻とつながっている作品を置いています。',
+  'レビューで受け取った言葉の余韻に寄り添うように、最初の一枚を選んでいます。',
   heroLeadEntry
 );
 
 addFeaturedMoment(
-  'Learning Glow',
+  '学びの余韻',
   '学びを景色に変える棚',
   '考え方や習慣の本が残す輪郭は、整った結論よりも、日々の見え方の変化として受け取りたいものです。',
   pickScene(GALLERY_LEARNING_GENRES)
 );
 
 addFeaturedMoment(
-  'Far Horizon',
+  '遠くを見る本',
   '少し遠くへ連れていく景色',
-  '歴史や漫画やホビーの本は、今いる場所から少し離れた地平を見せてくれます。その広がりを副導線として残します。',
+  '歴史や漫画やホビーの本は、今いる場所から少し離れた地平を見せてくれます。その広がりをここにも残します。',
   pickScene(GALLERY_HORIZON_GENRES)
 );
 
@@ -133,7 +133,7 @@ const chapterLinks = browseChapters.map((chapter) => ({
     <div class="gallery-world">
       <section class="gallery-hero" aria-labelledby="gallery-page-title">
         <div class="hero-copy">
-          <p class="section-label">Gallery / Scenic Side Path</p>
+          <p class="section-label">読書の景色</p>
           <p class="hero-brand">読書 with Coco</p>
           <h1 id="gallery-page-title">読後の景色を、ココちゃんと静かに見返す。</h1>
           <p class="hero-lead">
@@ -144,13 +144,13 @@ const chapterLinks = browseChapters.map((chapter) => ({
           {heroLeadEntry && (
             <p class="hero-note">
               いま先頭に置いている景色は <span>{heroLeadEntry.data.title}</span>。
-              Reviews 主導の流れを壊さないように、最初の一枚は言葉の余韻に近い場所から始めています。
+              レビューで読んだ言葉の余韻に近い場所から、静かに眺めはじめます。
             </p>
           )}
 
           <div class="hero-actions ui-action-group ui-action-group--stack">
             <a class="hero-link hero-link-primary ui-action" href="#scene-featured">景色をめくる</a>
-            <a class="hero-link hero-link-secondary ui-action" href={reviewsUrl}>レビューの主導線へ戻る</a>
+            <a class="hero-link hero-link-secondary ui-action" href={reviewsUrl}>レビューを読む</a>
           </div>
         </div>
 
@@ -168,12 +168,13 @@ const chapterLinks = browseChapters.map((chapter) => ({
                       alt={`${heroLeadEntry.data.title}の展示画像`}
                       loading="eager"
                       decoding="async"
+                      fetchpriority="high"
                       width="960"
                       height="1080"
                     />
                   </div>
                   <div class="hero-scene-body">
-                    <p class="hero-scene-kicker">Lead Scene</p>
+                    <p class="hero-scene-kicker">導入の一枚</p>
                     <h2>{heroLeadEntry.data.title}</h2>
                     {heroLeadEntry.data.author && <p class="scene-author">著者: {heroLeadEntry.data.author}</p>}
                     <p class="scene-summary">{summary}</p>
@@ -188,12 +189,13 @@ const chapterLinks = browseChapters.map((chapter) => ({
                       alt={`${heroLeadEntry.data.title}の展示画像`}
                       loading="eager"
                       decoding="async"
+                      fetchpriority="high"
                       width="960"
                       height="1080"
                     />
                   </div>
                   <div class="hero-scene-body">
-                    <p class="hero-scene-kicker">Lead Scene</p>
+                    <p class="hero-scene-kicker">導入の一枚</p>
                     <h2>{heroLeadEntry.data.title}</h2>
                     {heroLeadEntry.data.author && <p class="scene-author">著者: {heroLeadEntry.data.author}</p>}
                     <p class="scene-summary">{summary}</p>
@@ -248,7 +250,7 @@ const chapterLinks = browseChapters.map((chapter) => ({
           </div>
 
           <aside class="hero-panel" aria-label="Gallery のしおり">
-            <p class="panel-label">Scenic Notes</p>
+            <p class="panel-label">景色のしおり</p>
 
             <dl class="panel-stats">
               <div>
@@ -283,7 +285,7 @@ const chapterLinks = browseChapters.map((chapter) => ({
       {featuredMoments.length > 0 && (
         <section class="featured-room" id="scene-featured" aria-labelledby="featured-scenes-title">
           <div class="room-intro">
-            <p class="section-label">Featured Scenes</p>
+            <p class="section-label">はじめの3枚</p>
             <h2 id="featured-scenes-title">本から生まれた景色を、先に3つだけひらく。</h2>
             <p>
               一覧を急いで見せるより、まずはこのサイトらしい空気が伝わる景色から始めます。
@@ -347,7 +349,7 @@ const chapterLinks = browseChapters.map((chapter) => ({
       <section class="browse-room" aria-labelledby="browse-room-title">
         <div class="browse-intro">
           <div class="browse-copy">
-            <p class="section-label">Browse The Shelf</p>
+            <p class="section-label">章ごとにめくる</p>
             <h2 id="browse-room-title">章ごとに景色をめくり、気になる一枚を拾う。</h2>
             <p>
               ここでは章のまとまりごとに景色を眺めます。比べながら探したいときだけ、一覧の棚へ渡れるようにしています。
@@ -356,7 +358,7 @@ const chapterLinks = browseChapters.map((chapter) => ({
 
           <div class="browse-side">
             <p class="browse-note">
-              Gallery は章ごとに眺める場所です。一覧で探したくなったら、archive で気になる景色を比べられます。
+              このページでは章ごとに景色を眺めます。一覧で探したくなったら、一覧ページで気になる景色を比べられます。
             </p>
             <dl class="browse-stats">
               <div>
@@ -383,17 +385,17 @@ const chapterLinks = browseChapters.map((chapter) => ({
 
       <section class="bridge-room" aria-labelledby="bridge-room-title">
         <div class="bridge-copy">
-          <p class="section-label">Back To The Main Path</p>
-          <h2 id="bridge-room-title">主導線は Reviews に置いたまま、Gallery は余韻を深くする。</h2>
+          <p class="section-label">読書へ戻る</p>
+          <h2 id="bridge-room-title">景色を眺めたあと、もう一度レビューへ。</h2>
           <p>
             このページで見せたいのは、画像の数ではなく読書の空気です。迷ったときはレビューへ戻り、
-            世界観の根っこをたどりたいときは About / world bridge へつなぎます。
+            サイトの世界観をもう少し知りたいときは About へ進めます。
           </p>
         </div>
 
         <div class="bridge-actions ui-action-group ui-action-group--stack">
           <a class="hero-link hero-link-primary ui-action" href={reviewsUrl}>レビューを見る</a>
-          <a class="hero-link hero-link-secondary ui-action" href={aboutUrl}>About / world bridge へ</a>
+          <a class="hero-link hero-link-secondary ui-action" href={aboutUrl}>About へ</a>
         </div>
       </section>
     </div>
@@ -561,7 +563,7 @@ const chapterLinks = browseChapters.map((chapter) => ({
   .hero-echo-media {
     overflow: hidden;
     border-radius: clamp(18px, 2vw, 24px);
-    background: rgba(63, 42, 25, 0.08);
+    background: linear-gradient(135deg, rgba(244, 235, 222, 0.92), rgba(236, 241, 238, 0.88));
   }
 
   .hero-scene-media {

@@ -172,7 +172,7 @@ const supportItems = [
   {
     label: 'Review',
     title: '読後の手ざわりを、言葉で残す。',
-    body: '本を閉じたあとに残る感情や学びを、短く深くたどる主導線です。',
+    body: '本を閉じたあとに残る感情や学びを、短く深くたどる入口です。',
   },
   {
     label: 'Gallery',
@@ -182,7 +182,7 @@ const supportItems = [
   {
     label: 'Fragments',
     title: '余韻が動いた瞬間だけ、静かな断片として残す。',
-    body: `${publishedVideoCount}本の動くメモは、レビューとギャラリーを読み終えたあとにだけ、そっと開ける補助室です。`,
+    body: `${publishedVideoCount}本の動くメモは、レビューとギャラリーを読み終えたあとにだけ、そっと開ける小さな余白です。`,
   },
 ];
 
@@ -198,7 +198,7 @@ const worldAsideCopy =
 
 <Layout
   title="読書 with Coco - 読書で生まれた世界を、ココちゃんが旅する"
-  description="レビューを主導線に、ギャラリーと静かな断片で読書の余韻を深める『読書 with Coco』のトップページ。"
+  description="レビューを入口に、ギャラリーと静かな断片で読書の余韻を深める『読書 with Coco』のトップページ。"
   image={avatarUrl}
 >
   <div class="home-story">
@@ -250,6 +250,7 @@ const worldAsideCopy =
               width="560"
               height="560"
               loading="eager"
+              fetchpriority="high"
               decoding="async"
             />
             <figcaption>読書の余韻を案内する、ココちゃん</figcaption>
@@ -1123,16 +1124,33 @@ const worldAsideCopy =
 
     @media (max-width: 720px) {
       .hero {
-        padding: 1.5rem;
+        gap: 1.05rem;
+        padding: 1.25rem;
+      }
+
+      .hero-brand {
+        margin-top: 0.65rem;
       }
 
       .hero h1 {
         max-width: 11ch;
-        font-size: clamp(2.45rem, 10vw, 3.5rem);
+        margin-top: 0.7rem;
+        font-size: clamp(2.1rem, 8.7vw, 3rem);
       }
 
       .hero-lead {
-        line-height: 1.8;
+        margin-top: 0.8rem;
+        line-height: 1.68;
+        font-size: 1rem;
+      }
+
+      .hero-actions {
+        margin-top: 1.05rem;
+      }
+
+      .hero-note {
+        margin-top: 0.8rem;
+        line-height: 1.55;
       }
 
       .hero-visual-stage {
@@ -1145,8 +1163,15 @@ const worldAsideCopy =
       .hero-portrait {
         grid-column: 1 / -1;
         order: 1;
-        width: min(100%, 21rem);
-        padding: 0.85rem;
+        box-sizing: border-box;
+        justify-self: center;
+        width: min(100%, 17.5rem);
+        max-width: 100%;
+        padding: 0.7rem;
+      }
+
+      .hero-avatar {
+        height: auto;
       }
 
       .hero-orbit {
@@ -1163,9 +1188,22 @@ const worldAsideCopy =
 
       .hero-postcard,
       .hero-postcard-tilt {
+        box-sizing: border-box;
         width: 100%;
-        padding: 0.65rem;
+        max-width: 100%;
+        padding: 0.5rem;
         transform: none;
+      }
+
+      .hero-postcard img {
+        aspect-ratio: 4 / 3;
+        height: auto;
+      }
+
+      .hero-postcard figcaption {
+        margin-top: 0.45rem;
+        font-size: 0.76rem;
+        line-height: 1.35;
       }
 
       .support-item,
@@ -1180,7 +1218,7 @@ const worldAsideCopy =
 
     @media (max-width: 640px) {
       .home-story {
-        gap: 3rem;
+        gap: 2.7rem;
       }
 
       .hero,
@@ -1195,6 +1233,23 @@ const worldAsideCopy =
       .final-actions,
       .world-links {
         width: 100%;
+      }
+
+      .hero {
+        padding: 1.1rem;
+      }
+
+      .hero-portrait {
+        width: min(100%, 15.75rem);
+      }
+
+      .hero-portrait figcaption {
+        margin-top: 0.55rem;
+        font-size: 0.82rem;
+      }
+
+      .hero-postcard {
+        border-radius: 18px;
       }
 
       .hero-button,
