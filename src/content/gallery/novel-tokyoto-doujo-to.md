@@ -5,6 +5,7 @@ genre: "現代文学"
 author: "九段理江"
 description: "AIと人間の境界がにじむ近未来の東京を舞台に、共感とは何かを問い直す物語。"
 note: "「同情」の定義が揺れるたびに、自分の感情の根拠もまた不確かなものに思える。"
+generated_at: "2026-05-04T04:00:00.000Z"
 published: true
 purchaseLinks:
   - label: 楽天で見る

@@ -5,6 +5,7 @@ genre: "漫画"
 author: "岡本一兵、成瀬乙彦"
 description: "神々の世界に迫る黙示録編。圧倒的な力の奔流の中で、信念がどう形を変えるかを見据えるスピンオフ作品。"
 note: "神話の規模感に圧倒されつつ、人間の執念だけが残像のように残る。"
+generated_at: "2026-05-04T04:01:00.000Z"
 published: true
 purchaseLinks:
   - label: 楽天で見る
