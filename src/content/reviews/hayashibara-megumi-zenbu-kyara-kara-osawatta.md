@@ -5,7 +5,7 @@ author: "林原めぐみ"
 description: "何十年もキャラクターに寄り添い続けた声優が、フィクションの中に見つけた本物の力を語る一冊。"
 excerpt: "キャラクターが教えてくれた言葉は、自分自身の言葉より胸に刺さることがある。"
 readingCompass: "声優の仕事に詳しくなくても、「誰かの言葉に救われた経験」があれば大丈夫。演じる側とキャラクターの境界が溶けていく感覚を味わいながら読むのが似合います。"
-date: 2026-05-04
+date: 2026-05-04T12:00:00
 cover: /uploads/gallery/books/Hayashibara_Megumi_Zenbu_Kyara_kara_Osawatta.png
 infographic: /uploads/review/infographic/hayashibara_megumi_zenbu_kyara_kara_osawatta.png
 tags:
