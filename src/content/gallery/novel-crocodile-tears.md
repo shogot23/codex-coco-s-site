@@ -5,6 +5,7 @@ genre: "現代文学"
 author: "雫井脩介"
 description: "嘘と本音が表皮の下で交錯し、人を装うことの代償を冷徹に描くサスペンス。"
 note: "「涙」の正体が見えた瞬間、登場人物の距離感がすべて入れ替わる。"
+generated_at: "2026-05-04T04:02:00.000Z"
 published: true
 purchaseLinks:
   - label: 楽天で見る

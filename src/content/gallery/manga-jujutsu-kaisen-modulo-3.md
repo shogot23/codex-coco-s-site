@@ -5,6 +5,7 @@ genre: "漫画"
 author: "芥見下々、岩崎優次"
 description: "呪術の世界を別角度から切り取る第3巻。本編の狭間に宿る日常と非日常の揺らぎを描くスピンオフ。"
 note: "本編の激しさの余韻の中で、小さな光がふっと見える瞬間がある。"
+generated_at: "2026-05-04T04:05:00.000Z"
 published: true
 purchaseLinks:
   - label: 楽天で見る

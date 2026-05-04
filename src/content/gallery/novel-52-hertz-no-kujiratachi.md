@@ -5,6 +5,7 @@ genre: "現代文学"
 author: "町田そのこ"
 description: "誰にも届かない声を抱えた人びとの孤独と、それでも誰かへ手を伸ばす柔らかな衝動を描く物語。"
 note: "届かないとわかっていても、声を出すこと自体が生きる証になる。"
+generated_at: "2026-05-04T04:03:00.000Z"
 published: true
 purchaseLinks:
   - label: 楽天で見る
