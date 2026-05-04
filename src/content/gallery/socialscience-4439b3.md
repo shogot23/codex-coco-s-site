@@ -9,7 +9,7 @@ needs_review: false
 published: true
 purchaseLinks:
   - label: 楽天で見る
-    url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Frakutenkobo-ebooks%2F44e7312fdfcf33179b8e7ac3fc18f9a1%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Frakutenkobo-ebooks%2Fi%2F20969866%2F"
+    url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Fbookoffonline%2F0019813372%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbookoffonline%2Fi%2F15918838%2F"
 relatedReview: "haiboku-no-sports-gaku"
 source_file: "Haiboku_no_Sports_Gaku_Izutsu_Rikuya.png"
 ---
