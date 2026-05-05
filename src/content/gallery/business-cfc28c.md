@@ -4,7 +4,7 @@ image: "/uploads/gallery/books/Scientifically_Correct_Muscle_Training_Okada_Taka
 alt: "ココちゃんと『科学的に正しい筋トレ 最強の教科書』（岡田隆）が写るギャラリー画像"
 genre: "健康"
 author: "庵野拓将"
-description: "岡田隆による視点や行動を整えるヒントを受け取れそうな一冊。"
+description: "気合いではなく設計で体を立て直す発想が、筋トレへの向き合い方を静かに組み替える。"
 note: "積み重ねは気合いより設計だとわかり、体への向き合い方が残る。"
 needs_review: false
 generated_at: "2026-03-18T01:57:02.889Z"
