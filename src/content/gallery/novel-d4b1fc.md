@@ -4,7 +4,7 @@ image: "/uploads/gallery/books/Seiyoku_Asai_Ryo.png"
 alt: "ココちゃんと『正欲』（朝井リョウ）が写るギャラリー画像"
 genre: "現代文学"
 author: "朝井リョウ"
-description: "朝井リョウによる物語の余韻をゆっくり味わえそうな一冊。"
+description: "世間の「正しい欲望」の外側に立つ人びとの姿を通して、自分の正しさの輪郭をそっと問い直す物語。"
 note: "言葉にしきれない感触だけが残り、余韻の中で考え続けたくなる。"
 needs_review: false
 generated_at: "2026-03-18T01:57:35.466Z"
