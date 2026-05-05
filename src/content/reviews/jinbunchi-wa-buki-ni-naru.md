@@ -5,7 +5,7 @@ author: "山口周/深井龍之介"
 description: "人文知識を実社会の問題に適用する思考法を示し、教養を実用に変える視点を開く一冊。"
 excerpt: "情報が多すぎて、何を信じればいいかわからない。"
 readingCompass: "「教養なんて役に立たない」と思っている人ほど、静かに読んでほしい。難解な議論ではなく、自分の仕事や日常に何が当てはまるかを探しながら進めると、ページごとに小さな発見が見つかります。"
-date: 2026-04-24
+date: 2026-05-05
 cover: "/uploads/gallery/books/Jinbunchi_Wa_Buki_Ni_Naru_Yamaguchi_Fukai.png"
 infographic: "/uploads/review/infographic/jinbunchi_wa_buki_ni_naru_yamaguchi_fukai.png"
 tags:
