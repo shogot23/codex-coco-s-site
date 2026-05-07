@@ -19,6 +19,7 @@
 - `npm run test:e2e`: pass（30 passed, 2 skipped）
 - `npm run verify:frontend`: pass（lint -> typecheck -> build -> test:e2e）
 - 追加確認: `npm run test:e2e -- --project=mobile-chrome` pass（16 passed）; Claude review gate pass（ok: true, blocking なし）
+- PR 確認後の追加修正: mobile hero CTA の巨大化を修正し、compact/grid card の下余白を再調整。390px 実測で CTA 52px、`列` card bottom gap 13px、grid card bottom gap 12px。
 
 ## Scope Check
 

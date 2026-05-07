@@ -44,6 +44,27 @@ const expectMobileHeaderCompact = async (page: Page) => {
   expect(headerMetrics.minLinkHeight).toBeGreaterThanOrEqual(44);
 };
 
+const expectGalleryHeroCtasCompact = async (page: Page) => {
+  const heroCtas = page.locator('.gallery-hero .hero-actions .hero-link');
+  await expect(heroCtas).toHaveCount(2);
+
+  const metrics = await heroCtas.evaluateAll((elements) => {
+    return elements.map((element) => {
+      const rect = element.getBoundingClientRect();
+      return {
+        height: Math.round(rect.height),
+        width: Math.round(rect.width),
+      };
+    });
+  });
+
+  for (const metric of metrics) {
+    expect(metric.height).toBeGreaterThanOrEqual(44);
+    expect(metric.height).toBeLessThanOrEqual(62);
+    expect(metric.width).toBeGreaterThan(120);
+  }
+};
+
 const expectGalleryCardBottomWhitespaceTight = async (card: Locator) => {
   const metrics = await card.evaluate((element) => {
     const isMobileGrid = window.innerWidth <= 820;
@@ -273,6 +294,7 @@ test('gallery works as a scenic side path without breaking the review-led struct
   await expectImageObjectFitCover(leadPiece.locator('[data-gallery-piece-media]'));
   await expect(fictionChapter.locator('[data-curated-item]').first().locator('[data-gallery-piece-media]')).toHaveCount(1);
   await expect(fictionChapter.locator('[data-curated-item]').first().locator('[data-gallery-piece-caption]')).toHaveCount(1);
+  await expectGalleryCardBottomWhitespaceTight(fictionChapter.locator('[data-curated-item]').first());
 
   const trailCountBefore = await fictionChapter.locator('[data-curated-item]').count();
   await fictionMoreButton.click();
@@ -510,7 +532,17 @@ test('mobile brand pages keep compact first-view cues', async ({ page, isMobile 
     await expectMobileHeaderCompact(page);
   }
 
+  for (const width of [360, 390]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto(`${SITE_BASE}gallery/`);
+    await expectNoHorizontalOverflow(page);
+    await expectMobileHeaderCompact(page);
+    await expectGalleryHeroCtasCompact(page);
+  }
+
   await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole('button', { name: '一覧で見る', exact: true }).click();
+  await expectGalleryCardBottomWhitespaceTight(page.getByTestId('gallery-browse').locator('[data-grid-card]').first());
 
   await page.goto(`${SITE_BASE}reviews/`);
   await expectMobileHeaderCompact(page);

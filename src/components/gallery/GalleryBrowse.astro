@@ -1393,6 +1393,20 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
       grid-template-columns: 1fr;
     }
 
+    :where([data-gallery-browse-shell]) .trail-card,
+    :where([data-gallery-browse-shell]) .grid-card,
+    :where([data-gallery-browse-shell]) .gallery-piece-compact,
+    :where([data-gallery-browse-shell]) .gallery-piece-grid {
+      height: auto;
+      min-height: 0;
+    }
+
+    :where([data-gallery-browse-shell]) .gallery-piece-figure-compact,
+    :where([data-gallery-browse-shell]) .gallery-piece-figure-grid {
+      grid-template-rows: auto auto;
+      min-height: 0;
+    }
+
     :where([data-gallery-browse-shell]) .grid-card-body {
       min-height: auto;
     }
@@ -1438,7 +1452,7 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
     :where([data-gallery-browse-shell]) .trail-body,
     :where([data-gallery-browse-shell]) .grid-card-body {
       min-height: auto;
-      padding: 0.95rem 0.95rem 1rem;
+      padding: 0.9rem 0.95rem 0.78rem;
     }
 
     :where([data-gallery-browse-shell]) .gallery-piece-meta {
@@ -1447,8 +1461,8 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
 
     :where([data-gallery-browse-shell]) .gallery-piece-figure-compact .gallery-piece-caption,
     :where([data-gallery-browse-shell]) .gallery-piece-figure-grid .gallery-piece-caption {
-      gap: 0.55rem;
-      padding-block-end: 0.75rem;
+      gap: 0.45rem;
+      padding-block-end: 0.68rem;
     }
 
     :where([data-gallery-browse-shell]) .gallery-piece-figure-compact .gallery-piece-meta,

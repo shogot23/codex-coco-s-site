@@ -8,6 +8,8 @@
 ## Must Check
 
 - [x] Gallery grid cards on mobile have reduced bottom whitespace under author / `景色をひらく`.
+- [x] Gallery compact cards on mobile have reduced bottom whitespace under author / `景色をひらく`.
+- [x] Gallery mobile hero CTA buttons stay compact while preserving 44px+ tap target.
 - [x] `/gallery/` and `/gallery/archive/` keep their existing roles and labels.
 - [x] Mobile nav stays usable at 360px and 390px with no horizontal overflow.
 - [x] Reviews mobile hero contains a real visual cue and keeps Review as the primary CTA.
