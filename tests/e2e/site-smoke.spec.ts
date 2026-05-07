@@ -26,6 +26,72 @@ const expectVisibleInViewport = async (page: Page, locator: Locator) => {
   expect(bounds.bottom).toBeLessThanOrEqual(viewportHeight);
 };
 
+const expectMobileHeaderCompact = async (page: Page) => {
+  const headerMetrics = await page.getByRole('banner').evaluate((element) => {
+    const rect = element.getBoundingClientRect();
+    const links = Array.from(element.querySelectorAll('a')).map((link) => {
+      const linkRect = link.getBoundingClientRect();
+      return Math.round(linkRect.height);
+    });
+
+    return {
+      height: Math.round(rect.height),
+      minLinkHeight: Math.min(...links),
+    };
+  });
+
+  expect(headerMetrics.height).toBeLessThanOrEqual(118);
+  expect(headerMetrics.minLinkHeight).toBeGreaterThanOrEqual(44);
+};
+
+const expectGalleryHeroCtasCompact = async (page: Page) => {
+  const heroCtas = page.locator('.gallery-hero .hero-actions .hero-link');
+  await expect(heroCtas).toHaveCount(2);
+
+  const metrics = await heroCtas.evaluateAll((elements) => {
+    return elements.map((element) => {
+      const rect = element.getBoundingClientRect();
+      return {
+        height: Math.round(rect.height),
+        width: Math.round(rect.width),
+      };
+    });
+  });
+
+  for (const metric of metrics) {
+    expect(metric.height).toBeGreaterThanOrEqual(44);
+    expect(metric.height).toBeLessThanOrEqual(62);
+    expect(metric.width).toBeGreaterThan(120);
+  }
+};
+
+const expectGalleryCardBottomWhitespaceTight = async (card: Locator) => {
+  const metrics = await card.evaluate((element) => {
+    const isMobileGrid = window.innerWidth <= 820;
+    const cardRect = element.getBoundingClientRect();
+    const caption = element.querySelector('[data-gallery-piece-caption]');
+    const action = element.querySelector('.scene-action, .scene-status');
+
+    if (!(caption instanceof HTMLElement) || !(action instanceof HTMLElement)) {
+      throw new Error('Expected gallery card caption and action/status.');
+    }
+
+    const captionRect = caption.getBoundingClientRect();
+    const actionRect = action.getBoundingClientRect();
+
+    return {
+      isMobileGrid,
+      cardBottomGap: Math.round(cardRect.bottom - actionRect.bottom),
+      captionBottomGap: Math.round(captionRect.bottom - actionRect.bottom),
+    };
+  });
+
+  if (!metrics.isMobileGrid) return;
+
+  expect(metrics.cardBottomGap).toBeLessThanOrEqual(16);
+  expect(metrics.captionBottomGap).toBeLessThanOrEqual(15);
+};
+
 const expectMediaHeightsAligned = async (locator: Locator, sampleCount = 3, tolerance = 2) => {
   const heights = await locator.evaluateAll((elements, count) => {
     return elements
@@ -155,9 +221,9 @@ test('profile introduces coco as the site guide and keeps review/gallery as the 
 
   const hero = page.locator('.profile-hero');
 
-  await expect(page.getByRole('heading', { name: 'ココちゃんについて' })).toBeVisible();
+  await expect(hero.getByText('ココちゃんについて', { exact: true })).toBeVisible();
   await expect(hero.getByText('ココちゃんは、このサイトの案内役です。', { exact: true })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'このサイトでのおしごと' })).toBeVisible();
+  await expect(page.getByText('このサイトでのおしごと', { exact: true })).toBeVisible();
   await expect(page.getByText('いっしょに、次の一冊の景色を見にいこう。')).toBeVisible();
   await expect(page.getByRole('link', { name: /Fragments/ })).toHaveCount(0);
   await expect(hero.getByRole('link', { name: 'レビューを見る', exact: true })).toBeVisible();
@@ -228,6 +294,7 @@ test('gallery works as a scenic side path without breaking the review-led struct
   await expectImageObjectFitCover(leadPiece.locator('[data-gallery-piece-media]'));
   await expect(fictionChapter.locator('[data-curated-item]').first().locator('[data-gallery-piece-media]')).toHaveCount(1);
   await expect(fictionChapter.locator('[data-curated-item]').first().locator('[data-gallery-piece-caption]')).toHaveCount(1);
+  await expectGalleryCardBottomWhitespaceTight(fictionChapter.locator('[data-curated-item]').first());
 
   const trailCountBefore = await fictionChapter.locator('[data-curated-item]').count();
   await fictionMoreButton.click();
@@ -241,10 +308,12 @@ test('gallery works as a scenic side path without breaking the review-led struct
   await expect(page.getByRole('button', { name: '一覧で見る', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(browseStatus).toHaveText('作品を並べて比べながら探す');
   await expect(browse.locator('[data-browse-panel="curated"]')).toBeHidden();
-  await expect(browse.locator('[data-grid-card]').first()).toBeVisible();
-  await expect(browse.locator('[data-grid-card]').first().locator('[data-gallery-piece-media]')).toHaveCount(1);
-  await expect(browse.locator('[data-grid-card]').first().locator('[data-gallery-piece-caption]')).toHaveCount(1);
-  await expect(browse.locator('[data-grid-card]').first().locator('.scene-action, .scene-status')).toHaveCount(1);
+  const firstGridCard = browse.locator('[data-grid-card]').first();
+  await expect(firstGridCard).toBeVisible();
+  await expect(firstGridCard.locator('[data-gallery-piece-media]')).toHaveCount(1);
+  await expect(firstGridCard.locator('[data-gallery-piece-caption]')).toHaveCount(1);
+  await expect(firstGridCard.locator('.scene-action, .scene-status')).toHaveCount(1);
+  await expectGalleryCardBottomWhitespaceTight(firstGridCard);
 
   await page.getByRole('button', { name: 'ビジネス', exact: true }).click();
   await expect(page.getByRole('button', { name: 'ビジネス', exact: true })).toHaveAttribute('aria-pressed', 'true');
@@ -306,8 +375,10 @@ test('gallery archive works as a searchable catalog with grid-first state sync',
   await expect(sortSelect).toHaveValue('latest');
   await expect(browse.locator('[data-grid-card]').first()).toBeVisible();
   await expect(browse.locator('[data-browse-panel="curated"]')).toBeHidden();
-  await expect(browse.locator('[data-grid-card]').first().locator('[data-gallery-piece-media]')).toHaveCount(1);
-  await expect(browse.locator('[data-grid-card]').first().locator('[data-gallery-piece-caption]')).toHaveCount(1);
+  const firstArchiveGridCard = browse.locator('[data-grid-card]').first();
+  await expect(firstArchiveGridCard.locator('[data-gallery-piece-media]')).toHaveCount(1);
+  await expect(firstArchiveGridCard.locator('[data-gallery-piece-caption]')).toHaveCount(1);
+  await expectGalleryCardBottomWhitespaceTight(firstArchiveGridCard);
   await expectMediaHeightsAligned(browse.locator('[data-grid-card] [data-gallery-piece-media]'));
 
   await page.getByRole('button', { name: 'ビジネス', exact: true }).click();
@@ -451,6 +522,54 @@ test('about page remains readable on small and large viewports', async ({ page }
   await expectNoHorizontalOverflow(page);
 });
 
+test('mobile brand pages keep compact first-view cues', async ({ page, isMobile }) => {
+  test.skip(!isMobile, 'mobile-chrome only');
+
+  for (const width of [360, 390]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto(SITE_BASE);
+    await expectNoHorizontalOverflow(page);
+    await expectMobileHeaderCompact(page);
+  }
+
+  for (const width of [360, 390]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto(`${SITE_BASE}gallery/`);
+    await expectNoHorizontalOverflow(page);
+    await expectMobileHeaderCompact(page);
+    await expectGalleryHeroCtasCompact(page);
+  }
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole('button', { name: '一覧で見る', exact: true }).click();
+  await expectGalleryCardBottomWhitespaceTight(page.getByTestId('gallery-browse').locator('[data-grid-card]').first());
+
+  await page.goto(`${SITE_BASE}reviews/`);
+  await expectMobileHeaderCompact(page);
+  await expect(page.locator('.hero-panel img, .hero-panel .media-fallback').first()).toBeVisible();
+  await expectVisibleInViewport(
+    page,
+    page.locator('.hero').getByRole('link', { name: '最新レビューを読む', exact: true })
+  );
+
+  await page.goto(`${SITE_BASE}about/`);
+  await expect(page.getByRole('heading', { name: '本を閉じたあとも、ココちゃんと世界はつづいていく。' })).toBeVisible();
+  await expectVisibleInViewport(
+    page,
+    page.locator('.about-hero').getByRole('link', { name: 'レビューを見る', exact: true })
+  );
+
+  await page.goto(`${SITE_BASE}profile/`);
+  await expect(page.getByRole('heading', { name: 'このサイトの案内役、ココちゃん。' })).toBeVisible();
+  await expect(page.locator('.profile-hero').getByText('ココちゃんについて', { exact: true })).toBeVisible();
+  await expectVisibleInViewport(
+    page,
+    page.locator('.profile-hero').getByRole('link', { name: 'レビューを見る', exact: true })
+  );
+  await expect(page.getByRole('heading', { name: 'ココちゃんについて' })).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'このサイトでのおしごと' })).toHaveCount(0);
+});
+
 test('home keeps nav and hero CTAs usable on mobile-chrome', async ({ page, isMobile }) => {
   test.skip(!isMobile, 'mobile-chrome only');
 
@@ -466,6 +585,7 @@ test('home keeps nav and hero CTAs usable on mobile-chrome', async ({ page, isMo
 
   await expect(page.locator('main')).toBeVisible();
   await expectNoHorizontalOverflow(page);
+  await expectMobileHeaderCompact(page);
 
   await expectVisibleInViewport(page, brandLink);
   await expectVisibleInViewport(page, primaryNav);

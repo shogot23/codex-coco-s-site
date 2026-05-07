@@ -855,7 +855,7 @@ const chapterLinks = browseChapters.map((chapter) => ({
 
   @media (max-width: 640px) {
     .gallery-world {
-      gap: 1.35rem;
+      gap: 1.05rem;
     }
 
     .gallery-hero,
@@ -863,7 +863,84 @@ const chapterLinks = browseChapters.map((chapter) => ({
     .browse-room,
     .bridge-room {
       border-radius: 26px;
-      padding: 1.2rem;
+      padding: 1rem;
+    }
+
+    .gallery-hero {
+      gap: 0.9rem;
+    }
+
+    .hero-copy {
+      gap: 0.6rem;
+    }
+
+    .section-label,
+    .panel-label,
+    .hero-scene-kicker,
+    .feature-kicker {
+      font-size: 0.72rem;
+    }
+
+    .hero-brand {
+      margin-top: 0;
+      font-size: 1.05rem;
+    }
+
+    .hero-copy h1 {
+      font-size: 1.95rem;
+      line-height: 1.12;
+    }
+
+    .hero-lead,
+    .hero-note {
+      line-height: 1.62;
+    }
+
+    .hero-note {
+      display: -webkit-box;
+      overflow: hidden;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+    }
+
+    .hero-actions {
+      gap: 0.6rem;
+      margin-top: 0.15rem;
+    }
+
+    .hero-actions .hero-link {
+      flex: 0 0 auto;
+      width: auto;
+      min-height: 44px;
+      padding: 0.68rem 1rem;
+    }
+
+    .hero-visual {
+      gap: 0.75rem;
+    }
+
+    .hero-scene {
+      gap: 0.75rem;
+      padding: 0.75rem;
+    }
+
+    .hero-scene-media {
+      aspect-ratio: 4 / 3;
+    }
+
+    .hero-scene-body {
+      gap: 0.45rem;
+    }
+
+    .hero-scene-body h2 {
+      font-size: 1.22rem;
+    }
+
+    .scene-summary {
+      display: -webkit-box;
+      overflow: hidden;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
     }
 
     .hero-echo {

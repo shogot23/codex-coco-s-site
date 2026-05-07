@@ -69,7 +69,7 @@ const updatedAtLabel = entry?.data?.updatedAt
     <section class="profile-hero" aria-labelledby="profile-title">
       <div class="hero-copy">
         <p class="section-label">Profile / Site Guide</p>
-        <h2 class="section-caption">ココちゃんについて</h2>
+        <p class="section-caption">ココちゃんについて</p>
         <p class="hero-brand">読書 with Coco</p>
         <h1 id="profile-title">このサイトの案内役、ココちゃん。</h1>
         <p class="hero-lead">{profileLead}</p>
@@ -151,7 +151,7 @@ const updatedAtLabel = entry?.data?.updatedAt
     <section class="closing-room" aria-labelledby="closing-title">
       <div class="closing-copy">
         <p class="section-label">Coco&apos;s Role / Site Guide</p>
-        <h3 class="section-caption">このサイトでのおしごと</h3>
+        <p class="section-caption">このサイトでのおしごと</p>
         <h2 id="closing-title">本の世界を、やわらかく案内する相棒。</h2>
         <p>{roleText}</p>
         <blockquote class="closing-quote">{closingQuote}</blockquote>
@@ -533,8 +533,55 @@ const updatedAtLabel = entry?.data?.updatedAt
       padding: 1.15rem;
     }
 
+    .profile-hero {
+      gap: 1rem;
+    }
+
+    .hero-visual {
+      order: 0;
+    }
+
+    .hero-brand {
+      margin-top: 0.55rem;
+      font-size: 1.12rem;
+    }
+
+    .section-caption {
+      margin-top: 0.25rem;
+    }
+
+    .profile-hero h1 {
+      margin-top: 0.65rem;
+      font-size: 2.25rem;
+      line-height: 1.12;
+    }
+
+    .hero-lead,
+    .hero-bridge {
+      margin-top: 0.65rem;
+      font-size: 1rem;
+      line-height: 1.65;
+    }
+
+    .hero-actions {
+      gap: 0.65rem;
+      margin-top: 1rem;
+    }
+
+    .hero-actions .hero-link {
+      flex: 1 1 9.5rem;
+      width: auto;
+    }
+
+    .hero-footnote {
+      margin-top: 0.85rem;
+      padding: 0.65rem 0.8rem;
+    }
+
     .hero-image-frame img {
-      min-height: 320px;
+      min-height: 240px;
+      max-height: 260px;
+      object-position: center 38%;
     }
 
     .favorites-grid,
