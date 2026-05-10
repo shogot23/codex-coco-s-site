@@ -48,6 +48,10 @@ const expectGalleryHeroCtasCompact = async (page: Page) => {
   const heroCtas = page.locator('.gallery-hero .hero-actions .hero-link');
   await expect(heroCtas).toHaveCount(2);
 
+  await expectHeroCtasCompact(heroCtas);
+};
+
+const expectHeroCtasCompact = async (heroCtas: Locator) => {
   const metrics = await heroCtas.evaluateAll((elements) => {
     return elements.map((element) => {
       const rect = element.getBoundingClientRect();
@@ -57,6 +61,8 @@ const expectGalleryHeroCtasCompact = async (page: Page) => {
       };
     });
   });
+
+  expect(metrics.length).toBeGreaterThan(0);
 
   for (const metric of metrics) {
     expect(metric.height).toBeGreaterThanOrEqual(44);
@@ -547,6 +553,7 @@ test('mobile brand pages keep compact first-view cues', async ({ page, isMobile 
   await page.goto(`${SITE_BASE}reviews/`);
   await expectMobileHeaderCompact(page);
   await expect(page.locator('.hero-panel img, .hero-panel .media-fallback').first()).toBeVisible();
+  await expectHeroCtasCompact(page.locator('.hero .hero-actions .hero-button'));
   await expectVisibleInViewport(
     page,
     page.locator('.hero').getByRole('link', { name: '最新レビューを読む', exact: true })
@@ -554,6 +561,7 @@ test('mobile brand pages keep compact first-view cues', async ({ page, isMobile 
 
   await page.goto(`${SITE_BASE}about/`);
   await expect(page.getByRole('heading', { name: '本を閉じたあとも、ココちゃんと世界はつづいていく。' })).toBeVisible();
+  await expectHeroCtasCompact(page.locator('.about-hero .hero-actions .hero-link'));
   await expectVisibleInViewport(
     page,
     page.locator('.about-hero').getByRole('link', { name: 'レビューを見る', exact: true })
@@ -562,6 +570,7 @@ test('mobile brand pages keep compact first-view cues', async ({ page, isMobile 
   await page.goto(`${SITE_BASE}profile/`);
   await expect(page.getByRole('heading', { name: 'このサイトの案内役、ココちゃん。' })).toBeVisible();
   await expect(page.locator('.profile-hero').getByText('ココちゃんについて', { exact: true })).toBeVisible();
+  await expectHeroCtasCompact(page.locator('.profile-hero .hero-actions .hero-link'));
   await expectVisibleInViewport(
     page,
     page.locator('.profile-hero').getByRole('link', { name: 'レビューを見る', exact: true })
