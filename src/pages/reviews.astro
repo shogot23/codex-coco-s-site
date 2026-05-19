@@ -69,6 +69,7 @@ const reviewCards = sortedReviews.map((review) => {
     thumbnail,
     summary: clampText(summarySource, 120),
     quote: clampText(quoteSource, 88),
+    readingCompass: clampText(review.data.readingCompass ?? quoteSource, 108),
     tags: review.data.tags ?? [],
     recommendedFor: review.data.recommendedFor ?? [],
     purchaseLinks: review.data.purchaseLinks ?? [],
@@ -77,6 +78,56 @@ const reviewCards = sortedReviews.map((review) => {
 
 const featuredReview = reviewCards[0] ?? null;
 const remainingReviews = reviewCards.slice(1);
+type ReviewCard = (typeof reviewCards)[number];
+const isReviewCard = (review: ReviewCard | undefined): review is ReviewCard => Boolean(review);
+const reviewBySlug = new Map(reviewCards.map((review) => [review.slug, review]));
+const createCompassReviews = (
+  slugs: string[],
+  cueFor: (review: ReviewCard) => string
+) =>
+  slugs
+    .map((slug) => reviewBySlug.get(slug))
+    .filter(isReviewCard)
+    .map((review) => ({
+      ...review,
+      compassCue: cueFor(review),
+    }));
+
+const reviewCompassLenses = [
+  {
+    id: "mood",
+    eyebrow: "Mood",
+    title: "気分から選ぶ",
+    copy: "読めなさ、急ぎすぎ、立ち止まりたい気持ちに近い入口です。",
+    reviews: createCompassReviews(
+      ["tsundoku-dokushojutsu", "chi-ni-ashi-o-tsukete-ikero"],
+      (review) => review.readingCompass || review.summary
+    ),
+  },
+  {
+    id: "worry",
+    eyebrow: "Worry",
+    title: "モヤモヤから選ぶ",
+    copy: "不安や正しさ、人との距離に名前をつけたい日に。",
+    reviews: createCompassReviews(
+      [
+        "koufuku-ni-naritai-nara-koufuku-ni-narou-to-shite-wa-ikenai",
+        "watashi-ga-machigatteru-kamosirenai",
+      ],
+      (review) => (review.recommendedFor[0] ?? review.readingCompass) || review.summary
+    ),
+  },
+  {
+    id: "insight",
+    eyebrow: "Insight",
+    title: "気づきから選ぶ",
+    copy: "世界や誰かを見る目を、少しだけ別の角度へ向けたいときに。",
+    reviews: createCompassReviews(
+      ["jinbunchi-wa-buki-ni-naru", "jinkan"],
+      (review) => review.quote || review.summary
+    ),
+  },
+].filter((lens) => lens.reviews.length > 0);
 const recentReviews = remainingReviews.slice(0, 3);
 const shelfReviews = remainingReviews.slice(3);
 const reviewGroups = [
@@ -145,7 +196,7 @@ const reviewCountLabel = `${reviewCards.length}冊のレビュー`;
             {featuredReview ? "最新レビューを読む" : "一覧を見る"}
           </a>
           {featuredReview && (
-            <a class="hero-button hero-button-secondary ui-action" href="#review-stream">
+            <a class="hero-button hero-button-secondary ui-action" href="#review-compass">
               {remainingReviews.length > 0 ? "一覧から選ぶ" : "読む前のしおりを見る"}
             </a>
           )}
@@ -218,6 +269,64 @@ const reviewCountLabel = `${reviewCards.length}冊のレビュー`;
 
     {featuredReview ? (
       <>
+        {reviewCompassLenses.length > 0 && (
+          <section class="compass-lenses-section" id="review-compass" aria-labelledby="review-compass-heading">
+            <div class="section-header">
+              <div>
+                <p class="section-label">Reading Compass</p>
+                <h2 id="review-compass-heading">今の入口から、一冊を選ぶ。</h2>
+              </div>
+              <p class="section-copy">
+                気分、モヤモヤ、ふと残った気づき。読む理由がまだ言葉になりきらない日でも、
+                近い入口からレビューへ入れます。
+              </p>
+            </div>
+
+            <div class="compass-lenses" aria-label="今の入口からレビューを選ぶ">
+              {reviewCompassLenses.map((lens) => (
+                <section class="compass-lens" aria-labelledby={`review-compass-${lens.id}`}>
+                  <div class="compass-lens-header">
+                    <p class="section-label">{lens.eyebrow}</p>
+                    <h3 id={`review-compass-${lens.id}`}>{lens.title}</h3>
+                    <p>{lens.copy}</p>
+                  </div>
+
+                  <div class="compass-review-list">
+                    {lens.reviews.map((review) => (
+                      <a class="compass-review" href={review.href}>
+                        <span class="compass-review-media" aria-hidden="true">
+                          {review.thumbnail ? (
+                            <img
+                              src={withBase(review.thumbnail)}
+                              alt=""
+                              loading="lazy"
+                              decoding="async"
+                              width="96"
+                              height="120"
+                            />
+                          ) : (
+                            <span class="media-fallback media-fallback-panel">
+                              <span>Review</span>
+                              <strong>{review.title}</strong>
+                            </span>
+                          )}
+                        </span>
+                        <span class="compass-review-copy">
+                          <span class="compass-review-title">{review.title}</span>
+                          {review.tags.length > 0 && (
+                            <span class="compass-review-tags">{review.tags.slice(0, 2).join(" / ")}</span>
+                          )}
+                          <span class="compass-review-cue">{review.compassCue}</span>
+                        </span>
+                      </a>
+                    ))}
+                  </div>
+                </section>
+              ))}
+            </div>
+          </section>
+        )}
+
         <section class="featured-section" aria-labelledby="featured-review-heading">
           <div class="section-header">
             <div>
@@ -502,6 +611,7 @@ const reviewCountLabel = `${reviewCards.length}冊のレビュー`;
   }
 
   .hero,
+  .compass-lenses-section,
   .featured-section,
   .stream-section,
   .compass-section,
@@ -976,6 +1086,114 @@ const reviewCountLabel = `${reviewCards.length}冊のレビュー`;
     line-height: 1.8;
   }
 
+  .compass-lenses-section {
+    display: grid;
+    gap: 1.35rem;
+  }
+
+  .compass-lenses {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(1rem, 2vw, 1.35rem);
+  }
+
+  .compass-lens {
+    display: grid;
+    align-content: start;
+    gap: 1rem;
+    padding: clamp(1rem, 2vw, 1.25rem);
+    border-top: 1px solid rgba(99, 66, 32, 0.16);
+    background:
+      linear-gradient(180deg, rgba(255, 250, 243, 0.78), rgba(255, 255, 255, 0.54)),
+      transparent;
+  }
+
+  .compass-lens-header {
+    display: grid;
+    gap: 0.45rem;
+  }
+
+  .compass-lens-header h3 {
+    margin: 0;
+    font-size: clamp(1.25rem, 2.1vw, 1.65rem);
+    line-height: 1.28;
+  }
+
+  .compass-lens-header p:last-child {
+    margin: 0;
+    color: rgba(32, 22, 15, 0.78);
+    line-height: 1.7;
+  }
+
+  .compass-review-list {
+    display: grid;
+    gap: 0.85rem;
+  }
+
+  .compass-review {
+    display: grid;
+    grid-template-columns: 4.8rem minmax(0, 1fr);
+    gap: 0.8rem;
+    align-items: center;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .compass-review-media {
+    display: block;
+    overflow: hidden;
+    aspect-ratio: 4 / 5;
+    border-radius: 1rem;
+    background: linear-gradient(160deg, rgba(10, 74, 139, 0.08), rgba(122, 92, 23, 0.14));
+  }
+
+  .compass-review-media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.2s ease;
+  }
+
+  .compass-review-copy {
+    display: grid;
+    gap: 0.25rem;
+    min-width: 0;
+  }
+
+  .compass-review-title {
+    color: rgba(32, 22, 15, 0.94);
+    font-weight: 700;
+    line-height: 1.35;
+  }
+
+  .compass-review-tags {
+    color: var(--color-accent);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+
+  .compass-review-cue {
+    color: rgba(32, 22, 15, 0.72);
+    font-size: 0.92rem;
+    line-height: 1.6;
+  }
+
+  .compass-review:hover .compass-review-title {
+    color: var(--color-accent);
+  }
+
+  .compass-review:hover .compass-review-media img {
+    transform: scale(1.03);
+  }
+
+  .compass-review:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 4px;
+    border-radius: 1rem;
+  }
+
   .reader-note {
     display: grid;
     gap: 0.75rem;
@@ -1154,6 +1372,7 @@ const reviewCountLabel = `${reviewCards.length}冊のレビュー`;
 
   @media (max-width: 960px) {
     .hero,
+    .compass-lenses,
     .section-header,
     .featured-review,
     .compass-card,
