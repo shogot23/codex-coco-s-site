@@ -165,10 +165,22 @@ test('home first viewport shows brand and review-led hero CTA flow', async ({ pa
   await expect(page).toHaveURL(/\/codex-coco-s-site\/reviews\/$/);
   await expect(page.getByRole('heading', { name: '次の一冊をひらく前に、言葉の余韻をひとくち。' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'まずは、この一冊から。' })).toBeVisible();
+  await expect(page.locator('#review-compass')).toBeVisible();
+  await expect(page.getByRole('heading', { name: '今の入口から、一冊を選ぶ。' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '気分から選ぶ' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'モヤモヤから選ぶ' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '気づきから選ぶ' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '今日の小さな一歩' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '最近の余韻' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'これまでの棚' })).toBeVisible();
   await expect(page.locator('#review-stream')).toBeVisible();
+
+  await page
+    .locator('#review-compass')
+    .getByRole('link', { name: /積読こそが完全な読書術である/ })
+    .click();
+  await expect(page).toHaveURL(/\/codex-coco-s-site\/reviews\/tsundoku-dokushojutsu\/$/);
+  await expect(page.locator('#review-title')).toBeVisible();
 });
 
 test('home offers a secondary shortcut to the 3books landing page', async ({ page }) => {
