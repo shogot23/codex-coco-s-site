@@ -1,6 +1,19 @@
 {
   "version": 1,
   "sourceDirectory": "/uploads",
+  "encoding": {
+    "avif": {
+      "quality": 58,
+      "effort": 3
+    },
+    "webp": {
+      "quality": 78,
+      "effort": 4
+    },
+    "socialJpeg": {
+      "quality": 84
+    }
+  },
   "entries": {
     "/uploads/about-hero.png": {
       "hash": "96b0f02fecb0005c",

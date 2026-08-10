@@ -26,6 +26,8 @@ const outputDir = path.resolve(rootDir, valueAfter('--out-dir', 'public/media'))
 const manifestPath = path.resolve(rootDir, valueAfter('--manifest', path.join(outputDir, 'manifest.json')));
 const limit = Number.parseInt(valueAfter('--limit', '0'), 10) || 0;
 const concurrency = Math.max(1, Number.parseInt(valueAfter('--concurrency', '3'), 10) || 3);
+const avifEffort = Math.min(9, Math.max(0, Number.parseInt(valueAfter('--avif-effort', '3'), 10) || 3));
+const webpEffort = Math.min(6, Math.max(0, Number.parseInt(valueAfter('--webp-effort', '4'), 10) || 4));
 
 const toPosix = (value) => value.split(path.sep).join('/');
 
@@ -55,9 +57,9 @@ const ensureDerivative = async (inputPath, outputPath, width, format) => {
     .resize({ width, withoutEnlargement: true, fit: 'inside' });
 
   if (format === 'avif') {
-    await transformer.avif({ quality: 58, effort: 5 }).toFile(outputPath);
+    await transformer.avif({ quality: 58, effort: avifEffort }).toFile(outputPath);
   } else {
-    await transformer.webp({ quality: 78, effort: 5 }).toFile(outputPath);
+    await transformer.webp({ quality: 78, effort: webpEffort }).toFile(outputPath);
   }
 
   const metadata = await sharp(outputPath).metadata();
@@ -135,6 +137,11 @@ const main = async () => {
   const manifest = {
     version: 1,
     sourceDirectory: '/uploads',
+    encoding: {
+      avif: { quality: 58, effort: avifEffort },
+      webp: { quality: 78, effort: webpEffort },
+      socialJpeg: { quality: 84 },
+    },
     entries,
   };
 
@@ -149,7 +156,7 @@ const main = async () => {
   );
 
   process.stdout.write(
-    `${JSON.stringify({ sourceFiles: selectedFiles.length, concurrency, generatedBytes: totalBytes.reduce((sum, size) => sum + size, 0), manifest: toPosix(path.relative(rootDir, manifestPath)) })}\n`
+    `${JSON.stringify({ sourceFiles: selectedFiles.length, concurrency, avifEffort, webpEffort, generatedBytes: totalBytes.reduce((sum, size) => sum + size, 0), manifest: toPosix(path.relative(rootDir, manifestPath)) })}\n`
   );
 };
 

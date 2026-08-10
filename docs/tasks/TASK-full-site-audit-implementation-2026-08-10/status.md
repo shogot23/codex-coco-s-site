@@ -19,6 +19,7 @@
 - 追加確認: `npm run check:content` pass（31 published reviews）、`npm run test:content-tools` pass（5/5）、`git diff --check` pass。Gallery は 64,762 bytes / 初期12画像 / 261,420 image bytes、Reviews は 65,092 bytes / 初期12画像 / 281,224 image bytesで性能予算内。
 - 手動確認: 1200x656、1280x720、390x844で Home / Reviews / Gallery / detail を確認。ResponsivePicture の子画像に scoped style が届かず高さが固定される問題を発見し、修正後に再確認した。
 - review gate: grouped diff の全領域が `ok: true`。最終 cross-check は `glm-5.1` が正常完了し、`ok: true`、blocking 0件、advisory 2件。
+- PR CI follow-up: 初回Actionsは10分上限により`media:generate`中にcancel。AVIF / WebPのqualityを維持したままeffortを3 / 4へ下げ、encoding設定をmanifestへ記録し、job上限を20分へ変更した。10画像fresh benchmarkは18.45秒→4.00秒、全136画像fresh生成は51.93秒。再度`verify:frontend` pass、追加Claude gateもpreflight / `glm-5.1` architecture / diff / crossすべて`ok: true`。
 
 ## Scope Check
 
