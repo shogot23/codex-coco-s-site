@@ -100,26 +100,60 @@ export const REVIEW_TAGS = [
 ] as const;
 export type ReviewTag = typeof REVIEW_TAGS[number];
 
+export const EXCERPT_KINDS = ['direct-quote', 'paraphrase', 'site-takeaway'] as const;
+export type ExcerptKind = typeof EXCERPT_KINDS[number];
+
+export const EDITORIAL_STATUSES = ['draft', 'needs-review', 'reviewed'] as const;
+export type EditorialStatus = typeof EDITORIAL_STATUSES[number];
+
+export const VISUAL_ORIGINS = [
+  'ai-generated',
+  'official-cover',
+  'original-photo',
+  'licensed-artwork',
+] as const;
+export type VisualOrigin = typeof VISUAL_ORIGINS[number];
+
 const reviews = defineCollection({
   type: 'content',
-  schema: z.object({
-    title: z.string(),
-    description: optionalString,
-    date: z.coerce.date(),
-    cover: optionalString,
-    bookTitle: optionalString,
-    author: optionalString,
-    excerpt: optionalString,
-    readingCompass: optionalString,
-    tags: z.preprocess(
-      (value) => (Array.isArray(value) && value.length === 0 ? undefined : value),
-      z.array(z.enum(REVIEW_TAGS)).optional()
-    ),
-    infographic: optionalString,
-    recommendedFor: optionalStringList,
-    purchaseLinks: optionalLinkList,
-    published: z.boolean().default(true),
-  }),
+  schema: z
+    .object({
+      title: z.string(),
+      description: optionalString,
+      date: z.coerce.date(),
+      updatedAt: z.coerce.date().optional(),
+      cover: optionalString,
+      bookTitle: optionalString,
+      author: optionalString,
+      excerpt: optionalString,
+      excerptKind: z.enum(EXCERPT_KINDS).optional(),
+      excerptSource: optionalString,
+      readingCompass: optionalString,
+      readerWorry: optionalString,
+      bookQuestion: optionalString,
+      perspectiveShift: optionalString,
+      smallStep: optionalString,
+      cocoNote: optionalString,
+      lingeringQuestion: optionalString,
+      editorialStatus: z.enum(EDITORIAL_STATUSES).optional(),
+      tags: z.preprocess(
+        (value) => (Array.isArray(value) && value.length === 0 ? undefined : value),
+        z.array(z.enum(REVIEW_TAGS)).optional()
+      ),
+      infographic: optionalString,
+      recommendedFor: optionalStringList,
+      purchaseLinks: optionalLinkList,
+      published: z.boolean().default(true),
+    })
+    .superRefine((review, context) => {
+      if (review.excerptKind === 'direct-quote' && !review.excerptSource) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['excerptSource'],
+          message: 'excerptSource is required when excerptKind is direct-quote',
+        });
+      }
+    }),
 });
 
 export { GALLERY_GENRES, type GalleryGenre };
@@ -139,6 +173,10 @@ const gallery = defineCollection({
     ),
     source_file: z.string().optional(),
     managed_by: z.string().optional(),
+    updatedAt: z.coerce.date().optional(),
+    galleryEditorialStatus: z.enum(EDITORIAL_STATUSES).optional(),
+    galleryPrompt: optionalString,
+    visualOrigin: z.enum(VISUAL_ORIGINS).optional(),
     published: z.boolean().default(false),
     description: z.string().optional(),
     purchaseLinks: optionalLinkList,
@@ -185,6 +223,10 @@ const videos = defineCollection({
     thumbnail: optionalString,
     url: videoUrlSchema,
     videoSrc: optionalString,
+    poster: optionalString,
+    captions: optionalString,
+    transcript: optionalString,
+    updatedAt: z.coerce.date().optional(),
     note: optionalString,
   }),
 });

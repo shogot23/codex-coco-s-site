@@ -17,6 +17,14 @@ recommendedFor:
 purchaseLinks:
   - label: 楽天で見る
     url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F17631571%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbook%2Fi%2F21063061%2F"
+excerptKind: "site-takeaway"
+readerWorry: "誰かと比べて、自分の進み方まで否定したくなるとき。"
+bookQuestion: "自分はいま、誰のどんな列を見て安心や不安を測っているのか。"
+perspectiveShift: "比較をなくすべき欠点ではなく、自分の物差しを探し直す合図として受け取る。"
+smallStep: "今日一度だけ、比べて苦しくなった場面と本当に大切にしたいことを並べて書く。"
+cocoNote: "ココちゃんと列の外の景色を見るように、順位から少し目を離して自分の歩幅を確かめる。"
+lingeringQuestion: "私はどの列から離れると、少し呼吸がしやすくなるだろう。"
+editorialStatus: "reviewed"
 published: true
 ---
 比較って、しないほうがいい。

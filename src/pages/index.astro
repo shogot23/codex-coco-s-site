@@ -1,10 +1,12 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import ResponsivePicture from '../components/ResponsivePicture.astro';
 import { getCollection, getEntry } from 'astro:content';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { buildReviewGalleryMap, getPublishedGallery, hasDetailContent } from '../utils/gallery';
 import { getPublishedReviews } from '../utils/reviews';
+import { getResponsiveMedia, getSocialImage } from '../lib/media';
 
 const BASE_URL = import.meta.env.BASE_URL.endsWith('/')
   ? import.meta.env.BASE_URL
@@ -15,9 +17,7 @@ const isAbsoluteUrl = (value: string) =>
 
 const withBase = (path: string) => {
   if (!path) return BASE_URL;
-  if (isAbsoluteUrl(path)) return path;
-  if (path.startsWith(BASE_URL)) return path;
-  return `${BASE_URL}${path.replace(/^\/+/, '')}`;
+  return getResponsiveMedia(path, BASE_URL, 'card').src;
 };
 
 const publicDir = join(process.cwd(), 'public');
@@ -199,7 +199,8 @@ const worldAsideCopy =
 <Layout
   title="読書 with Coco - 読書で生まれた世界を、ココちゃんが旅する"
   description="レビューを入口に、ギャラリーと静かな断片で読書の余韻を深める『読書 with Coco』のトップページ。"
-  image={avatarUrl}
+  image={getSocialImage(avatar, BASE_URL)}
+  imageAlt="読書 with Coco の案内役ココちゃん"
 >
   <div class="home-story">
     <section class="hero" aria-labelledby="home-hero-heading">
@@ -208,9 +209,15 @@ const worldAsideCopy =
         <p class="hero-brand">読書 with Coco</p>
         <h1 id="home-hero-heading">読書で生まれた世界を、ココちゃんが旅する。</h1>
         <p class="hero-lead">
-          レビューで言葉をひらき、ギャラリーで景色を見返す。読み終えたあとにもう一度そっと戻れる、
-          静かな読書の入口です。
+          仕事や役割に追われて、自分の気持ちが見えにくくなった日に。
+          レビューで言葉をひらき、ココちゃんと一緒に、暮らしへ戻せる学びを探します。
         </p>
+
+        <ul class="hero-promises" aria-label="レビューから持ち帰れるもの">
+          <li><strong>問い</strong><span>今のモヤモヤに名前をつける</span></li>
+          <li><strong>見方</strong><span>いつもの景色を別の角度から見る</span></li>
+          <li><strong>一歩</strong><span>今日できる小さな行動を選ぶ</span></li>
+        </ul>
 
         <div class="hero-actions ui-action-group ui-action-group--stack">
           <a class="hero-button hero-button-primary ui-action" href={reviewsUrl}>レビューを見る</a>
@@ -243,15 +250,15 @@ const worldAsideCopy =
           </div>
 
           <figure class="hero-portrait">
-            <img
+            <ResponsivePicture
               class="hero-avatar"
-              src={avatarUrl}
+              src={avatar}
               alt="読書 with Coco の案内役、ココちゃん"
-              width="560"
-              height="560"
+              role="hero"
+              width={560}
+              height={560}
               loading="eager"
               fetchpriority="high"
-              decoding="async"
             />
             <figcaption>読書の余韻を案内する、ココちゃん</figcaption>
           </figure>
@@ -596,6 +603,27 @@ const worldAsideCopy =
       font-size: var(--text-lead);
     }
 
+    .hero-promises {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin: 1rem 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .hero-promises li {
+      display: grid;
+      gap: 3px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(122, 92, 23, 0.2);
+      color: var(--color-muted);
+      font-size: 0.78rem;
+      line-height: 1.4;
+    }
+
+    .hero-promises strong { color: #7a5c17; }
+
     .hero-note {
       margin-top: 1.15rem;
       max-width: 27rem;
@@ -702,7 +730,7 @@ const worldAsideCopy =
       z-index: 0;
     }
 
-    .hero-avatar {
+    :global(.hero-avatar) {
       position: relative;
       z-index: 1;
       display: block;
@@ -1122,6 +1150,23 @@ const worldAsideCopy =
       }
     }
 
+    @media (min-width: 961px) and (max-height: 760px) {
+      .hero { padding: 1.5rem 2.25rem; gap: 2rem; }
+      .hero h1 { margin-top: .6rem; font-size: clamp(2.35rem, 4vw, 3.7rem); }
+      .hero-brand { margin-top: .45rem; }
+      .hero-lead { margin-top: .7rem; line-height: 1.58; }
+      .hero-promises { margin-top: .65rem; }
+      .hero-actions { margin-top: .9rem; }
+      .hero-note { margin-top: .55rem; }
+      .hero-visual-stage { min-height: 420px; }
+    }
+
+    /* Linux Japanese font metrics can wrap the 1200×656 hero taller; collapse only the supplemental promises. */
+    @media (min-width: 961px) and (max-height: 680px) {
+      .hero-promises { display: none; }
+      .hero-actions { margin-top: .65rem; }
+    }
+
     @media (max-width: 720px) {
       .hero {
         gap: 1.05rem;
@@ -1148,6 +1193,8 @@ const worldAsideCopy =
         margin-top: 1.05rem;
       }
 
+      .hero-promises { grid-template-columns: 1fr; }
+
       .hero-note {
         margin-top: 0.8rem;
         line-height: 1.55;
@@ -1170,7 +1217,7 @@ const worldAsideCopy =
         padding: 0.7rem;
       }
 
-      .hero-avatar {
+      :global(.hero-avatar) {
         height: auto;
       }
 

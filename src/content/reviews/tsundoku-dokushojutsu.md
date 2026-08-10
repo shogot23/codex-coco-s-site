@@ -18,6 +18,14 @@ recommendedFor:
 purchaseLinks:
   - label: "楽天で見る"
     url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F18548498%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbook%2Fi%2F21886203%2F"
+excerptKind: "site-takeaway"
+readerWorry: "読めていない本を見て、読書ができない自分を責めてしまうとき。"
+bookQuestion: "未読の本棚を、いまの自分の問いを知る地図として見られるか。"
+perspectiveShift: "積読を未達成の山でなく、まだ言葉になっていない関心の置き場所として見直す。"
+smallStep: "今夜、未読本を三冊だけ並べ替え、いま気になる理由を一行書く。"
+cocoNote: "ココちゃんと本棚を見上げるように、すぐ読み切れない本も静かにそばへ置いておく。"
+lingeringQuestion: "いまの自分は、なぜその本をまだ手放していないのだろう。"
+editorialStatus: "reviewed"
 published: true
 ---
 

@@ -19,6 +19,14 @@ recommendedFor:
 purchaseLinks:
   - label: "楽天で見る"
     url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F18483341%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbook%2Fi%2F21830377%2F"
+excerptKind: "site-takeaway"
+readerWorry: "期待された役割や名前を背負い、自分の意志が見えにくくなっているとき。"
+bookQuestion: "受け継いだものを抱えながら、どう自分の足でその先を選ぶか。"
+perspectiveShift: "継承を守るだけの重荷ではなく、自分の選択で意味を更新できるものとして見直す。"
+smallStep: "今日、自分で選びたいことを小さな一つに絞って決める。"
+cocoNote: "ココちゃんが本の後ろをついて歩くように、重い期待も一歩ずつ自分の歩幅に戻していく。"
+lingeringQuestion: "受け継いだ役割の中で、自分が選び直せることは何だろう。"
+editorialStatus: "reviewed"
 published: true
 ---
 受け継いだ名前が大きい物語ほど、
@@ -35,4 +43,3 @@ published: true
 
 まっすぐな少年漫画の熱量を浴びたい人にも合うし、
 「自分の名前で前に進む」感覚を取り戻したいときにも刺さる一冊でした。
-

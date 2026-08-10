@@ -19,6 +19,14 @@ recommendedFor:
 purchaseLinks:
   - label: "楽天で見る"
     url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F18478455%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbook%2Fi%2F21826299%2F"
+excerptKind: "site-takeaway"
+readerWorry: "まっすぐでいたい気持ちと、未熟さゆえに傷つく怖さの間で揺れるとき。"
+bookQuestion: "まだ何者でもない若者は、何を信じて自分の刃を選ぶのか。"
+perspectiveShift: "青さを恥ずかしさとして消すのでなく、危うさを含んだ光として受け取り直す。"
+smallStep: "今日、自分が守りたいことを一つだけ言葉にしてみる。"
+cocoNote: "ココちゃんと足元を確かめるように、急がず自分の熱の行き先を眺めてみる。"
+lingeringQuestion: "いまの自分は、何のためにまっすぐでいたいのだろう。"
+editorialStatus: "reviewed"
 published: true
 ---
 この巻を読んでいると、
@@ -35,4 +43,3 @@ published: true
 勢いのいい漫画として気持ちよく読めるのに、
 読み終えるとふと胸の奥にひっかかりが残る。
 その感触ごと持ち帰れるのが、この巻の良さでした。
-

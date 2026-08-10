@@ -18,6 +18,14 @@ recommendedFor:
 purchaseLinks:
   - label: "楽天で見る"
     url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F18618315%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbook%2Fi%2F21945692%2F"
+excerptKind: "site-takeaway"
+readerWorry: "からだや役割の変化を、自分の終わりのように感じてしまうとき。"
+bookQuestion: "中年期の変化を、次の物語を選び直す機会にできるか。"
+perspectiveShift: "変化を衰えだけでなく、からだ・役割・好奇心を組み替える始まりとして見直す。"
+smallStep: "今の自分に残っている好奇心を一つ書き、今週触れる時間を作る。"
+cocoNote: "ココちゃんと新しい景色を見に行くように、変化のなかにも好奇心の入口を探す。"
+lingeringQuestion: "いまの変化は、どんな新しい物語の始まりになり得るだろう。"
+editorialStatus: "reviewed"
 published: true
 ---
 最近、鏡に映る自分や、写真のなかの自分に、ふと違和感を覚えることはありませんか。

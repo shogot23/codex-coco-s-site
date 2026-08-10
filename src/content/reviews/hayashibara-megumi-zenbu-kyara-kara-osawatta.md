@@ -18,6 +18,14 @@ recommendedFor:
 purchaseLinks:
   - label: 楽天で見る
     url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Fbookoffonline%2F0019598647%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbookoffonline%2Fi%2F15646769%2F"
+excerptKind: "site-takeaway"
+readerWorry: "自分の言葉だけでは受け止めきれない気持ちを抱えているとき。"
+bookQuestion: "誰かの物語や言葉は、どうして自分の生き方を支えられるのか。"
+perspectiveShift: "フィクションを逃避で終わらせず、自分の感情を言葉にする足場として見直す。"
+smallStep: "今日救われた台詞や言葉を一つ書き、その理由を添える。"
+cocoNote: "ココちゃんと物語の窓をのぞくように、借りた言葉から自分の気持ちをゆっくり探す。"
+lingeringQuestion: "いまの自分に、どんな言葉を借りて渡したいだろう。"
+editorialStatus: "reviewed"
 published: true
 ---
 

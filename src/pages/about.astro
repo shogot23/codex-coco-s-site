@@ -1,6 +1,7 @@
 ---
 import { getCollection, getEntry } from "astro:content";
 import Layout from "../layouts/Layout.astro";
+import { getResponsiveMedia, getSocialImage } from "../lib/media";
 
 const items = await getCollection("about");
 const entry = items[0] ?? null;
@@ -9,13 +10,9 @@ const base = import.meta.env.BASE_URL.endsWith("/")
   ? import.meta.env.BASE_URL
   : `${import.meta.env.BASE_URL}/`;
 
-const isAbsoluteUrl = (value: string) => /^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(value);
-
 const withBase = (path: string) => {
   if (!path) return base;
-  if (isAbsoluteUrl(path)) return path;
-  if (path.startsWith(base)) return path;
-  return `${base}${path.replace(/^\/+/, "")}`;
+  return getResponsiveMedia(path, base, "card").src;
 };
 
 const stripMarkdown = (value: string) =>
@@ -43,7 +40,7 @@ try {
 const aboutParagraphs = entry ? getParagraphs(entry.body) : [];
 const profileParagraphs = profileEntry ? getParagraphs(profileEntry.body) : [];
 
-const heroImageUrl = withBase("/uploads/about-hero.png");
+const heroImageUrl = getResponsiveMedia("/uploads/about-hero.png", base, "hero").src;
 const avatarUrl = withBase(profileEntry?.data?.avatar ?? "/uploads/bc1bf64b-abcd-4e08-80ff-870c34201abf.png");
 
 const updatedAtLabel = entry?.data?.updatedAt
@@ -119,7 +116,7 @@ const bridgeSteps = [
 <Layout
   title={entry ? `${entry.data.title} | 読書 with Coco` : "About | 読書 with Coco"}
   description={entry?.data?.description}
-  image={heroImageUrl}
+  image={getSocialImage("/uploads/about-hero.png", base)}
 >
   <div class="about-world">
     <section class="about-hero" aria-labelledby="about-title">

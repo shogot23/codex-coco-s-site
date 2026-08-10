@@ -1,0 +1,43 @@
+---
+import { getResponsiveMedia } from '../lib/media';
+
+interface Props {
+  src: string;
+  alt: string;
+  role?: 'card' | 'detail' | 'hero';
+  sizes?: string;
+  loading?: 'eager' | 'lazy';
+  fetchpriority?: 'high' | 'low' | 'auto';
+  class?: string;
+  width?: number;
+  height?: number;
+}
+
+const {
+  src,
+  alt,
+  role = 'card',
+  sizes = role === 'hero' ? '(max-width: 720px) 92vw, 48vw' : '(max-width: 720px) 42vw, 320px',
+  loading = 'lazy',
+  fetchpriority = 'auto',
+  class: className,
+  width,
+  height,
+} = Astro.props;
+const media = getResponsiveMedia(src, import.meta.env.BASE_URL, role);
+---
+
+<picture>
+  {media.avifSrcSet && <source type="image/avif" srcset={media.avifSrcSet} sizes={sizes} />}
+  {media.webpSrcSet && <source type="image/webp" srcset={media.webpSrcSet} sizes={sizes} />}
+  <img
+    src={media.src}
+    alt={alt}
+    loading={loading}
+    fetchpriority={fetchpriority}
+    decoding="async"
+    class={className}
+    width={media.width ?? width}
+    height={media.height ?? height}
+  />
+</picture>

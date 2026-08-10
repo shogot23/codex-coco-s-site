@@ -17,6 +17,14 @@ recommendedFor:
 purchaseLinks:
   - label: 楽天で見る
     url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Frakutenkobo-ebooks%2F44e7312fdfcf33179b8e7ac3fc18f9a1%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Frakutenkobo-ebooks%2Fi%2F20969866%2F"
+excerptKind: "site-takeaway"
+readerWorry: "役割や成果を失ったあと、自分の価値まで見えなくなりそうなとき。"
+bookQuestion: "敗北や役割の変化を、次の選択の材料へどう変えられるか。"
+perspectiveShift: "敗北を個人の欠点だけで片づけず、置かれた構造を見つめ直す入口にする。"
+smallStep: "今のモヤモヤを、感情と環境の二つに分けて一行ずつ書く。"
+cocoNote: "ココちゃんと少し離れて眺めるように、自分を責める前に状況の輪郭を確かめる。"
+lingeringQuestion: "いまの苦しさには、どんな構造が重なっているだろう。"
+editorialStatus: "reviewed"
 published: true
 ---
 

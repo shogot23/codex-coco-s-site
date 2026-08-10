@@ -19,10 +19,14 @@ const fragmentNotes = [
 const videos = [...videoEntries]
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
   .map((entry, index) => ({
+    slug: entry.slug,
     title: entry.data.title,
     thumbnail: entry.data.thumbnail,
     url: entry.data.url,
     videoSrc: entry.data.videoSrc,
+    poster: entry.data.poster ?? entry.data.thumbnail,
+    captions: entry.data.captions,
+    transcript: entry.data.transcript,
     note: entry.data.note ?? fragmentNotes[index % fragmentNotes.length],
     sequence: `Fragment ${String(index + 1).padStart(2, "0")}`,
   }));
@@ -148,13 +152,50 @@ function getEmbedInfo(url: string | undefined): { type: "youtube" | "instagram" 
                     loading="lazy"
                   />
                 ) : v.videoSrc ? (
-                  <video controls preload="metadata" aria-label={v.title}>
+                  <video
+                    controls
+                    preload="metadata"
+                    poster={v.poster ? `${baseWithSlash}${v.poster.replace(/^\//, '')}` : undefined}
+                    aria-label={v.title}
+                  >
                     <source src={`${baseWithSlash}${v.videoSrc.replace(/^\//, '')}`} type="video/mp4" />
+                    {v.captions && (
+                      <track
+                        kind="captions"
+                        src={`${baseWithSlash}${v.captions.replace(/^\//, '')}`}
+                        srclang="ja"
+                        label="日本語"
+                        default
+                      />
+                    )}
                   </video>
+                ) : v.thumbnail ? (
+                  <img
+                    src={`${baseWithSlash}${v.thumbnail.replace(/^\//, '')}`}
+                    alt={v.title}
+                    loading="lazy"
+                    decoding="async"
+                    width="800"
+                    height="520"
+                  />
                 ) : (
-                  <img src={v.thumbnail} alt={v.title} loading="lazy" decoding="async" width="800" height="520" />
+                  <div class="fragment-media-empty" role="img" aria-label={`${v.title}の動画は準備中です`}>
+                    <span>Moving Fragment</span>
+                    <strong>{v.title}</strong>
+                  </div>
                 )}
               </div>
+              {v.transcript && (
+                <div class="fragment-transcript-wrap">
+                  <a class="fragment-transcript-link" href={`#transcript-${v.slug}`}>
+                    文字起こしを見る
+                  </a>
+                  <details class="fragment-transcript" id={`transcript-${v.slug}`}>
+                    <summary>文字で内容を読む</summary>
+                    <p>{v.transcript}</p>
+                  </details>
+                </div>
+              )}
             </article>
           );
         })}
@@ -365,6 +406,26 @@ function getEmbedInfo(url: string | undefined): { type: "youtube" | "instagram" 
     height: 100%;
     border: none;
   }
+
+  .fragment-media-empty {
+    display: grid;
+    place-content: center;
+    gap: 8px;
+    height: 100%;
+    padding: 24px;
+    text-align: center;
+    color: var(--color-muted);
+  }
+
+  .fragment-transcript {
+    grid-column: 1 / -1;
+    padding: 12px 14px;
+    border-top: 1px solid var(--color-border);
+    color: var(--color-muted);
+    line-height: 1.7;
+  }
+
+  .fragment-transcript summary { cursor: pointer; color: var(--color-text); font-weight: 700; }
 
   .fragment-media img,
   .fragment-media iframe {

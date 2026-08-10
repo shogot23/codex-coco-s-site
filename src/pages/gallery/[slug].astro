@@ -1,7 +1,10 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import ResponsivePicture from '../../components/ResponsivePicture.astro';
 import { getEntry, type CollectionEntry } from 'astro:content';
 import { getGalleryGenreBucket } from '../../lib/gallery-taxonomy';
+import { buildBreadcrumbJsonLd, buildJsonLdGraph } from '../../lib/seo';
+import { getSocialImage } from '../../lib/media';
 import { getPublishedGallery, hasDetailContent, sortGalleryEntries } from '../../utils/gallery';
 
 export async function getStaticPaths() {
@@ -20,7 +23,7 @@ type Props = {
 };
 
 const { entry } = Astro.props as Props;
-const { title, image, genre, author, note, description } = entry.data;
+const { title, image, genre, author, note, description, visualOrigin, galleryPrompt, updatedAt } = entry.data;
 
 const base = import.meta.env.BASE_URL;
 const baseWithSlash = base.endsWith('/') ? base : `${base}/`;
@@ -62,28 +65,35 @@ const fallbackScenes =
 const pageDescription = description ?? `${genre ?? 'ギャラリー'}の展示作品`;
 const sceneMemo = note ?? '読後に残った空気を、画像の前でもう一度たしかめるための景色です。';
 
-const coverImageUrl = resolveAbsoluteImageUrl(image);
+const socialImage = getSocialImage(image, baseWithSlash);
+const coverImageUrl = resolveAbsoluteImageUrl(socialImage);
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site!).toString();
-const galleryJsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'CreativeWork',
-  name: title,
-  description: pageDescription,
-  image: [coverImageUrl],
-  genre: genre,
-  url: canonicalUrl,
-  creator: author
-    ? {
-        '@type': 'Person',
-        name: author,
-      }
-    : undefined,
-  isPartOf: {
-    '@type': 'CollectionPage',
-    name: 'Gallery',
-    url: new URL(galleryListUrl, Astro.site!).toString(),
+const galleryAbsoluteUrl = new URL(galleryListUrl, Astro.site!).toString();
+const galleryJsonLd = buildJsonLdGraph([
+  {
+    '@type': 'CreativeWork',
+    name: title,
+    description: pageDescription,
+    image: [coverImageUrl],
+    genre,
+    url: canonicalUrl,
+    dateModified: updatedAt?.toISOString(),
+    about: {
+      '@type': 'Book',
+      name: title,
+      author: author ? { '@type': 'Person', name: author } : undefined,
+    },
+    isPartOf: {
+      '@type': 'CollectionPage',
+      name: 'ギャラリー',
+      url: galleryAbsoluteUrl,
+    },
   },
-};
+  buildBreadcrumbJsonLd([
+    { name: 'ギャラリー', url: galleryAbsoluteUrl },
+    { name: title, url: canonicalUrl },
+  ]),
+]);
 
 const relatedReviewUrl = relatedReview ? `${baseWithSlash}reviews/${relatedReview.slug}/` : reviewsListUrl;
 const sceneShelfTitle = genre
@@ -110,15 +120,16 @@ const hasPurchaseLinks = purchaseLinks.length > 0;
 <Layout
   title={`${title} | Gallery | 読書 with Coco`}
   description={pageDescription}
-  image={image}
+  image={socialImage}
+  imageAlt={`${title}のギャラリー OGP画像`}
   type="article"
   jsonLd={galleryJsonLd}
 >
   <div class="scene-detail">
     <section class="scene-hero" aria-labelledby="gallery-title">
       <div class="scene-copy">
-        <nav class="breadcrumb" aria-label="Breadcrumb">
-          <a href={galleryListUrl}>Gallery</a>
+        <nav class="breadcrumb" aria-label="パンくずリスト">
+          <a href={galleryListUrl}>ギャラリー</a>
           <span class="separator" aria-hidden="true">/</span>
           <span class="current" aria-current="page">{title}</span>
         </nav>
@@ -136,24 +147,37 @@ const hasPurchaseLinks = purchaseLinks.length > 0;
             <a class="scene-link scene-link-primary ui-action" href={relatedReviewUrl}>
               この景色の言葉を読む
             </a>
-          ) : hasPurchaseLinks ? (
-            <a class="scene-link scene-link-primary ui-action"
-               href={purchaseLinks[0].url}
-               target="_blank"
-               rel="noopener noreferrer nofollow">
-              この本を見る
-            </a>
           ) : (
             <a class="scene-link scene-link-primary ui-action" href={relatedReviewUrl}>
               レビューの主導線へ戻る
             </a>
           )}
           <a class="scene-link scene-link-secondary ui-action" href={galleryListUrl}>Gallery に戻る</a>
+          {!relatedReview && hasPurchaseLinks && (
+            <a
+              class="scene-link scene-link-tertiary ui-action"
+              href={purchaseLinks[0].url}
+              target="_blank"
+              rel="noopener noreferrer nofollow"
+              aria-label={`${title}の購入先を外部ストアで開く`}
+            >
+              購入先を見る（外部）
+            </a>
+          )}
         </div>
       </div>
 
       <figure class="scene-visual">
-        <img src={withBase(image)} alt={`${title}の展示画像`} loading="eager" decoding="async" width="1200" height="1500" />
+        <ResponsivePicture
+          src={image}
+          alt={`${title}の展示画像`}
+          role="detail"
+          sizes="(max-width: 780px) 92vw, 48vw"
+          loading="eager"
+          fetchpriority="high"
+          width={1200}
+          height={1500}
+        />
       </figure>
     </section>
 
@@ -176,6 +200,20 @@ const hasPurchaseLinks = purchaseLinks.length > 0;
           {genre && <p class="note-meta">Genre: {genre}</p>}
         </article>
       </div>
+
+      {(visualOrigin === 'ai-generated' || galleryPrompt) && (
+        <aside class="provenance-note" aria-label="画像の制作情報">
+          {visualOrigin === 'ai-generated' && (
+            <p>この画像は、本を読んだあとに生まれたイメージをもとにAIで制作した読後ビジュアルです。公式書影ではありません。</p>
+          )}
+          {galleryPrompt && (
+            <details>
+              <summary>制作プロンプトを見る</summary>
+              <p>{galleryPrompt}</p>
+            </details>
+          )}
+        </aside>
+      )}
     </section>
 
     <section class="review-bridge" aria-labelledby="review-bridge-title">
@@ -210,10 +248,13 @@ const hasPurchaseLinks = purchaseLinks.length > 0;
           </>
         ) : hasPurchaseLinks ? (
           <>
+            <a class="scene-link scene-link-primary ui-action" href={relatedReviewUrl}>
+              レビュー一覧を見る
+            </a>
             <div class="bridge-purchase-links ui-action-group">
               {purchaseLinks.map((link) => (
                 <a
-                  class="scene-link scene-link-primary ui-action"
+                  class="scene-link scene-link-secondary ui-action"
                   href={link.url}
                   target="_blank"
                   rel="noopener noreferrer nofollow"
@@ -224,9 +265,6 @@ const hasPurchaseLinks = purchaseLinks.length > 0;
               ))}
               <p class="bridge-purchase-note">外部ストアへ移動します</p>
             </div>
-            <a class="scene-link scene-link-secondary ui-action" href={relatedReviewUrl}>
-              レビュー一覧を見る
-            </a>
           </>
         ) : (
           <a class="scene-link scene-link-primary ui-action" href={relatedReviewUrl}>
@@ -234,6 +272,9 @@ const hasPurchaseLinks = purchaseLinks.length > 0;
           </a>
         )}
       </div>
+      {hasPurchaseLinks && (
+        <p class="affiliate-note">購入リンクにはアフィリエイトを含む場合があります。外部ストアへ移動します。</p>
+      )}
     </section>
 
     {fallbackScenes.length > 0 && (
@@ -253,13 +294,13 @@ const hasPurchaseLinks = purchaseLinks.length > 0;
             return href ? (
               <a class="related-card" href={href} aria-label={`${scene.data.title}の景色を見る`}>
                 <div class="related-media">
-                  <img
-                    src={withBase(scene.data.image)}
+                  <ResponsivePicture
+                    src={scene.data.image}
                     alt={`${scene.data.title}の展示画像`}
+                    role="card"
                     loading="lazy"
-                    decoding="async"
-                    width="720"
-                    height="900"
+                    width={720}
+                    height={900}
                   />
                 </div>
                 <div class="related-body">
@@ -433,6 +474,17 @@ const hasPurchaseLinks = purchaseLinks.length > 0;
     background: rgba(255, 255, 255, 0.58);
   }
 
+  .scene-link-tertiary {
+    min-height: 44px;
+    padding-inline: 0.85rem;
+    border-color: transparent;
+    background: transparent;
+    color: var(--color-muted);
+    font-size: 0.9rem;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
   .scene-visual {
     margin: 0;
     overflow: hidden;
@@ -441,8 +493,8 @@ const hasPurchaseLinks = purchaseLinks.length > 0;
     box-shadow: 0 20px 40px rgba(83, 55, 28, 0.12);
   }
 
-  .scene-visual img,
-  .related-media img {
+  .scene-visual :global(img),
+  .related-media :global(img) {
     display: block;
     width: 100%;
     height: 100%;
@@ -474,6 +526,19 @@ const hasPurchaseLinks = purchaseLinks.length > 0;
     border: 1px solid rgba(100, 76, 42, 0.1);
   }
 
+  .provenance-note {
+    margin-top: 1rem;
+    padding: 1rem 1.1rem;
+    border-left: 3px solid rgba(122, 92, 23, 0.35);
+    background: rgba(255, 255, 255, 0.64);
+    color: var(--color-muted);
+    line-height: 1.7;
+  }
+
+  .provenance-note p { margin: 0; }
+  .provenance-note details { margin-top: 0.7rem; }
+  .provenance-note summary { cursor: pointer; font-weight: 700; color: var(--color-text); }
+
   .note-card h3,
   .related-body h3 {
     margin: 0;
@@ -503,6 +568,13 @@ const hasPurchaseLinks = purchaseLinks.length > 0;
     width: 100%;
     font-size: 0.84rem;
     color: rgba(66, 52, 35, 0.55);
+  }
+
+  .affiliate-note {
+    grid-column: 1 / -1;
+    margin: 0;
+    color: rgba(66, 52, 35, 0.62);
+    font-size: 0.84rem;
   }
 
   .related-grid {

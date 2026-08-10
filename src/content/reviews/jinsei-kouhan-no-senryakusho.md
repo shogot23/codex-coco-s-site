@@ -15,6 +15,14 @@ recommendedFor:
 purchaseLinks:
   - label: "楽天で見る"
     url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F17360938%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbook%2Fi%2F20835198%2F"
+excerptKind: "site-takeaway"
+readerWorry: "今の働き方をこのまま続けられるか、不安だけが先に立つとき。"
+bookQuestion: "人生後半に向けて、何に知恵と時間を移していくか。"
+perspectiveShift: "衰えの問題として恐れるのでなく、成功依存から降りて設計を組み替える機会として考える。"
+smallStep: "五年後も続けたいことと、少し手放したいことを一つずつ書く。"
+cocoNote: "ココちゃんと長い散歩の道順を選ぶように、急がずこれからの配分を考える。"
+lingeringQuestion: "これからの時間で、私は何に知恵を使いたいだろう。"
+editorialStatus: "reviewed"
 published: true
 ---
 「今の働き方、一生続けられますか？」

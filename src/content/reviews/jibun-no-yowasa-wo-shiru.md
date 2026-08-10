@@ -19,6 +19,14 @@ recommendedFor:
 purchaseLinks:
   - label: "楽天で見る"
     url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F18169437%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbook%2Fi%2F21553760%2F"
+excerptKind: "site-takeaway"
+readerWorry: "弱さや失敗を見せたら前に進めなくなると感じるとき。"
+bookQuestion: "弱さを認めることは、次の進路をどう見えやすくするのか。"
+perspectiveShift: "弱さを失敗の証拠ではなく、立て直す場所を知るための観測点として捉え直す。"
+smallStep: "今日の苦手なことを一つ書き、助けを求められる相手を考える。"
+cocoNote: "ココちゃんが怖い場所でそっと立ち止まるように、弱さを急いで克服しなくてもよい。"
+lingeringQuestion: "いまの弱さは、何を守るための合図になっているだろう。"
+editorialStatus: "reviewed"
 published: true
 ---
 強い人は、弱さを克服した人だと思っていた。
@@ -51,4 +59,3 @@ published: true
 立て直すための入口なのかもしれません。
 
 あなたの弱さは、何を守ろうとしているサインですか？
-

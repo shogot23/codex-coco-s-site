@@ -18,6 +18,14 @@ recommendedFor:
 purchaseLinks:
   - label: "楽天で見る"
     url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F18282955%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbook%2Fi%2F21655646%2F"
+excerptKind: "site-takeaway"
+readerWorry: "頑張りたいのに続かず、休むことまで自分の怠けに感じるとき。"
+bookQuestion: "回復を含めて自分を整えるとは、どんな続け方なのか。"
+perspectiveShift: "休息を前進の反対ではなく、続く力をつくる行為として捉え直す。"
+smallStep: "今夜、睡眠や休憩を十五分だけ早めるための準備を一つする。"
+cocoNote: "ココちゃんが疲れたら丸くなるように、休むことを体からの大切な合図として受け取る。"
+lingeringQuestion: "いまの自分に必要な回復は、どんな形だろう。"
+editorialStatus: "reviewed"
 published: true
 ---
 

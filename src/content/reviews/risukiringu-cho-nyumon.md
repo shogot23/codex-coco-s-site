@@ -18,6 +18,14 @@ recommendedFor:
 purchaseLinks:
   - label: "楽天で見る"
     url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F17385955%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbook%2Fi%2F20856360%2F"
+excerptKind: "site-takeaway"
+readerWorry: "働き方やAIの変化に追われ、何を学べばよいか焦るとき。"
+bookQuestion: "未来がどうなるかではなく、自分はどうしたいかを主語に学び直せるか。"
+perspectiveShift: "リスキリングを流行への追随でなく、自分の未来を設計するための学びとして見直す。"
+smallStep: "今週学びたいことを一つ選び、それが自分のどんな希望につながるか書く。"
+cocoNote: "ココちゃんと本棚の前で迷うように、急いで全部を選ばず今の問いに近い一冊から始める。"
+lingeringQuestion: "変化のなかで、私はどんな未来を自分で選びたいだろう。"
+editorialStatus: "reviewed"
 published: true
 ---
 リスキリングという言葉を聞くと、資格取得やプログラミング学習、AIスキルの習得のようなものを思い浮かべがちです。

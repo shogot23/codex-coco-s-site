@@ -26,22 +26,50 @@ const expectVisibleInViewport = async (page: Page, locator: Locator) => {
   expect(bounds.bottom).toBeLessThanOrEqual(viewportHeight);
 };
 
+const openMobileMenuIfNeeded = async (page: Page) => {
+  const menuButton = page.getByRole('button', { name: 'メニュー', exact: true });
+  if (await menuButton.isVisible() && await menuButton.getAttribute('aria-expanded') === 'false') {
+    await menuButton.click();
+    await expect(menuButton).toHaveAttribute('aria-expanded', 'true');
+  }
+};
+
 const expectMobileHeaderCompact = async (page: Page) => {
-  const headerMetrics = await page.getByRole('banner').evaluate((element) => {
+  const banner = page.getByRole('banner');
+
+  const collapsedMetrics = await banner.evaluate((element) => {
     const rect = element.getBoundingClientRect();
-    const links = Array.from(element.querySelectorAll('a')).map((link) => {
+    const brand = element.querySelector('.brand');
+    const menu = element.querySelector('.menu-button');
+
+    return {
+      height: Math.round(rect.height),
+      brandHeight: brand ? Math.round(brand.getBoundingClientRect().height) : 0,
+      menuHeight: menu ? Math.round(menu.getBoundingClientRect().height) : 0,
+    };
+  });
+
+  expect(collapsedMetrics.height).toBeLessThanOrEqual(118);
+  expect(collapsedMetrics.brandHeight).toBeGreaterThanOrEqual(44);
+  expect(collapsedMetrics.menuHeight).toBeGreaterThanOrEqual(44);
+
+  await openMobileMenuIfNeeded(page);
+
+  const expandedMetrics = await banner.evaluate((element) => {
+    const links = Array.from(element.querySelectorAll('a')).filter((link) => {
+      const style = getComputedStyle(link);
+      return style.display !== 'none' && link.getBoundingClientRect().height > 0;
+    }).map((link) => {
       const linkRect = link.getBoundingClientRect();
       return Math.round(linkRect.height);
     });
 
     return {
-      height: Math.round(rect.height),
       minLinkHeight: Math.min(...links),
     };
   });
 
-  expect(headerMetrics.height).toBeLessThanOrEqual(118);
-  expect(headerMetrics.minLinkHeight).toBeGreaterThanOrEqual(44);
+  expect(expandedMetrics.minLinkHeight).toBeGreaterThanOrEqual(44);
 };
 
 const expectGalleryHeroCtasCompact = async (page: Page) => {
@@ -171,8 +199,8 @@ test('home first viewport shows brand and review-led hero CTA flow', async ({ pa
   await expect(page.getByRole('heading', { name: 'モヤモヤから選ぶ' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '気づきから選ぶ' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '今日の小さな一歩' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: '最近の余韻' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'これまでの棚' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '気になる余韻から、次の一冊へ。' })).toBeVisible();
+  await expect(page.getByRole('searchbox', { name: 'レビューを検索' })).toBeVisible();
   await expect(page.locator('#review-stream')).toBeVisible();
 
   await page
@@ -181,6 +209,25 @@ test('home first viewport shows brand and review-led hero CTA flow', async ({ pa
     .click();
   await expect(page).toHaveURL(/\/codex-coco-s-site\/reviews\/tsundoku-dokushojutsu\/$/);
   await expect(page.locator('#review-title')).toBeVisible();
+});
+
+test('desktop home keeps the primary reading action in a short first viewport', async ({ page, isMobile }) => {
+  test.skip(isMobile, 'desktop viewport contract');
+
+  for (const viewport of [
+    { width: 1200, height: 656 },
+    { width: 1280, height: 720 },
+  ]) {
+    await page.setViewportSize(viewport);
+    await page.goto(SITE_BASE);
+
+    await expectVisibleInViewport(
+      page,
+      page.locator('.hero').getByRole('link', { name: 'レビューを見る', exact: true })
+    );
+    await expect(page.locator('.hero-visual img[alt="読書 with Coco の案内役、ココちゃん"]')).toBeVisible();
+    await expectNoHorizontalOverflow(page);
+  }
 });
 
 test('home offers a secondary shortcut to the 3books landing page', async ({ page }) => {
@@ -195,17 +242,21 @@ test('home offers a secondary shortcut to the 3books landing page', async ({ pag
   await expectNoHorizontalOverflow(page);
 });
 
-test('primary navigation keeps review-led links and excludes the video library shortcut', async ({ page }) => {
+test('primary navigation keeps reviews first and makes every public room discoverable', async ({ page }) => {
   await page.goto(SITE_BASE);
+  await openMobileMenuIfNeeded(page);
 
-  const primaryNav = page.getByRole('navigation', { name: 'Primary' });
+  let primaryNav = page.getByRole('navigation', { name: '主要ナビゲーション' });
 
-  await primaryNav.getByRole('link', { name: 'Reviews', exact: true }).click();
+  await expect(primaryNav.getByRole('link', { name: '動画', exact: true })).toBeVisible();
+
+  await primaryNav.getByRole('link', { name: 'レビュー', exact: true }).click();
   await expect(page).toHaveURL(/\/codex-coco-s-site\/reviews\/$/);
   await expect(page.getByRole('heading', { name: '次の一冊をひらく前に、言葉の余韻をひとくち。' })).toBeVisible();
 
-  await expect(primaryNav.getByRole('link', { name: 'Videos', exact: true })).toHaveCount(0);
-  await primaryNav.getByRole('link', { name: 'Gallery', exact: true }).click();
+  await openMobileMenuIfNeeded(page);
+  primaryNav = page.getByRole('navigation', { name: '主要ナビゲーション' });
+  await primaryNav.getByRole('link', { name: 'ギャラリー', exact: true }).click();
   await expect(page).toHaveURL(/\/codex-coco-s-site\/gallery\/$/);
   await expect(page.getByRole('heading', { name: '読後の景色を、ココちゃんと静かに見返す。' })).toBeVisible();
 
@@ -240,7 +291,7 @@ test('profile introduces coco as the site guide and keeps review/gallery as the 
   const hero = page.locator('.profile-hero');
 
   await expect(hero.getByText('ココちゃんについて', { exact: true })).toBeVisible();
-  await expect(hero.getByText('ココちゃんは、このサイトの案内役です。', { exact: true })).toBeVisible();
+  await expect(hero.locator('.hero-footnote p')).toContainText('難しい本への緊張をほどき');
   await expect(page.getByText('このサイトでのおしごと', { exact: true })).toBeVisible();
   await expect(page.getByText('いっしょに、次の一冊の景色を見にいこう。')).toBeVisible();
   await expect(page.getByRole('link', { name: /Fragments/ })).toHaveCount(0);
@@ -450,7 +501,7 @@ test('gallery detail keeps the review bridge intact for review-linked scenes', a
 
   const sceneImage = page.locator('.scene-visual img');
   await expect(sceneImage).toBeVisible();
-  await expect(sceneImage).toHaveAttribute('src', /Blue_Sky_Wakabayashi_Masayasu\.png/);
+  await expect(sceneImage).toHaveAttribute('src', /\/media\/.*\.webp/);
 
   await expectNoHorizontalOverflow(page);
 
@@ -510,9 +561,9 @@ test('gallery detail falls back to purchase links when no related review exists'
 
   const sceneImage = page.locator('.scene-visual img');
   await expect(sceneImage).toBeVisible();
-  await expect(sceneImage).toHaveAttribute('src', /Momo_Michael_Ende\.jpeg/);
+  await expect(sceneImage).toHaveAttribute('src', /\/media\/.*\.webp/);
 
-  const topPurchaseLink = page.getByRole('link', { name: 'この本を見る', exact: true });
+  const topPurchaseLink = page.getByRole('link', { name: 'モモの購入先を外部ストアで開く', exact: true });
   await expect(topPurchaseLink).toBeVisible();
   await expect(topPurchaseLink).toHaveAttribute('href', /rakuten/i);
   await expect(topPurchaseLink).toHaveAttribute('target', '_blank');
@@ -596,11 +647,11 @@ test('home keeps nav and hero CTAs usable on mobile-chrome', async ({ page, isMo
 
   await page.goto(SITE_BASE);
 
-  const primaryNav = page.getByRole('navigation', { name: 'Primary' });
+  const primaryNav = page.getByRole('navigation', { name: '主要ナビゲーション' });
   const hero = page.locator('.hero');
   const brandLink = page.getByRole('link', { name: '読書 with Coco' });
-  const reviewLink = primaryNav.getByRole('link', { name: 'Reviews', exact: true });
-  const galleryLink = primaryNav.getByRole('link', { name: 'Gallery', exact: true });
+  const reviewLink = primaryNav.getByRole('link', { name: 'レビュー', exact: true });
+  const galleryLink = primaryNav.getByRole('link', { name: 'ギャラリー', exact: true });
   const heroReviewCta = hero.getByRole('link', { name: 'レビューを見る', exact: true });
   const heroGalleryCta = hero.getByRole('link', { name: 'ギャラリーを見る', exact: true });
 
@@ -612,6 +663,11 @@ test('home keeps nav and hero CTAs usable on mobile-chrome', async ({ page, isMo
   await expectVisibleInViewport(page, primaryNav);
   await expectVisibleInViewport(page, reviewLink);
   await expectVisibleInViewport(page, galleryLink);
+
+  const menuButton = page.getByRole('button', { name: 'メニュー', exact: true });
+  await menuButton.click();
+  await expect(menuButton).toHaveAttribute('aria-expanded', 'false');
+
   await expectVisibleInViewport(page, heroReviewCta);
   await expectVisibleInViewport(page, heroGalleryCta);
 });

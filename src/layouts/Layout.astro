@@ -6,6 +6,9 @@ interface Props {
   title: string;
   description?: string;
   image?: string;
+  imageAlt?: string;
+  imageWidth?: number;
+  imageHeight?: number;
   type?: 'website' | 'article';
   jsonLd?: Record<string, unknown>;
 }
@@ -14,6 +17,9 @@ const {
   title,
   description = '読書 with Coco - 書評とギャラリーを中心に、読後の余韻を静かにひらく読書サイト',
   image,
+  imageAlt,
+  imageWidth,
+  imageHeight,
   type = 'website',
   jsonLd,
 } = Astro.props;
@@ -22,11 +28,12 @@ const canonical = new URL(Astro.url.pathname, Astro.site!).toString();
 const currentPath = Astro.url.pathname.endsWith('/') ? Astro.url.pathname : `${Astro.url.pathname}/`;
 
 const navItems = [
-  { href: '', label: 'Home' },
-  { href: 'about/', label: 'About' },
-  { href: 'gallery/', label: 'Gallery' },
-  { href: 'reviews/', label: 'Reviews' },
-  { href: 'profile/', label: 'Profile' },
+  { href: '', label: 'ホーム' },
+  { href: 'reviews/', label: 'レビュー' },
+  { href: 'gallery/', label: 'ギャラリー' },
+  { href: 'videos/', label: '動画' },
+  { href: 'about/', label: 'このサイトについて' },
+  { href: 'profile/', label: 'プロフィール' },
 ];
 ---
 
@@ -38,12 +45,42 @@ const navItems = [
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <title>{title}</title>
-    <SeoHead title={title} description={description} image={image} type={type} jsonLd={jsonLd} />
+    <SeoHead
+      title={title}
+      description={description}
+      image={image}
+      imageAlt={imageAlt}
+      imageWidth={imageWidth}
+      imageHeight={imageHeight}
+      type={type}
+      jsonLd={jsonLd}
+    />
+    <meta name="theme-color" content="#f4eee4" />
+    <link rel="icon" href={`${base}favicon.svg`} type="image/svg+xml" />
+    <link rel="icon" href={`${base}favicon.ico`} sizes="any" />
+    <link rel="apple-touch-icon" href={`${base}apple-touch-icon.png`} />
+    <link rel="alternate" type="application/rss+xml" title="読書 with Coco Reviews" href={`${base}rss.xml`} />
     <style>
       .container {
         max-width: var(--container-max);
         margin: 0 auto;
         padding: 0 clamp(16px, 2vw, 28px);
+      }
+
+      .skip-link {
+        position: fixed;
+        z-index: 100;
+        inset: 8px auto auto 8px;
+        padding: 10px 14px;
+        border-radius: 999px;
+        color: var(--color-nav);
+        background: var(--color-text);
+        transform: translateY(-160%);
+        transition: transform 0.16s ease;
+      }
+
+      .skip-link:focus {
+        transform: translateY(0);
       }
 
       header {
@@ -92,6 +129,20 @@ const navItems = [
         align-items: center;
       }
 
+      .menu-button {
+        display: none;
+        min-width: 44px;
+        min-height: 44px;
+        padding: 0 13px;
+        border: 1px solid var(--color-border);
+        border-radius: 999px;
+        color: var(--color-text);
+        background: var(--color-nav-strong);
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
       .link {
         padding: 8px 12px;
         border-radius: 999px;
@@ -130,18 +181,36 @@ const navItems = [
         color: var(--color-muted);
       }
 
+      .footer-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+
+      .footer-links {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+      }
+
+      .footer-links a {
+        color: inherit;
+        text-decoration: underline;
+        text-underline-offset: 0.2em;
+      }
+
       @media (max-width: 640px) {
         header {
           padding-top: 6px;
         }
 
-        .nav-shell {
-          border-radius: 999px;
-        }
+        .nav-shell { border-radius: 24px; }
 
         .nav {
           min-height: 48px;
-          flex-wrap: nowrap;
+          flex-wrap: wrap;
           height: auto;
           padding: 3px 6px 3px 10px;
           gap: 8px;
@@ -158,30 +227,41 @@ const navItems = [
           justify-content: flex-start;
         }
 
+        .menu-button { display: inline-flex; align-items: center; justify-content: center; }
+
         .links {
-          flex: 1 1 auto;
-          width: auto;
-          justify-content: flex-start;
-          flex-wrap: nowrap;
-          gap: 2px;
-          overflow-x: auto;
-          overscroll-behavior-inline: contain;
-          scrollbar-width: none;
-          font-size: 0.78rem;
+          display: none;
+          flex: 1 0 100%;
+          width: 100%;
+          padding: 6px 0 8px;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 4px;
+          font-size: 0.82rem;
         }
 
-        .links::-webkit-scrollbar {
-          display: none;
+        .links[data-open='true'] {
+          display: grid;
         }
 
         .link {
-          flex: 0 0 auto;
+          flex: 1 1 auto;
           min-height: 44px;
           display: flex;
           align-items: center;
           padding: 0 8px;
           box-sizing: border-box;
           white-space: nowrap;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
         }
       }
     </style>
@@ -215,12 +295,21 @@ const navItems = [
     </style>
   </head>
   <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
     <header>
       <div class="container">
         <div class="nav-shell">
           <div class="nav">
             <a class="brand" href={base}>読書 with Coco</a>
-            <nav class="links" aria-label="Primary">
+            <button
+              class="menu-button"
+              type="button"
+              aria-expanded="false"
+              aria-controls="primary-navigation"
+            >
+              メニュー
+            </button>
+            <nav class="links" id="primary-navigation" aria-label="主要ナビゲーション">
               {navItems.map((i) => {
                 const href = `${base}${i.href}`;
                 const normalizedHref = href.endsWith('/') ? href : `${href}/`;
@@ -238,14 +327,56 @@ const navItems = [
       </div>
     </header>
 
-    <main>
+    <main id="main-content" tabindex="-1">
       <div class="container">
         <slot />
       </div>
     </main>
 
     <footer>
-      <div class="container">© {new Date().getFullYear()} 読書 with Coco</div>
+      <div class="container footer-inner">
+        <span>© {new Date().getFullYear()} 読書 with Coco</span>
+        <nav class="footer-links" aria-label="フッターナビゲーション">
+          <a href={`${base}reviews/`}>レビュー</a>
+          <a href={`${base}about/`}>運営方針</a>
+          <a href={`${base}profile/`}>プロフィール</a>
+        </nav>
+      </div>
     </footer>
+    <script is:inline>
+      (() => {
+        const button = document.querySelector('.menu-button');
+        const nav = document.querySelector('#primary-navigation');
+        if (!(button instanceof HTMLButtonElement) || !(nav instanceof HTMLElement)) return;
+
+        const close = (restoreFocus = false) => {
+          button.setAttribute('aria-expanded', 'false');
+          nav.dataset.open = 'false';
+          if (restoreFocus) button.focus();
+        };
+
+        button.addEventListener('click', () => {
+          const willOpen = button.getAttribute('aria-expanded') !== 'true';
+          button.setAttribute('aria-expanded', String(willOpen));
+          nav.dataset.open = String(willOpen);
+          if (willOpen) nav.querySelector('a')?.focus();
+        });
+
+        document.addEventListener('keydown', (event) => {
+          if (event.key === 'Escape' && button.getAttribute('aria-expanded') === 'true') {
+            close(true);
+          }
+        });
+
+        document.addEventListener('click', (event) => {
+          const target = event.target;
+          if (target instanceof Node && !button.contains(target) && !nav.contains(target)) close();
+        });
+
+        window.matchMedia('(min-width: 641px)').addEventListener('change', (event) => {
+          if (event.matches) close();
+        });
+      })();
+    </script>
   </body>
 </html>

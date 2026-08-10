@@ -15,6 +15,14 @@ recommendedFor:
 purchaseLinks:
   - label: "楽天で見る"
     url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F18304884%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbook%2Fi%2F21672235%2F"
+excerptKind: "site-takeaway"
+readerWorry: "予定どおりに進まない出来事を、自分の失敗だと抱え込みそうなとき。"
+bookQuestion: "偶然に左右される人生で、変えられることをどう選び直すか。"
+perspectiveShift: "偶然をただの不運と決めず、予想外の出会いも含む現在地として見直す。"
+smallStep: "今日起きた予定外のことを一つ書き、そこから選べることを一つ探す。"
+cocoNote: "ココちゃんが寄り道で新しい景色に出会うように、予定外をすぐに失敗と呼ばない。"
+lingeringQuestion: "いまの偶然のなかで、自分が選べる小さなことは何だろう。"
+editorialStatus: "reviewed"
 published: true
 ---
 『偶然はどのようにあなたをつくるのか』を読みました。面白いのなんのって。読んでいてワクワクが止まりません。

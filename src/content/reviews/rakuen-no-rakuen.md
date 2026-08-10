@@ -18,6 +18,14 @@ recommendedFor:
 purchaseLinks:
   - label: 楽天で見る
     url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F18084617%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbook%2Fi%2F21471918%2F"
+excerptKind: "site-takeaway"
+readerWorry: "AIや社会の変化に期待しながらも、自分の居場所がなくなりそうで落ち着かないとき。"
+bookQuestion: "因果で説明しきれない世界で、答えを急がずに次の一歩を選べるか。"
+perspectiveShift: "不確かさを消すことより、わからなさと一緒に歩く姿勢へ目を向け直す。"
+smallStep: "今日、すぐに理由づけた不安を一つだけ書き出し、結論を保留してみる。"
+cocoNote: "ココちゃんと遠回りの景色を眺めるように、すぐに答えを出さない時間も大切にする。"
+lingeringQuestion: "いま、理由を急いでつけようとしている不安は何だろう。"
+editorialStatus: "reviewed"
 published: true
 ---
 AIの進歩がめざましく、ワクワクしつつ、自分の仕事ななくなるんじゃないかとビクビクしているわたくし。そんな中で出会ったこの本。AI暴走後の混沌で、"西遊記"モチーフの3人が「楽園」を探す旅へ。人は因果で説明したがるけど、自然や死の前では無意味かもしれない。それでも、答えのないまま次の一歩を踏み出せるか。そんなことを問われるような一冊でした。

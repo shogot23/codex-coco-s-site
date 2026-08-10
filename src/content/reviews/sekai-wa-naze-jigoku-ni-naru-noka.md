@@ -17,6 +17,14 @@ recommendedFor:
 purchaseLinks:
   - label: "楽天で見る"
     url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F17568098%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbook%2Fi%2F21012577%2F"
+excerptKind: "site-takeaway"
+readerWorry: "自由に選べるはずなのに、SNSや正しさの圧力で息苦しくなるとき。"
+bookQuestion: "自由が広がるほど、なぜ正義どうしはぶつかりやすくなるのか。"
+perspectiveShift: "個人の善悪だけでなく、炎上を生みやすい仕組みと自分の反応を一緒に見直す。"
+smallStep: "SNSで反応する前に、一度画面から離れて個人を裁く言葉になっていないか確かめる。"
+cocoNote: "ココちゃんと少し距離を取って眺めるように、強い言葉にすぐ飛びつかない。"
+lingeringQuestion: "その正しさは、誰かを理解するためか、裁くためか。"
+editorialStatus: "reviewed"
 published: true
 ---
 

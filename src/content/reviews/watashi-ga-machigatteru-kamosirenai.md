@@ -18,6 +18,14 @@ recommendedFor:
 purchaseLinks:
   - label: "楽天で見る"
     url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F18244080%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbook%2Fi%2F21617137%2F"
+excerptKind: "site-takeaway"
+readerWorry: "家族や職場の相手に腹が立ち、自分の正しさだけを握りしめそうなとき。"
+bookQuestion: "自分は正しいという前提を少し手放すと、関係はどう見え直すか。"
+perspectiveShift: "正しさを捨てるのでなく、相手と自分の事情を見直す余白として扱う。"
+smallStep: "今日ひっかかった会話を一つ選び、相手の事情を別の言葉で一つ想像する。"
+cocoNote: "ココちゃんが初めての人に少し距離を取るように、反応の前に相手を知る余白をつくる。"
+lingeringQuestion: "いま握りしめている正しさの外に、どんな事情があるだろう。"
+editorialStatus: "reviewed"
 published: true
 ---
 

@@ -20,6 +20,14 @@ recommendedFor:
 purchaseLinks:
   - label: 楽天で見る
     url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F12103744%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbook%2Fi%2F16202107%2F"
+excerptKind: "site-takeaway"
+readerWorry: "忙しさのなかで、大切な人や自分の希望を後回しにしてしまうとき。"
+bookQuestion: "未来の後悔を恐れるのでなく、今の選択をどう大切にできるか。"
+perspectiveShift: "後悔を避けるための脅しではなく、いまの優先順位を見直す地図として受け取る。"
+smallStep: "今日、後回しにしていた人へ短い連絡を一つ送る。"
+cocoNote: "ココちゃんと大切な人のそばに座るように、遠い未来より今日の小さな関係を守る。"
+lingeringQuestion: "今の自分が、あとで大切に思い返したい時間は何だろう。"
+editorialStatus: "reviewed"
 published: true
 ---
 オーストラリアの緩和ケア看護師が、たくさんの人の「最期」に立ち会って聞いた
