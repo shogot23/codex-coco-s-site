@@ -20,6 +20,7 @@
 - 手動確認: 1200x656、1280x720、390x844で Home / Reviews / Gallery / detail を確認。ResponsivePicture の子画像に scoped style が届かず高さが固定される問題を発見し、修正後に再確認した。
 - review gate: grouped diff の全領域が `ok: true`。最終 cross-check は `glm-5.1` が正常完了し、`ok: true`、blocking 0件、advisory 2件。
 - PR CI follow-up: 初回Actionsは10分上限により`media:generate`中にcancel。AVIF / WebPのqualityを維持したままeffortを3 / 4へ下げ、encoding設定をmanifestへ記録し、job上限を20分へ変更した。10画像fresh benchmarkは18.45秒→4.00秒、全136画像fresh生成は51.93秒。再度`verify:frontend` pass、追加Claude gateもpreflight / `glm-5.1` architecture / diff / crossすべて`ok: true`。
+- PR CI visual follow-up: 新runはmedia生成を4分11秒で完了したが、Linux日本語font metricsで1200x656の主CTA下端が692.55pxとなるE2E failureを検出。高さ680px以下のdesktopだけ補助promisesを段階的に省略し、主CTA前の余白を確保した。1200x656 screenshot、対象E2E、全`verify:frontend`を再確認し、追加Claude gateも全段階`ok: true`。
 
 ## Scope Check
 
