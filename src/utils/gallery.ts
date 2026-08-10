@@ -8,6 +8,7 @@ import {
   type GalleryGenre,
   type GalleryGenreBucket,
 } from '../lib/gallery-taxonomy';
+import { getResponsiveMedia } from '../lib/media';
 
 export type GalleryBrowseChapterId = 'fiction' | 'learning' | 'horizon';
 
@@ -160,9 +161,7 @@ export function getGalleryBrowseHref(
 
 function withGalleryBase(assetPath: string, baseWithSlash: string): string {
   if (!assetPath) return baseWithSlash;
-  if (/^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(assetPath)) return assetPath;
-  if (assetPath.startsWith(baseWithSlash)) return assetPath;
-  return `${baseWithSlash}${assetPath.replace(/^\/+/, '')}`;
+  return getResponsiveMedia(assetPath, baseWithSlash, 'card').src;
 }
 
 export function buildGalleryBrowseModel(
@@ -171,12 +170,13 @@ export function buildGalleryBrowseModel(
 ): GalleryBrowseModel {
   const items = entries.map((entry) => {
     const genre = entry.data.genre;
+    const imageSrc = withGalleryBase(entry.data.image, baseWithSlash);
 
     return {
       slug: entry.slug,
       title: entry.data.title,
-      image: entry.data.image,
-      imageSrc: withGalleryBase(entry.data.image, baseWithSlash),
+      image: imageSrc,
+      imageSrc,
       generatedAt: entry.data.generated_at,
       author: entry.data.author,
       genre,

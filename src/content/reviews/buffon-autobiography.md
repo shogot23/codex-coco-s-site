@@ -19,6 +19,14 @@ recommendedFor:
 purchaseLinks:
   - label: 楽天で見る
     url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F18471013%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbook%2Fi%2F21819467%2F"
+excerptKind: "site-takeaway"
+readerWorry: "失敗や停滞を、もう立ち上がれない理由のように感じてしまうとき。"
+bookQuestion: "挫折を通ったあと、人は何を頼りにもう一度前へ進めるのか。"
+perspectiveShift: "憧れを遠い英雄譚ではなく、立て直し方を学ぶ身近な光として受け取る。"
+smallStep: "うまくいかなかったことを一つ書き、次に試せる小さな動きを添える。"
+cocoNote: "ココちゃんが何度も様子を確かめるように、立ち上がる前の休息も再起の一部として扱う。"
+lingeringQuestion: "私がもう一度試したいことは何だろう。"
+editorialStatus: "reviewed"
 published: true
 ---
 ブッフォンは、サッカーを始めたころからずっと特別な守護神でした。

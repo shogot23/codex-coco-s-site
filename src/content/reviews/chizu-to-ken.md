@@ -19,6 +19,14 @@ recommendedFor:
 purchaseLinks:
   - label: "楽天で見る"
     url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F17157311%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbook%2Fi%2F20672212%2F"
+excerptKind: "site-takeaway"
+readerWorry: "大きな正しさや組織の方針にのまれ、自分の判断の重さが見えにくいとき。"
+bookQuestion: "地図に線を引くような大きな決定の裏で、誰が何を失うのか。"
+perspectiveShift: "歴史を遠い出来事として眺めず、小さな決断が世界を形づくる連なりとして捉え直す。"
+smallStep: "今日の判断で影響を受ける人を、一人だけ具体的に思い浮かべる。"
+cocoNote: "ココちゃんと地図の端をたどるように、目立たない人の事情にも想像を伸ばしてみる。"
+lingeringQuestion: "自分が正しいと思う決め方の外で、誰の声が聞こえていないだろう。"
+editorialStatus: "reviewed"
 published: true
 ---
 読み終えたあと、いちばん強く残ったのはスケールの大きさよりも、
@@ -36,4 +44,3 @@ published: true
 読んでいて楽というより、何度も立ち止まりたくなる本です。
 でも、その立ち止まりの時間ごと受け取る価値がある。
 簡単に答えを出したくない読書をしたい日に、かなり深く残る一冊です。
-

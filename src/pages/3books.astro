@@ -2,20 +2,17 @@
 import Layout from '../layouts/Layout.astro';
 import { getEntry } from 'astro:content';
 import { getPublishedReviews } from '../utils/reviews';
+import { getResponsiveMedia, getSocialImage } from '../lib/media';
+import { buildCollectionJsonLd, buildJsonLdGraph } from '../lib/seo';
 
 const base = import.meta.env.BASE_URL;
 const baseWithSlash = base.endsWith('/') ? base : `${base}/`;
 const reviewsUrl = `${baseWithSlash}reviews/`;
 const galleryUrl = `${baseWithSlash}gallery/`;
 
-const isAbsoluteUrl = (value: string) =>
-  /^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(value);
-
 const withBase = (assetPath: string) => {
   if (!assetPath) return baseWithSlash;
-  if (isAbsoluteUrl(assetPath)) return assetPath;
-  if (assetPath.startsWith(baseWithSlash)) return assetPath;
-  return `${baseWithSlash}${assetPath.replace(/^\/+/, '')}`;
+  return getResponsiveMedia(assetPath, baseWithSlash, 'card').src;
 };
 
 type LandingConfig = {
@@ -58,6 +55,8 @@ const books = landingBooks.map((item) => {
     title: review.data.title,
     author: review.data.author,
     recommendedFor: review.data.recommendedFor ?? [],
+    perspectiveShift: review.data.perspectiveShift,
+    smallStep: review.data.smallStep,
     purchaseLinks: review.data.purchaseLinks ?? [],
     image: review.data.cover ?? review.data.infographic ?? '',
     href: `${baseWithSlash}reviews/${review.slug}/`,
@@ -74,12 +73,26 @@ try {
 }
 
 const avatarUrl = withBase(avatar);
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site!).toString();
+const threeBooksJsonLd = buildJsonLdGraph([
+  buildCollectionJsonLd(
+    canonicalUrl,
+    '最初の3冊 | 読書 with Coco',
+    '忙しい日々に、本から問い・見方の変化・今日の一歩を持ち帰るための3冊。',
+    books.map((book) => ({
+      name: book.title,
+      url: new URL(book.href, Astro.site!).toString(),
+    }))
+  ),
+]);
 ---
 
 <Layout
   title="3books | 読書 with Coco"
   description="SNSから来た人に向けた、読書 with Coco の最初の入口。まずはおすすめ3冊からどうぞ。"
-  image={avatarUrl}
+  image={getSocialImage(avatar, baseWithSlash)}
+  imageAlt="読書 with Coco の案内役ココちゃん"
+  jsonLd={threeBooksJsonLd}
 >
   <div class="three-books-story">
     <section class="three-books-hero" aria-labelledby="three-books-heading">
@@ -149,6 +162,13 @@ const avatarUrl = withBase(avatar);
               {book.author && <p class="chapter-author">著者: {book.author}</p>}
               <p class="chapter-lead">{book.lead}</p>
 
+              {(book.perspectiveShift || book.smallStep) && (
+                <dl class="chapter-takeaway">
+                  {book.perspectiveShift && <div><dt>見方の変化</dt><dd>{book.perspectiveShift}</dd></div>}
+                  {book.smallStep && <div><dt>今日の一歩</dt><dd>{book.smallStep}</dd></div>}
+                </dl>
+              )}
+
               {book.recommendedFor.length > 0 && (
                 <div class="chapter-for">
                   <p class="chapter-for-label">こんな人へ</p>
@@ -172,11 +192,15 @@ const avatarUrl = withBase(avatar);
                         href={link.url}
                         target="_blank"
                         rel="noopener noreferrer nofollow"
+                        aria-label={`${book.title}の購入先 ${link.label} を外部ストアで開く`}
                       >
                         {link.label}
                       </a>
                     ))}
                   </div>
+                )}
+                {book.purchaseLinks.length > 0 && (
+                  <p class="chapter-affiliate-note">購入リンクにはアフィリエイトを含む場合があります。</p>
                 )}
               </div>
             </div>
@@ -415,6 +439,23 @@ const avatarUrl = withBase(avatar);
     color: var(--color-text);
   }
 
+  .chapter-takeaway {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin: 0;
+  }
+
+  .chapter-takeaway div {
+    padding: 12px 14px;
+    border-left: 3px solid rgba(122, 92, 23, 0.28);
+    background: rgba(255, 255, 255, 0.58);
+  }
+
+  .chapter-takeaway dt { color: #7a5c17; font-size: .8rem; font-weight: 700; }
+  .chapter-takeaway dd { margin: 6px 0 0; line-height: 1.65; }
+  .chapter-affiliate-note { margin: 0; color: var(--color-muted); font-size: .8rem; }
+
   .three-books-footer {
     display: grid;
     gap: 0.9rem;
@@ -440,6 +481,10 @@ const avatarUrl = withBase(avatar);
     .chapter:nth-child(2n) .chapter-copy {
       order: initial;
     }
+  }
+
+  @media (max-width: 560px) {
+    .chapter-takeaway { grid-template-columns: 1fr; }
   }
 
   @media (max-width: 640px) {

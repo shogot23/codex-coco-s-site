@@ -19,6 +19,14 @@ recommendedFor:
 purchaseLinks:
   - label: "楽天で見る"
     url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F15917329%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbook%2Fi%2F19618025%2F"
+excerptKind: "site-takeaway"
+readerWorry: "運動や健康を大事にしたいのに、時間がないことで自分を責めてしまうとき。"
+bookQuestion: "限られた時間のなかで、体を立て直す習慣をどう続けられるか。"
+perspectiveShift: "運動を義務や根性ではなく、暮らしを支える小さく続く実験として見直す。"
+smallStep: "無理のない強度で、今週できる四分間の運動を一回だけ予定に入れる。"
+cocoNote: "ココちゃんと短い散歩を始めるように、完璧な計画より小さく続く動きを選ぶ。"
+lingeringQuestion: "自分の体をいたわるために、今週続けられる最小の動きは何だろう。"
+editorialStatus: "reviewed"
 published: true
 ---
 週2〜3回、たった4分。

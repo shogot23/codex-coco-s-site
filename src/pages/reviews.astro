@@ -1,5 +1,8 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import ReviewExplorer from "../components/reviews/ReviewExplorer.astro";
+import { buildCollectionJsonLd, buildJsonLdGraph } from "../lib/seo";
+import { getResponsiveMedia } from "../lib/media";
 import { buildReviewGalleryMap, getPublishedGallery } from "../utils/gallery";
 import { getPublishedReviews } from "../utils/reviews";
 
@@ -13,14 +16,9 @@ const reviewGalleryMap = buildReviewGalleryMap(galleryEntries);
 const base = import.meta.env.BASE_URL;
 const baseWithSlash = base.endsWith("/") ? base : `${base}/`;
 
-const isAbsoluteUrl = (value: string) =>
-  /^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(value);
-
 const withBase = (assetPath: string) => {
   if (!assetPath) return baseWithSlash;
-  if (isAbsoluteUrl(assetPath)) return assetPath;
-  if (assetPath.startsWith(baseWithSlash)) return assetPath;
-  return `${baseWithSlash}${assetPath.replace(/^\/+/, "")}`;
+  return getResponsiveMedia(assetPath, baseWithSlash, "card").src;
 };
 
 const formatDate = (value: Date) =>
@@ -70,6 +68,8 @@ const reviewCards = sortedReviews.map((review) => {
     summary: clampText(summarySource, 120),
     quote: clampText(quoteSource, 88),
     readingCompass: clampText(review.data.readingCompass ?? quoteSource, 108),
+    readerWorry: review.data.readerWorry,
+    smallStep: review.data.smallStep,
     tags: review.data.tags ?? [],
     recommendedFor: review.data.recommendedFor ?? [],
     purchaseLinks: review.data.purchaseLinks ?? [],
@@ -128,27 +128,6 @@ const reviewCompassLenses = [
     ),
   },
 ].filter((lens) => lens.reviews.length > 0);
-const recentReviews = remainingReviews.slice(0, 3);
-const shelfReviews = remainingReviews.slice(3);
-const reviewGroups = [
-  {
-    id: "recent",
-    eyebrow: "最近届いた言葉",
-    title: "最近の余韻",
-    copy: "新しく届いた言葉から、いまの気分に近い一冊をそっと選べます。",
-    reviews: recentReviews,
-    startOrder: 2,
-  },
-  {
-    id: "shelf",
-    eyebrow: "静かな本棚",
-    title: "これまでの棚",
-    copy: "少し前に置いた本も、問いや抜粋から今の生活へ持ち帰れるように並べています。",
-    reviews: shelfReviews,
-    startOrder: 2 + recentReviews.length,
-  },
-].filter((group) => group.reviews.length > 0);
-
 const spotlightThemes = [
   "再起と自己理解",
   "青春とまっすぐさ",
@@ -164,11 +143,37 @@ const readingCues = [
 
 const galleryUrl = `${baseWithSlash}gallery/`;
 const reviewCountLabel = `${reviewCards.length}冊のレビュー`;
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site!).toString();
+const reviewsJsonLd = buildJsonLdGraph([
+  buildCollectionJsonLd(
+    canonicalUrl,
+    'レビュー | 読書 with Coco',
+    '暮らしのモヤモヤから、問い・見方の変化・今日の一歩を持ち帰るレビュー一覧。',
+    reviewCards.map((review) => ({
+      name: review.title,
+      url: new URL(review.href, Astro.site!).toString(),
+    }))
+  ),
+]);
+const explorerItems = remainingReviews.map((review) => ({
+  slug: review.slug,
+  title: review.title,
+  bookTitle: review.supplementalTitle,
+  author: review.author,
+  href: review.href,
+  image: review.thumbnail ? withBase(review.thumbnail) : undefined,
+  dateLabel: review.dateLabel,
+  summary: review.summary,
+  readerWorry: review.readerWorry,
+  smallStep: review.smallStep,
+  tags: review.tags,
+}));
 ---
 
 <Layout
-  title="Reviews | 読書 with Coco"
-  description="次に読みたくなる一冊へ向かうための、読書 with Coco のレビュー一覧ページ。"
+  title="レビュー | 読書 with Coco"
+  description="暮らしのモヤモヤから、問い・見方の変化・今日の一歩を持ち帰る、読書 with Coco のレビュー一覧。"
+  jsonLd={reviewsJsonLd}
 >
   <div class="reviews-story">
     <section class="hero" aria-labelledby="reviews-heading">
@@ -449,94 +454,7 @@ const reviewCountLabel = `${reviewCards.length}冊のレビュー`;
               </p>
             </div>
 
-            <div class="stream-groups">
-              {reviewGroups.map((group) => (
-                <section class="stream-group" aria-labelledby={`review-group-${group.id}`}>
-                  <div class="stream-group-header">
-                    <p class="section-label">{group.eyebrow}</p>
-                    <h3 id={`review-group-${group.id}`}>{group.title}</h3>
-                    <p>{group.copy}</p>
-                  </div>
-
-                  <ol class="review-stream" start={group.startOrder}>
-                    {group.reviews.map((review, index) => (
-                      <li class="stream-item">
-                        <div class="stream-aside">
-                          <p class="stream-order">{String(group.startOrder + index).padStart(2, "0")}</p>
-                          <time class="stream-date" datetime={review.date.toISOString()}>{review.dateLabel}</time>
-                          <a
-                            class="stream-media"
-                            href={review.href}
-                            aria-label={`${review.title}のレビューを読む`}
-                          >
-                            {review.thumbnail ? (
-                              <img
-                                src={withBase(review.thumbnail)}
-                                alt={`${review.title}のレビューイメージ`}
-                                loading="lazy"
-                                decoding="async"
-                                width="260"
-                                height="320"
-                              />
-                            ) : (
-                              <div class="media-fallback media-fallback-small" aria-hidden="true">
-                                <span>Review</span>
-                                <strong>{review.title}</strong>
-                              </div>
-                            )}
-                          </a>
-                        </div>
-
-                        <div class="stream-body">
-                          <p class="stream-theme">
-                            {review.tags.length > 0 ? review.tags.slice(0, 2).join(" / ") : "Review"}
-                          </p>
-                          <h3>
-                            <a href={review.href}>{review.title}</a>
-                          </h3>
-                          {review.supplementalTitle && <p class="stream-book-title">{review.supplementalTitle}</p>}
-
-                          <div class="stream-meta">
-                            {review.author && <span>著者: {review.author}</span>}
-                          </div>
-
-                          {review.summary && <p class="stream-summary">{review.summary}</p>}
-                          {review.quote && <p class="stream-quote">“{review.quote}”</p>}
-
-                          <div class="stream-footer">
-                            {review.recommendedFor[0] && (
-                              <p class="stream-cue">
-                                <span>こんな人に</span>
-                                {review.recommendedFor[0]}
-                              </p>
-                            )}
-
-                            <div class="stream-actions">
-                              <a class="stream-link ui-action" href={review.href}>レビューを読む</a>
-                              {review.purchaseLinks.length > 0 && (
-                                <div class="stream-purchase-links ui-action-group ui-action-group--stack">
-                                  {review.purchaseLinks.map((link) => (
-                                    <a
-                                      class="stream-purchase ui-action"
-                                      href={link.url}
-                                      target="_blank"
-                                      rel="noopener noreferrer nofollow"
-                                      aria-label={`${review.supplementalTitle ?? review.title}の購入先: ${link.label ?? "この本を見る"}`}
-                                    >
-                                      {link.label ?? "この本を見る"}
-                                    </a>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </li>
-                    ))}
-                  </ol>
-                </section>
-              ))}
-            </div>
+            <ReviewExplorer items={explorerItems} initialLimit={4} />
           </section>
         ) : (
           <section class="compass-section" id="review-stream" aria-labelledby="compass-heading">

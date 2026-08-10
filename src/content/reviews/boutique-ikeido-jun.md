@@ -18,6 +18,14 @@ recommendedFor:
 purchaseLinks:
   - label: "楽天で見る"
     url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F18561767%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbook%2Fi%2F21898484%2F"
+excerptKind: "site-takeaway"
+readerWorry: "評価や数字に削られ、自分が大切にしたかった基準を見失いそうなとき。"
+bookQuestion: "勝ち負けだけでは割り切れない場面で、何を自分の星として守るか。"
+perspectiveShift: "他人の評価を唯一の答えにせず、背負っている事情と自分の基準を見直す。"
+smallStep: "今日の仕事で、数字以外に守りたいことを一行だけメモする。"
+cocoNote: "ココちゃんと夜空を見上げるように、評価の外にも自分を支える目印があると確かめる。"
+lingeringQuestion: "評価から少し離れたとき、私は何を大切にしたいのだろう。"
+editorialStatus: "reviewed"
 published: true
 ---
 

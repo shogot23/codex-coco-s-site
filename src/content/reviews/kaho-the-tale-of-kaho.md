@@ -18,6 +18,14 @@ recommendedFor:
 purchaseLinks:
   - label: "楽天で見る"
     url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F18611315%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbook%2Fi%2F21943265%2F"
+excerptKind: "site-takeaway"
+readerWorry: "周りにつけられた名前や期待のなかで、自分の感覚が分からなくなるとき。"
+bookQuestion: "違和感を手がかりにして、自分の輪郭をどう取り戻せるか。"
+perspectiveShift: "違和感を邪魔なものとして消さず、自分の感覚へ戻る入口として受け取る。"
+smallStep: "今日引っかかったことを一つ書き、なぜ気になったのかを急がず考える。"
+cocoNote: "ココちゃんが知らない音に耳を傾けるように、違和感を追い払わずそばに置いてみる。"
+lingeringQuestion: "いまの違和感は、自分の何を守ろうとしているだろう。"
+editorialStatus: "reviewed"
 published: true
 ---
 

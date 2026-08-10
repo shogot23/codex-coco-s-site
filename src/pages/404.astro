@@ -1,0 +1,60 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const base = import.meta.env.BASE_URL.endsWith('/')
+  ? import.meta.env.BASE_URL
+  : `${import.meta.env.BASE_URL}/`;
+---
+
+<Layout
+  title="ページが見つかりません | 読書 with Coco"
+  description="お探しのページは見つかりませんでした。レビューの本棚から、次の一冊を探せます。"
+>
+  <section class="not-found" aria-labelledby="not-found-title">
+    <div>
+      <p class="eyebrow">404 / Lost Bookmark</p>
+      <p class="brand">読書 with Coco</p>
+      <h1 id="not-found-title">しおりを挟んだページが、見つかりませんでした。</h1>
+      <p class="lead">
+        本棚の並びが変わったのかもしれません。ココちゃんと一緒に、レビューの入口からもう一度たどれます。
+      </p>
+      <div class="actions ui-action-group ui-action-group--stack">
+        <a class="primary ui-action" href={`${base}reviews/`}>レビューから探す</a>
+        <a class="secondary ui-action" href={base}>ホームへ戻る</a>
+      </div>
+    </div>
+    <div class="bookmark" aria-hidden="true">
+      <span>404</span>
+      <strong>ページの余白で<br />ひと休み。</strong>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .not-found {
+    width: min(100%, 980px);
+    min-height: min(68vh, 620px);
+    margin: 18px auto 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(240px, .85fr);
+    gap: clamp(28px, 6vw, 80px);
+    align-items: center;
+    padding: clamp(28px, 6vw, 72px);
+    border: 1px solid var(--color-border);
+    border-radius: clamp(28px, 5vw, 48px);
+    background: linear-gradient(145deg, rgba(255,252,246,.98), rgba(235,232,221,.94));
+    box-shadow: var(--shadow-medium);
+  }
+  .eyebrow, .brand { margin: 0; color: #7a5c17; font-weight: 700; letter-spacing: .08em; }
+  .brand { margin-top: 12px; color: var(--color-text); font-family: var(--font-display); font-size: 1.35rem; }
+  h1 { margin: 14px 0 0; max-width: 13ch; font-family: var(--font-display); font-size: clamp(2.2rem, 5vw, 4.5rem); line-height: 1.08; }
+  .lead { max-width: 36rem; margin: 18px 0 0; color: var(--color-muted); line-height: 1.8; }
+  .actions { display: flex; gap: 10px; margin-top: 24px; }
+  .actions a { min-height: 48px; display: inline-flex; align-items: center; justify-content: center; padding: 0 18px; border-radius: 999px; font-weight: 700; }
+  .primary { color: white; background: var(--color-text); }
+  .secondary { border: 1px solid var(--color-border); background: rgba(255,255,255,.7); }
+  .bookmark { aspect-ratio: 3 / 4; display: grid; place-content: center; gap: 22px; padding: 24px; border-radius: 18px 18px 48% 48%; text-align: center; color: #f7f0e4; background: #26344a; box-shadow: 18px 22px 0 rgba(122,92,23,.16); transform: rotate(3deg); }
+  .bookmark span { font-size: clamp(3rem, 8vw, 6rem); font-family: var(--font-display); }
+  .bookmark strong { line-height: 1.65; }
+  @media (max-width: 700px) { .not-found { grid-template-columns: 1fr; min-height: auto; } .bookmark { width: min(56vw, 210px); justify-self: center; } }
+</style>

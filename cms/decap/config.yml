@@ -64,9 +64,19 @@ collections:
       - { label: "書籍タイトル", name: "bookTitle", widget: "string", required: false, hint: "書籍名（記事タイトルと異なる場合）" }
       - { label: "著者", name: "author", widget: "string", required: false }
       - { label: "公開日", name: "date", widget: "datetime" }
+      - { label: "更新日", name: "updatedAt", widget: "datetime", required: false, hint: "確認できる更新日だけを入力。ビルド日時は使わない" }
       - { label: "公開する", name: "published", widget: "boolean", required: false, default: true }
+      - { label: "編集状態", name: "editorialStatus", widget: "select", options: ["draft", "needs-review", "reviewed"], required: false }
       - { label: "説明", name: "description", widget: "text", required: false, hint: "詳細ページやSEOで使う要約" }
-      - { label: "抜粋", name: "excerpt", widget: "text", required: false, hint: "一覧カードに出す短い紹介文" }
+      - { label: "抜粋または要約", name: "excerpt", widget: "text", required: false, hint: "一覧カードに出す短い紹介文" }
+      - { label: "抜粋種別", name: "excerptKind", widget: "select", options: ["direct-quote", "paraphrase", "site-takeaway"], required: false }
+      - { label: "引用元", name: "excerptSource", widget: "string", required: false, hint: "direct-quote の場合のみ必須" }
+      - { label: "読者のモヤモヤ", name: "readerWorry", widget: "text", required: false }
+      - { label: "本が投げかける問い", name: "bookQuestion", widget: "text", required: false }
+      - { label: "見方の変化", name: "perspectiveShift", widget: "text", required: false }
+      - { label: "今日の小さな一歩", name: "smallStep", widget: "text", required: false }
+      - { label: "ココちゃんのしおり", name: "cocoNote", widget: "text", required: false }
+      - { label: "読後に残す問い", name: "lingeringQuestion", widget: "text", required: false }
       - { label: "カバー画像", name: "cover", widget: "image", required: false, hint: "一覧やSNS用。未設定ならインフォグラフィックを使用" }
       - { label: "インフォグラフィック", name: "infographic", widget: "image", required: false, hint: "詳細ページで大きく表示" }
       - label: "タグ"
@@ -80,6 +90,14 @@ collections:
         widget: "list"
         required: false
         field: { label: "項目", name: "text", widget: "string" }
+      - { label: "読みはじめる前の一言", name: "readingCompass", widget: "text", required: false }
+      - label: "購入先"
+        name: "purchaseLinks"
+        widget: "list"
+        required: false
+        fields:
+          - { label: "表示名", name: "label", widget: "string" }
+          - { label: "URL", name: "url", widget: "string" }
       - { label: "感想本文", name: "body", widget: "markdown" }
 
   - name: "gallery"
@@ -103,6 +121,10 @@ collections:
       - { label: "自動生成日時", name: "generated_at", widget: "string", required: false }
       - { label: "元画像ファイル", name: "source_file", widget: "string", required: false }
       - { label: "公開状態", name: "published", widget: "boolean", required: false, default: false }
+      - { label: "更新日", name: "updatedAt", widget: "datetime", required: false }
+      - { label: "編集状態", name: "galleryEditorialStatus", widget: "select", options: ["draft", "needs-review", "reviewed"], required: false }
+      - { label: "制作プロンプト", name: "galleryPrompt", widget: "text", required: false, hint: "確認できる場合のみ入力。推測しない" }
+      - { label: "画像由来", name: "visualOrigin", widget: "select", options: ["ai-generated", "official-cover", "original-photo", "licensed-artwork"], required: false, hint: "制作記録で確認できる場合のみ選択" }
       - label: "説明文"
         name: "description"
         widget: "text"
@@ -129,6 +151,10 @@ collections:
       - { label: "タイトル", name: "title", widget: "string" }
       - { label: "日付", name: "date", widget: "datetime" }
       - { label: "サムネイル", name: "thumbnail", widget: "image" }
+      - { label: "ポスター", name: "poster", widget: "image", required: false }
+      - { label: "字幕ファイル", name: "captions", widget: "file", required: false }
+      - { label: "文字起こし", name: "transcript", widget: "text", required: false }
+      - { label: "更新日", name: "updatedAt", widget: "datetime", required: false }
       - label: "URL (YouTube/Instagram)"
         name: "url"
         widget: "string"

@@ -2,6 +2,8 @@
 import { getEntry, type CollectionEntry } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
 import GalleryBrowse from '../components/gallery/GalleryBrowse.astro';
+import { buildBreadcrumbJsonLd, buildCollectionJsonLd, buildJsonLdGraph } from '../lib/seo';
+import { getResponsiveMedia } from '../lib/media';
 import {
   GALLERY_HORIZON_GENRES,
   GALLERY_LEARNING_GENRES,
@@ -21,14 +23,9 @@ const baseWithSlash = import.meta.env.BASE_URL.endsWith('/')
   ? import.meta.env.BASE_URL
   : `${import.meta.env.BASE_URL}/`;
 
-const isAbsoluteUrl = (value: string) =>
-  /^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(value);
-
 const withBase = (assetPath: string) => {
   if (!assetPath) return baseWithSlash;
-  if (isAbsoluteUrl(assetPath)) return assetPath;
-  if (assetPath.startsWith(baseWithSlash)) return assetPath;
-  return `${baseWithSlash}${assetPath.replace(/^\/+/, '')}`;
+  return getResponsiveMedia(assetPath, baseWithSlash, 'card').src;
 };
 
 const getSceneHref = (entry: GalleryEntry) =>
@@ -37,8 +34,9 @@ const getSceneHref = (entry: GalleryEntry) =>
 const getChapterSectionId = (chapter: GalleryBrowseChapter) => `chapter-${chapter.id}`;
 
 const galleryEntries = sortGalleryEntries(await getPublishedGallery());
-const browseModel = buildGalleryBrowseModel(galleryEntries, baseWithSlash);
-const browseChapters = browseModel.chapters;
+const fullBrowseModel = buildGalleryBrowseModel(galleryEntries, baseWithSlash);
+const initialBrowseModel = buildGalleryBrowseModel(galleryEntries.slice(0, 8), baseWithSlash);
+const browseChapters = fullBrowseModel.chapters;
 const detailedEntries = galleryEntries.filter((entry) => hasDetailContent(entry));
 const linkedReviewCount = (await Promise.all(
   galleryEntries.map(async (entry) => {
@@ -51,6 +49,7 @@ const linkedReviewCount = (await Promise.all(
 const reviewsUrl = `${baseWithSlash}reviews/`;
 const aboutUrl = `${baseWithSlash}about/`;
 const archiveUrl = `${baseWithSlash}gallery/archive/`;
+const galleryDataUrl = `${baseWithSlash}gallery/data.json`;
 
 const entriesWithPublishedReview = await Promise.all(
   detailedEntries.map(async (entry) => {
@@ -123,11 +122,30 @@ const chapterLinks = browseChapters.map((chapter) => ({
   subtitle: chapter.subtitle,
   count: chapter.items.length,
 }));
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site!).toString();
+const homeUrl = new URL(baseWithSlash, Astro.site!).toString();
+const galleryJsonLd = buildJsonLdGraph([
+  buildCollectionJsonLd(
+    canonicalUrl,
+    'ギャラリー | 読書 with Coco',
+    'レビューの余韻から生まれた景色を、ココちゃんと静かに見返す展示。',
+    fullBrowseModel.items.slice(0, 12).map((item) => ({
+      name: item.title,
+      url: item.href ? new URL(item.href, Astro.site!).toString() : canonicalUrl,
+    })),
+    fullBrowseModel.items.length
+  ),
+  buildBreadcrumbJsonLd([
+    { name: 'ホーム', url: homeUrl },
+    { name: 'ギャラリー', url: canonicalUrl },
+  ]),
+]);
 ---
 
 <Layout
-  title="Gallery | 読書 with Coco"
+  title="ギャラリー | 読書 with Coco"
   description="レビューの余韻から続く景色を、ココちゃんと静かに見返す Gallery ページ。"
+  jsonLd={galleryJsonLd}
 >
   {galleryEntries.length ? (
     <div class="gallery-world">
@@ -363,7 +381,7 @@ const chapterLinks = browseChapters.map((chapter) => ({
             <dl class="browse-stats">
               <div>
                 <dt>並んでいる景色</dt>
-                <dd>{browseModel.items.length}</dd>
+                <dd>{galleryEntries.length}</dd>
               </div>
               <div>
                 <dt>章のまとまり</dt>
@@ -378,7 +396,11 @@ const chapterLinks = browseChapters.map((chapter) => ({
         </div>
 
         <GalleryBrowse
-          browseModel={browseModel}
+          initialItems={initialBrowseModel.items}
+          genres={fullBrowseModel.genres}
+          chapters={fullBrowseModel.chapters}
+          dataEndpoint={galleryDataUrl}
+          initialItemLimit={8}
           testId="gallery-browse"
         />
       </section>

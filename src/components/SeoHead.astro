@@ -21,14 +21,22 @@ interface Props {
   title: string;
   description?: string;
   image?: string;
+  imageAlt?: string;
+  imageWidth?: number;
+  imageHeight?: number;
   type?: 'website' | 'article';
   jsonLd?: Record<string, unknown>;
 }
+
+import { getSocialImage } from '../lib/media';
 
 const {
   title,
   description = '読書 with Coco - 書評とギャラリーを中心に、読後の余韻を静かにひらく読書サイト',
   image,
+  imageAlt = `${title} | 読書 with Coco`,
+  imageWidth = 1200,
+  imageHeight = 630,
   type = 'website',
   jsonLd,
 } = Astro.props;
@@ -41,7 +49,7 @@ const siteName = '読書 with Coco';
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site!).toString();
 
 // Default OGP image (site avatar)
-const defaultOgImage = `${base}uploads/img_6088.png`;
+const defaultOgImage = getSocialImage('/uploads/img_6088.png', base);
 
 // Resolve image URL to absolute URL
 const resolveImageUrl = (img: string | undefined): string => {
@@ -102,6 +110,9 @@ const safeJsonStringify = (obj: Record<string, unknown>): string => {
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
 <meta property="og:image" content={ogImageUrl} />
+<meta property="og:image:alt" content={imageAlt} />
+<meta property="og:image:width" content={String(imageWidth)} />
+<meta property="og:image:height" content={String(imageHeight)} />
 <meta property="og:url" content={canonicalUrl} />
 <meta property="og:type" content={type} />
 <meta property="og:site_name" content={siteName} />
@@ -112,6 +123,7 @@ const safeJsonStringify = (obj: Record<string, unknown>): string => {
 <meta name="twitter:title" content={title} />
 <meta name="twitter:description" content={description} />
 <meta name="twitter:image" content={ogImageUrl} />
+<meta name="twitter:image:alt" content={imageAlt} />
 
 <!-- JSON-LD Structured Data -->
 {jsonLdData && (

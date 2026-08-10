@@ -18,6 +18,14 @@ recommendedFor:
 purchaseLinks:
   - label: "楽天で見る"
     url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F17801917%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbook%2Fi%2F21204054%2F"
+excerptKind: "site-takeaway"
+readerWorry: "誰かを一つの評判や失敗だけで判断してしまいそうなとき。"
+bookQuestion: "悪人と呼ばれた人は、何を守ろうとして生きていたのか。"
+perspectiveShift: "歴史上の人物を単純な善悪でなく、複数の事情を抱えた人として見直す。"
+smallStep: "今日気になった誰かの行動を、一つの理由だけで決めつけない。"
+cocoNote: "ココちゃんと古い足跡をたどるように、評判の奥にある事情へ想像を向ける。"
+lingeringQuestion: "私は誰を、ひとことで分かったつもりになっているだろう。"
+editorialStatus: "reviewed"
 published: true
 ---
 

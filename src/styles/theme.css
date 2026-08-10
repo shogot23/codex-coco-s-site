@@ -83,6 +83,7 @@ a {
 
 img {
   max-width: 100%;
+  height: auto;
 }
 
 p {
@@ -90,8 +91,9 @@ p {
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-focus);
-  outline-offset: 2px;
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+  border-radius: 0.35rem;
 }
 
 h1,
@@ -183,4 +185,35 @@ h3,
 
 :where(.section-intro h2, .section-head h2, .section-header h2, .world-copy h2, .final-cta h2) {
   text-wrap: balance;
+}
+
+/* A quiet paper surface keeps interactive browsing tactile without adding UI chrome. */
+:where(.gallery-world, .review-world, .home-story) {
+  min-width: 0;
+}
+
+:where(.gallery-world) :is(section, article, aside) {
+  scroll-margin-top: 6rem;
+}
+
+@media (max-width: 640px) {
+  html,
+  body {
+    overflow-x: clip;
+  }
+
+  :where(.ui-action, .hero-button, .hero-link, .inline-button, .section-link, .bridge-link, .stream-link) {
+    max-width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
 }

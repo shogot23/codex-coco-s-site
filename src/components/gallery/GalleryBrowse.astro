@@ -1,11 +1,14 @@
 ---
 import type {
   GalleryBrowseChapter,
+  GalleryBrowseChapterDefinition,
+  GalleryBrowseItem,
   GalleryBrowseModel,
   GalleryBrowseSort,
 } from '../../utils/gallery';
 import {
   GALLERY_ARCHIVE_DEFAULT_VIEW,
+  GALLERY_BROWSE_CHAPTERS,
   GALLERY_BROWSE_DEFAULT_GENRE,
   GALLERY_BROWSE_DEFAULT_SORT,
   GALLERY_BROWSE_DEFAULT_VIEW,
@@ -16,7 +19,16 @@ import {
 type BrowseView = 'curated' | 'grid';
 
 type Props = {
-  browseModel: GalleryBrowseModel;
+  /**
+   * Compatibility source for the existing Gallery page. New callers should
+   * provide the small SSR `initialItems` slice plus `dataEndpoint` instead.
+   */
+  browseModel?: GalleryBrowseModel;
+  initialItems?: GalleryBrowseItem[];
+  dataEndpoint?: string;
+  genres?: readonly string[];
+  chapters?: readonly GalleryBrowseChapterDefinition[];
+  initialItemLimit?: number;
   defaultView?: BrowseView;
   defaultGenre?: string;
   defaultSort?: GalleryBrowseSort;
@@ -26,12 +38,39 @@ type Props = {
 
 const {
   browseModel,
-  defaultView = GALLERY_BROWSE_DEFAULT_VIEW,
-  defaultGenre = GALLERY_BROWSE_DEFAULT_GENRE,
-  defaultSort = GALLERY_BROWSE_DEFAULT_SORT,
+  initialItems,
+  dataEndpoint,
+  genres,
+  chapters,
+  initialItemLimit = 6,
+  defaultView: defaultViewProp = GALLERY_BROWSE_DEFAULT_VIEW,
+  defaultGenre: defaultGenreProp = GALLERY_BROWSE_DEFAULT_GENRE,
+  defaultSort: defaultSortProp = GALLERY_BROWSE_DEFAULT_SORT,
   enableSort = false,
   testId = 'gallery-browse',
 } = Astro.props as Props;
+
+const allItems = initialItems ?? browseModel?.items ?? [];
+const browseGenres = genres ?? browseModel?.genres ?? [...new Set(allItems.flatMap((item) => item.genre ? [item.genre] : []))];
+const toChapterDefinition = (chapter: GalleryBrowseChapter | GalleryBrowseChapterDefinition): GalleryBrowseChapterDefinition => ({
+  id: chapter.id,
+  eyebrow: chapter.eyebrow,
+  title: chapter.title,
+  subtitle: chapter.subtitle,
+  genres: chapter.genres,
+  mood: chapter.mood,
+});
+const chapterDefinitions = chapters?.map(toChapterDefinition) ?? browseModel?.chapters.map(toChapterDefinition) ?? GALLERY_BROWSE_CHAPTERS;
+const requestedView = Astro.url.searchParams.get('view');
+const requestedGenre = Astro.url.searchParams.get('genre');
+const requestedSort = Astro.url.searchParams.get('sort');
+const defaultView: BrowseView = requestedView === 'grid' || requestedView === 'curated' ? requestedView : defaultViewProp;
+const defaultGenre = requestedGenre === GALLERY_BROWSE_DEFAULT_GENRE || browseGenres.includes(requestedGenre ?? '')
+  ? requestedGenre ?? GALLERY_BROWSE_DEFAULT_GENRE
+  : defaultGenreProp;
+const defaultSort: GalleryBrowseSort = enableSort && (requestedSort === 'latest' || requestedSort === 'title')
+  ? requestedSort
+  : defaultSortProp;
 
 const getBrowseStatusText = (view: BrowseView, genre: string) => {
   if (view === 'curated') {
@@ -48,17 +87,17 @@ const getBrowseStatusText = (view: BrowseView, genre: string) => {
 const serverGenre = defaultGenre;
 const serverItemsBase =
   serverGenre === GALLERY_BROWSE_DEFAULT_GENRE
-    ? browseModel.items
-    : browseModel.items.filter((item) => item.genre === serverGenre);
+    ? allItems
+    : allItems.filter((item) => item.genre === serverGenre);
 const serverItems = enableSort ? sortGalleryBrowseItems(serverItemsBase, defaultSort) : serverItemsBase;
 
-const serverChaptersBase: GalleryBrowseChapter[] = browseModel.chapters
+const serverChaptersBase: GalleryBrowseChapter[] = chapterDefinitions
   .map((chapter) => ({
     ...chapter,
     items:
       serverGenre === GALLERY_BROWSE_DEFAULT_GENRE
-        ? chapter.items
-        : chapter.items.filter((item) => item.genre === serverGenre),
+        ? allItems.filter((item) => item.genre && chapter.genres.includes(item.genre))
+        : allItems.filter((item) => item.genre === serverGenre && chapter.genres.includes(item.genre)),
   }))
   .filter((chapter) => chapter.items.length > 0);
 const serverChapters = enableSort ? sortGalleryBrowseChapters(serverChaptersBase, defaultSort) : serverChaptersBase;
@@ -66,6 +105,15 @@ const serverChapters = enableSort ? sortGalleryBrowseChapters(serverChaptersBase
 const chapterSectionId = (chapterId: string) => `chapter-${chapterId}`;
 const showCurated = defaultView === GALLERY_BROWSE_DEFAULT_VIEW;
 const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
+const initialChapterItems = (items: GalleryBrowseItem[]) => items.slice(0, Math.max(1, Math.floor(initialItemLimit / Math.max(serverChapters.length, 1))));
+const clientBrowseData = {
+  items: allItems,
+  genres: browseGenres,
+  chapters: chapterDefinitions.map((chapter) => ({
+    ...chapter,
+    items: allItems.filter((item) => item.genre && chapter.genres.includes(item.genre)),
+  })),
+};
 ---
 
 <div
@@ -76,6 +124,7 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
   data-default-sort={enableSort ? defaultSort : undefined}
   data-enable-sort={enableSort ? 'true' : 'false'}
   data-current-view={defaultView}
+  data-testid={testId}
 >
   <div class="browse-controls" data-gallery-controls hidden>
     <div class="browse-control-group">
@@ -111,7 +160,7 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
         >
           すべて
         </button>
-        {browseModel.genres.map((genre) => (
+        {browseGenres.map((genre) => (
           <button
             type="button"
             class:list={['genre-chip', defaultGenre === genre && 'is-active']}
@@ -150,7 +199,6 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
     data-current-view={defaultView}
     data-current-genre={defaultGenre}
     data-current-sort={enableSort ? defaultSort : undefined}
-    data-testid={testId}
   >
     <div class="browse-curated" data-browse-panel="curated" hidden={!showCurated}>
       {serverChapters.length > 0 && (
@@ -248,9 +296,9 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
                 )
               )}
 
-              {chapter.items.length > 1 && (
-                <div class="chapter-trail">
-                  {chapter.items.slice(1).map((item) => (
+              {initialChapterItems(chapter.items).length > 1 && (
+                <div class="chapter-trail" id={`chapter-trail-${chapter.id}`}>
+                  {initialChapterItems(chapter.items).slice(1).map((item) => (
                     item.href ? (
                       <a
                         class="trail-card gallery-piece gallery-piece-compact"
@@ -317,6 +365,15 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
                   ))}
                 </div>
               )}
+              {chapter.items.length > initialChapterItems(chapter.items).length && (
+                <button
+                  type="button"
+                  class="chapter-more"
+                  data-chapter-more={chapter.id}
+                  aria-expanded="false"
+                  aria-controls={`chapter-trail-${chapter.id}`}
+                >残り{chapter.items.length - initialChapterItems(chapter.items).length}作品を見る</button>
+              )}
             </div>
           </section>
         ))
@@ -330,8 +387,8 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
 
     <div class="browse-grid" data-browse-panel="grid" hidden={!showGrid}>
       <div class="grid-catalog" data-grid-catalog>
-        {serverItems.length ? (
-          serverItems.map((item) => (
+        {showGrid && serverItems.length ? (
+          serverItems.slice(0, initialItemLimit).map((item) => (
             item.href ? (
               <a class="grid-card gallery-piece gallery-piece-grid" href={item.href} aria-label={`${item.title}の景色を見る`} data-grid-card data-gallery-piece>
                 <figure class="gallery-piece-figure gallery-piece-figure-grid">
@@ -410,7 +467,8 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
 <script
   is:inline
   define:vars={{
-    browseData: browseModel,
+    browseData: clientBrowseData,
+    dataEndpoint,
     defaultView,
     defaultGenre,
     defaultSort,
@@ -437,6 +495,11 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
     const validSorts = new Set(enableSort ? ['latest', 'title'] : []);
     const expandedChapters = new Set();
     let hasBuiltGrid = defaultView === 'grid';
+    let activeBrowseData = browseData;
+    let remoteLoadPromise;
+    let remoteLoadFailed = false;
+    let remoteController;
+    let gridVisibleCount = 12;
 
     const chapterSectionId = (chapterId) => `chapter-${chapterId}`;
     const chapterTrailId = (chapterId) => `chapter-trail-${chapterId}`;
@@ -497,7 +560,7 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
     const state = getStateFromUrl();
 
     const filteredChapters = () =>
-      browseData.chapters
+      activeBrowseData.chapters
         .map((chapter) => ({
           ...chapter,
           items: sortItems(
@@ -507,7 +570,60 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
         .filter((chapter) => chapter.items.length > 0);
 
     const filteredItems = () =>
-      sortItems(browseData.items.filter((item) => state.genre === 'all' || item.genre === state.genre));
+      sortItems(activeBrowseData.items.filter((item) => state.genre === 'all' || item.genre === state.genre));
+
+    const buildChapters = (items) =>
+      browseData.chapters.map((chapter) => ({
+        id: chapter.id,
+        eyebrow: chapter.eyebrow,
+        title: chapter.title,
+        subtitle: chapter.subtitle,
+        genres: chapter.genres,
+        mood: chapter.mood,
+        items: items.filter((item) => item.genre && chapter.genres.includes(item.genre)),
+      }));
+
+    const normalizeItems = (items) => {
+      const bySlug = new Map();
+      items.forEach((item) => {
+        if (item && typeof item.slug === 'string' && item.slug) bySlug.set(item.slug, item);
+      });
+      return Array.from(bySlug.values());
+    };
+
+    const ensureRemoteItems = async () => {
+      if (!dataEndpoint || remoteLoadPromise) return remoteLoadPromise;
+
+      remoteController = new AbortController();
+      remoteLoadPromise = fetch(dataEndpoint, {
+        headers: { Accept: 'application/json' },
+        signal: remoteController.signal,
+      })
+        .then((response) => {
+          if (!response.ok) throw new Error(`Gallery data request failed: ${response.status}`);
+          return response.json();
+        })
+        .then((payload) => {
+          const items = Array.isArray(payload) ? payload : payload?.items;
+          if (!Array.isArray(items)) throw new Error('Gallery data is missing an items array.');
+          remoteLoadFailed = false;
+          const normalizedItems = normalizeItems(items);
+          activeBrowseData = {
+            ...browseData,
+            items: normalizedItems,
+            chapters: buildChapters(normalizedItems),
+          };
+          return normalizedItems;
+        })
+        .catch((error) => {
+          if (error?.name === 'AbortError') return activeBrowseData.items;
+          remoteLoadFailed = true;
+          console.warn('Gallery browse will use its initial shelf.', error);
+          return activeBrowseData.items;
+        });
+
+      return remoteLoadPromise;
+    };
 
     const renderLeadCard = (item) => {
       const genre = item.genre ? `<p class="genre-label">${escapeHtml(item.genre)}</p>` : '';
@@ -708,8 +824,15 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
       const items = filteredItems();
       hasBuiltGrid = true;
 
+      const visibleItems = items.slice(0, gridVisibleCount);
+      const remainingCount = Math.max(items.length - visibleItems.length, 0);
+
       gridCatalog.innerHTML = items.length
-        ? items.map(renderGridCard).join('')
+        ? `${visibleItems.map(renderGridCard).join('')}${
+            remainingCount
+              ? `<div class="grid-load-more-wrap"><button type="button" class="chapter-more grid-load-more" data-grid-load-more>さらに${Math.min(12, remainingCount)}作品を見る</button><p>残り${remainingCount}作品</p></div>`
+              : ''
+          }`
         : `
           <div class="browse-empty-state" data-browse-empty>
             <h3>この条件ではまだ比較できる景色がありません。</h3>
@@ -748,7 +871,9 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
       gridPanel.hidden = state.view !== 'grid';
 
       if (statusNode) {
-        statusNode.textContent = getBrowseStatusText(state.view, state.genre);
+        statusNode.textContent = remoteLoadFailed
+          ? '景色の棚を追加で開けませんでした。いま見えている作品はそのまま読めます。'
+          : getBrowseStatusText(state.view, state.genre);
       }
 
       const tocNode = root.querySelector('[data-chapter-toc]');
@@ -808,31 +933,39 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
     };
 
     viewButtons.forEach((button) => {
-      button.addEventListener('click', () => {
+      button.addEventListener('click', async () => {
         const nextView = button.dataset.viewButton;
         if (!validViews.has(nextView) || nextView === state.view) return;
         state.view = nextView;
+        await ensureRemoteItems();
         render({ historyMode: 'push' });
+        button.focus();
       });
     });
 
     genreButtons.forEach((button) => {
-      button.addEventListener('click', () => {
+      button.addEventListener('click', async () => {
         const nextGenre = button.dataset.genreButton;
         if (!validGenres.has(nextGenre) || nextGenre === state.genre) return;
         state.genre = nextGenre;
         expandedChapters.clear();
+        gridVisibleCount = 12;
+        await ensureRemoteItems();
         render({ historyMode: 'push' });
+        button.focus();
       });
     });
 
     if (sortSelect instanceof HTMLSelectElement && enableSort) {
-      sortSelect.addEventListener('change', () => {
+      sortSelect.addEventListener('change', async () => {
         const nextSort = sortSelect.value;
         if (!validSorts.has(nextSort) || nextSort === state.sort) return;
         state.sort = nextSort;
         expandedChapters.clear();
+        gridVisibleCount = 12;
+        await ensureRemoteItems();
         render({ historyMode: 'push' });
+        sortSelect.focus();
       });
     }
 
@@ -853,7 +986,53 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
 
       renderCurated();
       syncControls();
+      button.focus();
     });
+
+    curatedPanel.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape') return;
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      const chapter = target.closest('[data-chapter-section]');
+      const chapterId = chapter?.getAttribute('data-chapter-section');
+      if (!chapterId || !expandedChapters.has(chapterId)) return;
+      event.preventDefault();
+      expandedChapters.delete(chapterId);
+      renderCurated();
+      syncControls();
+      curatedPanel.querySelector(`[data-chapter-more="${chapterId}"]`)?.focus();
+    });
+
+    gridCatalog.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      const button = target.closest('[data-grid-load-more]');
+      if (!(button instanceof HTMLButtonElement)) return;
+      gridVisibleCount += 12;
+      renderGrid();
+      button.focus();
+    });
+
+    const enableRovingControlKeys = (selector) => {
+      const group = shell.querySelector(selector);
+      if (!group) return;
+      group.addEventListener('keydown', (event) => {
+        if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+        const controls = Array.from(group.querySelectorAll('button:not([disabled])'));
+        const index = controls.indexOf(document.activeElement);
+        if (index < 0 || !controls.length) return;
+        event.preventDefault();
+        const nextIndex = event.key === 'Home'
+          ? 0
+          : event.key === 'End'
+            ? controls.length - 1
+            : (index + (event.key === 'ArrowRight' ? 1 : -1) + controls.length) % controls.length;
+        controls[nextIndex].focus();
+      });
+    };
+
+    enableRovingControlKeys('.view-switch');
+    enableRovingControlKeys('.genre-chips');
 
     const viewportQuery = window.matchMedia('(max-width: 820px)');
     const handleViewportChange = () => {
@@ -865,16 +1044,27 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
 
     viewportQuery.addEventListener('change', handleViewportChange);
 
-    window.addEventListener('popstate', () => {
+    window.addEventListener('popstate', async () => {
       const nextState = getStateFromUrl();
       state.view = nextState.view;
       state.genre = nextState.genre;
       state.sort = nextState.sort;
       expandedChapters.clear();
+      gridVisibleCount = 12;
+      await ensureRemoteItems();
       render({ historyMode: 'skip' });
     });
 
       render();
+      if (dataEndpoint) {
+        const fetchWhenIdle = () => ensureRemoteItems().then(() => render({ historyMode: 'skip' }));
+        if ('requestIdleCallback' in window) {
+          window.requestIdleCallback(fetchWhenIdle, { timeout: 1500 });
+        } else {
+          window.setTimeout(fetchWhenIdle, 0);
+        }
+      }
+      window.addEventListener('pagehide', () => remoteController?.abort(), { once: true });
     }
   }
 </script>
@@ -1426,11 +1616,10 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
     }
 
     :where([data-gallery-browse-shell]) .genre-chips {
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      padding-bottom: 0.2rem;
-      margin: 0 -0.1rem;
-      padding-inline: 0.1rem;
+      flex-wrap: wrap;
+      overflow: visible;
+      margin: 0;
+      padding: 0;
     }
 
     :where([data-gallery-browse-shell]) .genre-chip {
@@ -1556,6 +1745,39 @@ const showGrid = defaultView === GALLERY_ARCHIVE_DEFAULT_VIEW;
     :where([data-gallery-browse-shell]) .chapter-toc-item {
       grid-template-columns: 1fr auto;
       padding: 0.75rem 0.9rem;
+    }
+  }
+
+  :where([data-gallery-browse-shell]) .grid-load-more-wrap {
+    grid-column: 1 / -1;
+    display: grid;
+    justify-items: center;
+    gap: 0.55rem;
+    padding: clamp(1.25rem, 3vw, 2rem) 1rem 0;
+    text-align: center;
+  }
+
+  :where([data-gallery-browse-shell]) .grid-load-more-wrap p {
+    margin: 0;
+    font-size: 0.88rem;
+    color: var(--color-muted);
+  }
+
+  :where([data-gallery-browse-shell]) :is(button, a, select):focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 3px;
+  }
+
+  @media (max-width: 390px) {
+    :where([data-gallery-browse-shell]) .browse-controls,
+    :where([data-gallery-browse-shell]) .chapter-room,
+    :where([data-gallery-browse-shell]) .browse-chapter-toc {
+      min-width: 0;
+    }
+
+    :where([data-gallery-browse-shell]) .genre-chip {
+      padding-inline: 0.78rem;
+      font-size: 0.88rem;
     }
   }
 </style>

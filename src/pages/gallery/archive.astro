@@ -18,6 +18,8 @@ const reviewsUrl = `${baseWithSlash}reviews/`;
 
 const galleryEntries = sortGalleryEntries(await getPublishedGallery());
 const browseModel = buildGalleryBrowseModel(galleryEntries, baseWithSlash);
+const initialBrowseModel = buildGalleryBrowseModel(galleryEntries.slice(0, 8), baseWithSlash);
+const galleryDataUrl = `${baseWithSlash}gallery/data.json`;
 const linkedReviewCount = (await Promise.all(
   galleryEntries.map(async (entry) => {
     if (!entry.data.relatedReview) return false;
@@ -99,7 +101,11 @@ const detailReadyCount = galleryEntries.filter((entry) => hasDetailContent(entry
         </div>
 
         <GalleryBrowse
-          browseModel={browseModel}
+          initialItems={initialBrowseModel.items}
+          genres={browseModel.genres}
+          chapters={browseModel.chapters}
+          dataEndpoint={galleryDataUrl}
+          initialItemLimit={8}
           defaultView="grid"
           defaultSort="latest"
           enableSort={true}

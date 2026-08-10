@@ -18,6 +18,14 @@ recommendedFor:
 purchaseLinks:
   - label: "楽天で見る"
     url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F17057917%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbook%2Fi%2F20594636%2F"
+excerptKind: "site-takeaway"
+readerWorry: "もっと頑張らなければと急ぎ、断ることまで失敗に感じるとき。"
+bookQuestion: "成長を急ぐ社会のなかで、立ち止まることをどう自分の軸にできるか。"
+perspectiveShift: "前進だけを正解にせず、断る・疑う・休むことも生活を守る行為として見直す。"
+smallStep: "今日一つだけ、引き受けなくてもよいことを断るか保留にする。"
+cocoNote: "ココちゃんが立ち止まって匂いを確かめるように、急がない時間を自分の感覚へ戻る入口にする。"
+lingeringQuestion: "いま、急がなくてもよいのに急いでいることは何だろう。"
+editorialStatus: "reviewed"
 published: true
 ---
 

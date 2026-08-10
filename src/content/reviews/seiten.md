@@ -20,6 +20,14 @@ recommendedFor:
 purchaseLinks:
   - label: 楽天で見る
     url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F18471502%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbook%2Fi%2F21819882%2F"
+excerptKind: "site-takeaway"
+readerWorry: "倒れたあと、すぐに元気にならなければと自分を急かすとき。"
+bookQuestion: "負けや挫折のあと、どんな顔で空を見上げ直せるか。"
+perspectiveShift: "立ち上がる速さを競わず、動けない時間も次の一歩をつくる過程として捉え直す。"
+smallStep: "今日しんどかったことを一つ認め、明日できる最小の行動を決める。"
+cocoNote: "ココちゃんが日向で休んでから歩くように、回復の時間を前進から切り離さない。"
+lingeringQuestion: "いまの自分が空を見上げ直すために、まず必要な休みは何だろう。"
+editorialStatus: "reviewed"
 published: true
 ---
 「青天」とはアメフト用語で、タックルを受けて仰向けに倒れること。

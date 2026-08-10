@@ -18,6 +18,14 @@ recommendedFor:
 purchaseLinks:
   - label: "楽天で見る"
     url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F18536025%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbook%2Fi%2F21875880%2F"
+excerptKind: "site-takeaway"
+readerWorry: "ニュースや出来事を点で追い、世界とのつながりを見失いそうなとき。"
+bookQuestion: "スポーツの熱狂の裏で、国家や資本はどう人の暮らしに影響しているのか。"
+perspectiveShift: "遠い出来事を自分と無関係とせず、複数の力がつながる構造として眺め直す。"
+smallStep: "今日見たニュースを一つ選び、背景にある利害や影響を一つだけ調べる。"
+cocoNote: "ココちゃんと地図を広げるように、目の前の話題の外側へゆっくり視線を伸ばす。"
+lingeringQuestion: "いま見ている出来事は、どんな遠い場所や人の暮らしとつながっているだろう。"
+editorialStatus: "reviewed"
 published: true
 ---
 「サッカーは人生の鏡である。

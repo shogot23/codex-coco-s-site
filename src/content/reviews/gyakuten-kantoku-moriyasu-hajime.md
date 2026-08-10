@@ -19,6 +19,14 @@ recommendedFor:
 purchaseLinks:
   - label: "楽天で見る"
     url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F18606683%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbook%2Fi%2F21936870%2F"
+excerptKind: "site-takeaway"
+readerWorry: "結果を急ぐあまり、周りが安心して力を出せる余白を失いそうなとき。"
+bookQuestion: "遠回りや挫折を通った人は、どうすれば人に任せる強さを持てるのか。"
+perspectiveShift: "強い組織を正解の多さではなく、安心して試せる関係の積み重ねとして見直す。"
+smallStep: "今日、誰かに任せることを一つ決め、その理由を短く伝える。"
+cocoNote: "ココちゃんがそばで見守るように、急いで答えを出さず相手の力が出る時間を待つ。"
+lingeringQuestion: "自分の周りで、安心して試せる余白をつくるには何ができるだろう。"
+editorialStatus: "reviewed"
 published: true
 ---
 W杯の開幕前に読みたい一冊。

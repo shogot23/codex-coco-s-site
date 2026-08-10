@@ -18,6 +18,14 @@ recommendedFor:
 purchaseLinks:
   - label: "楽天で見る"
     url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F13487277%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbook%2Fi%2F17696534%2F"
+excerptKind: "site-takeaway"
+readerWorry: "不安を消そうとするほど、かえって苦しさが大きくなるとき。"
+bookQuestion: "不安を抱えたままでも、大切な方向へ一歩を選べるか。"
+perspectiveShift: "幸福を達成すべき目標にせず、浮かぶ思考と距離を取りながら進む練習として捉え直す。"
+smallStep: "不安に名前を一つつけたあと、今日大切にしたい行動を五分だけ行う。"
+cocoNote: "ココちゃんが不安な場所で少しずつ近づくように、気持ちを消さずに歩幅を小さくする。"
+lingeringQuestion: "不安があっても、今日向かいたい方向はどこだろう。"
+editorialStatus: "reviewed"
 published: true
 ---
 

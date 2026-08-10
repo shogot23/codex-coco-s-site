@@ -1,8 +1,11 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import ResponsivePicture from '../../components/ResponsivePicture.astro';
 import { getEntry, type CollectionEntry } from 'astro:content';
 import { getPublishedGallery, hasDetailContent } from '../../utils/gallery';
 import { getPublishedReviews } from '../../utils/reviews';
+import { buildBreadcrumbJsonLd, buildJsonLdGraph, buildReviewJsonLd } from '../../lib/seo';
+import { getSocialImage } from '../../lib/media';
 
 export async function getStaticPaths() {
   const reviews = await getPublishedReviews();
@@ -28,7 +31,16 @@ const {
   infographic,
   recommendedFor,
   excerpt,
+  excerptKind,
+  excerptSource,
   readingCompass,
+  readerWorry,
+  bookQuestion,
+  perspectiveShift,
+  smallStep,
+  cocoNote,
+  lingeringQuestion,
+  updatedAt,
   purchaseLinks,
 } = review.data;
 const { Content } = await review.render();
@@ -65,13 +77,6 @@ const galleryListUrl = `${baseWithSlash}gallery/`;
 const isAbsoluteUrl = (value: string) =>
   /^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(value);
 
-const withBase = (assetPath: string) => {
-  if (!assetPath) return baseWithSlash;
-  if (isAbsoluteUrl(assetPath)) return assetPath;
-  if (assetPath.startsWith(baseWithSlash)) return assetPath;
-  return `${baseWithSlash}${assetPath.replace(/^\/+/, '')}`;
-};
-
 const resolveImageUrl = (imagePath: string | undefined): string | null => {
   if (!imagePath) return null;
   if (isAbsoluteUrl(imagePath)) return imagePath;
@@ -83,15 +88,27 @@ const resolveImageUrl = (imagePath: string | undefined): string | null => {
 };
 
 const allReviews = await getPublishedReviews();
+const relatedScore = (entry: CollectionEntry<'reviews'>) => {
+  const sharedTags = (entry.data.tags ?? []).filter((tag) => (tags ?? []).includes(tag)).length;
+  const sameWorry = Boolean(readerWorry && entry.data.readerWorry === readerWorry);
+  const sharedReaders = (entry.data.recommendedFor ?? []).filter((item) =>
+    (recommendedFor ?? []).includes(item)
+  ).length;
+  return sharedTags * 3 + Number(sameWorry) * 4 + sharedReaders * 2;
+};
 const otherReviews = allReviews
   .filter((entry) => entry.id !== review.id)
-  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+  .sort((a, b) => relatedScore(b) - relatedScore(a) || b.data.date.getTime() - a.data.date.getTime())
   .slice(0, 2)
   .map((entry) => ({
     title: entry.data.title,
     href: `${baseWithSlash}reviews/${entry.slug}/`,
     dateLabel: formatDate(entry.data.date),
     summary: clampText(entry.data.description ?? entry.data.excerpt ?? entry.body ?? '', 90),
+    reason:
+      (entry.data.tags ?? []).some((tag) => (tags ?? []).includes(tag))
+        ? '同じテーマから選びました'
+        : '今の暮らしに近い問いから選びました',
   }));
 
 const relatedGalleryEntries = (
@@ -109,7 +126,8 @@ const relatedGalleryUrl = primaryRelatedGallery
   ? `${baseWithSlash}gallery/${primaryRelatedGallery.slug}/`
   : galleryListUrl;
 const heroImage = infographic ?? cover ?? primaryRelatedGallery?.data.image ?? null;
-const heroImageUrl = heroImage ? resolveImageUrl(heroImage) : null;
+const socialHeroImage = heroImage ? getSocialImage(heroImage, baseWithSlash) : null;
+const heroImageUrl = socialHeroImage ? resolveImageUrl(socialHeroImage) : null;
 const supplementalTitle = bookTitle && bookTitle !== title ? bookTitle : null;
 const hasGuidance = Boolean((recommendedFor && recommendedFor.length > 0) || (tags && tags.length > 0));
 const hasCompanionNote = Boolean(readingCompass);
@@ -122,39 +140,36 @@ const openingPurchaseLabel = hasMultiplePurchaseLinks
 const pageDescription = description ?? excerpt ?? `${title}のレビュー詳細`;
 
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site!).toString();
-const articleJsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'Article',
-  headline: title,
-  description: pageDescription,
-  image: heroImageUrl || undefined,
-  datePublished: date.toISOString(),
-  dateModified: date.toISOString(),
-  author: {
-    '@type': 'Organization',
-    name: '読書 with Coco',
-  },
-  publisher: {
-    '@type': 'Organization',
-    name: '読書 with Coco',
-  },
-  mainEntityOfPage: {
-    '@type': 'WebPage',
-    '@id': canonicalUrl,
-  },
-};
+const reviewsAbsoluteUrl = new URL(reviewsListUrl, Astro.site!).toString();
+const reviewJsonLd = buildJsonLdGraph([
+  buildReviewJsonLd({
+    url: canonicalUrl,
+    title,
+    description: pageDescription,
+    datePublished: date,
+    dateModified: updatedAt,
+    image: heroImageUrl,
+    bookTitle: bookTitle ?? title,
+    author,
+  }),
+  buildBreadcrumbJsonLd([
+    { name: 'レビュー', url: reviewsAbsoluteUrl },
+    { name: title, url: canonicalUrl },
+  ]),
+]);
 ---
 
 <Layout
   title={`${title} | Reviews`}
   description={pageDescription}
-  image={heroImage ?? undefined}
+  image={socialHeroImage ?? undefined}
+  imageAlt={`${title}のレビュー OGP画像`}
   type="article"
-  jsonLd={articleJsonLd}
+  jsonLd={reviewJsonLd}
 >
   <section class="review-story" aria-labelledby="review-title">
-    <nav class="breadcrumb" aria-label="Breadcrumb">
-      <a href={reviewsListUrl}>Reviews</a>
+    <nav class="breadcrumb" aria-label="パンくずリスト">
+      <a href={reviewsListUrl}>レビュー</a>
       <span class="separator" aria-hidden="true">/</span>
       <span class="current" aria-current="page">{title}</span>
     </nav>
@@ -185,9 +200,13 @@ const articleJsonLd = {
           {description && <p class="lead">{description}</p>}
 
           {excerpt && (
-            <blockquote class="opening-quote">
-              <p>“{excerpt}”</p>
-            </blockquote>
+            <div class="opening-quote">
+              <p class="panel-kicker">
+                {excerptKind === 'direct-quote' ? '本からの引用' : '読書 with Coco の要約'}
+              </p>
+              {excerptKind === 'direct-quote' ? <blockquote><p>“{excerpt}”</p></blockquote> : <p>{excerpt}</p>}
+              {excerptKind === 'direct-quote' && excerptSource && <cite>{excerptSource}</cite>}
+            </div>
           )}
 
           <p class="opening-note">
@@ -222,13 +241,14 @@ const articleJsonLd = {
         <div class="opening-visual">
           <div class="hero-media">
             {heroImage ? (
-              <img
-                src={withBase(heroImage)}
+              <ResponsivePicture
+                src={heroImage}
                 alt={`${title}のレビューイメージ`}
+                role="hero"
                 loading="eager"
-                decoding="async"
-                width="640"
-                height="800"
+                fetchpriority="high"
+                width={640}
+                height={800}
               />
             ) : (
               <div class="hero-fallback" aria-hidden="true">
@@ -301,6 +321,25 @@ const articleJsonLd = {
         </div>
       </section>
 
+      {(readerWorry || bookQuestion || perspectiveShift || smallStep || cocoNote || lingeringQuestion) && (
+        <section class="reading-repair" aria-labelledby="reading-repair-title">
+          <div class="section-head">
+            <div>
+              <p class="section-label">Life Repair Notes</p>
+              <h2 id="reading-repair-title">この本を、今日の暮らしへ持ち帰る。</h2>
+            </div>
+          </div>
+          <dl class="repair-grid">
+            {readerWorry && <div><dt>こんなモヤモヤに</dt><dd>{readerWorry}</dd></div>}
+            {bookQuestion && <div><dt>本が投げかける問い</dt><dd>{bookQuestion}</dd></div>}
+            {perspectiveShift && <div><dt>見方の変化</dt><dd>{perspectiveShift}</dd></div>}
+            {smallStep && <div><dt>今日の小さな一歩</dt><dd>{smallStep}</dd></div>}
+            {cocoNote && <div><dt>ココちゃんのしおり</dt><dd>{cocoNote}</dd></div>}
+            {lingeringQuestion && <div><dt>読後に残す問い</dt><dd>{lingeringQuestion}</dd></div>}
+          </dl>
+        </section>
+      )}
+
       <section class="afterglow" aria-labelledby="afterglow-title">
         <div class="section-head">
           <div>
@@ -317,13 +356,13 @@ const articleJsonLd = {
           {primaryRelatedGallery ? (
             <a class="afterglow-gallery ui-action" href={relatedGalleryUrl}>
               <div class="afterglow-gallery-media">
-                <img
-                  src={withBase(primaryRelatedGallery.data.image)}
+                <ResponsivePicture
+                  src={primaryRelatedGallery.data.image}
                   alt={`${primaryRelatedGallery.data.title}のギャラリーイメージ`}
+                  role="card"
                   loading="lazy"
-                  decoding="async"
-                  width="960"
-                  height="720"
+                  width={960}
+                  height={720}
                 />
               </div>
 
@@ -370,6 +409,7 @@ const articleJsonLd = {
                         <span>{entry.dateLabel}</span>
                         <strong>{entry.title}</strong>
                         {entry.summary && <small>{entry.summary}</small>}
+                        <small>{entry.reason}</small>
                       </a>
                     </li>
                   ))}
@@ -408,7 +448,9 @@ const articleJsonLd = {
                   ))}
                 </div>
 
-                <p class="purchase-note">外部ストアへ移動します。</p>
+                <p class="purchase-note">
+                  外部ストアへ移動します。リンクにはアフィリエイトを含む場合があります。
+                </p>
               </aside>
             )}
           </div>
@@ -633,7 +675,7 @@ const articleJsonLd = {
       linear-gradient(160deg, rgba(10, 74, 139, 0.08), rgba(122, 92, 23, 0.16));
   }
 
-  .hero-media img {
+  .hero-media :global(img) {
     display: block;
     width: 100%;
     height: auto;
@@ -889,7 +931,7 @@ const articleJsonLd = {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
 
-  .afterglow-gallery-media img {
+  .afterglow-gallery-media :global(img) {
     display: block;
     width: 100%;
     height: auto;
@@ -998,6 +1040,37 @@ const articleJsonLd = {
     line-height: 1.4;
   }
 
+  .reading-repair {
+    padding: clamp(22px, 4vw, 40px);
+    border: 1px solid rgba(141, 91, 42, 0.14);
+    border-radius: var(--radius-lg);
+    background: linear-gradient(145deg, rgba(255, 252, 246, 0.98), rgba(241, 236, 225, 0.9));
+  }
+
+  .repair-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    margin: 20px 0 0;
+  }
+
+  .repair-grid div {
+    padding: 16px;
+    border-left: 3px solid rgba(124, 77, 33, 0.3);
+    background: rgba(255, 255, 255, 0.62);
+  }
+
+  .repair-grid dt {
+    color: #7a5c17;
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+
+  .repair-grid dd {
+    margin: 8px 0 0;
+    line-height: 1.75;
+  }
+
   @media (min-width: 860px) {
     .opening {
       grid-template-columns: minmax(0, 1.12fr) minmax(320px, 0.88fr);
@@ -1018,7 +1091,7 @@ const articleJsonLd = {
       min-height: 100%;
     }
 
-    .afterglow-gallery-media img {
+    .afterglow-gallery-media :global(img) {
       height: 100%;
       object-fit: cover;
     }
@@ -1032,6 +1105,7 @@ const articleJsonLd = {
     .opening,
     .guidance,
     .body-section,
+    .reading-repair,
     .afterglow {
       border-radius: var(--radius-md);
     }

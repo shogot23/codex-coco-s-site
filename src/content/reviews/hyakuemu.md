@@ -21,6 +21,14 @@ purchaseLinks:
     url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F17065427%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbook%2Fi%2F20600589%2F"
   - label: 楽天で見る（下巻）
     url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F17065428%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbook%2Fi%2F20600572%2F"
+excerptKind: "site-takeaway"
+readerWorry: "周りの速さに追われ、自分が何に全力を注ぎたいのか分からなくなるとき。"
+bookQuestion: "勝ち負けの先で、自分だけの十秒を何に懸けるのか。"
+perspectiveShift: "成果の比較から少し離れ、自分が熱を持てる時間を見つける問いとして受け取る。"
+smallStep: "今週、十分だけでも集中したいことのために時間を確保する。"
+cocoNote: "ココちゃんが走り出す前に耳を澄ますように、自分の走る理由を急がず確かめる。"
+lingeringQuestion: "私が全力を注ぎたい自分だけの十秒は、どこにあるだろう。"
+editorialStatus: "reviewed"
 published: true
 ---
 人生長いんだ　一瞬を気にすんなよ

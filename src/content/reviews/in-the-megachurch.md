@@ -15,6 +15,14 @@ recommendedFor:
 purchaseLinks:
   - label: "楽天で見る"
     url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F18328668%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbook%2Fi%2F21691921%2F"
+excerptKind: "site-takeaway"
+readerWorry: "昔ほど夢中になれない自分を、冷めたのだと責めてしまうとき。"
+bookQuestion: "自分を支える物語は、どこで力になり、どこで視野を狭めるのか。"
+perspectiveShift: "熱狂の喪失を衰えと決めず、立場や成長によって距離が変わるものとして見直す。"
+smallStep: "以前好きだったものを一つ思い出し、今も残っている理由を一行書く。"
+cocoNote: "ココちゃんと昔の景色を見返すように、変わった自分を急いで否定しない。"
+lingeringQuestion: "いまの自分を支える物語は、どんな距離にあるだろう。"
+editorialStatus: "reviewed"
 published: true
 ---
 「熱狂が消えたのは、冷めたからじゃなくて“成長”だったのかもしれない。」説。

@@ -18,6 +18,14 @@ recommendedFor:
 purchaseLinks:
   - label: "楽天で見る"
     url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F18568447%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbook%2Fi%2F21902951%2F"
+excerptKind: "site-takeaway"
+readerWorry: "情報が多すぎて、何を信じ、どう考えればよいか迷うとき。"
+bookQuestion: "人文知を、目の前の仕事や暮らしの判断にどう使えるか。"
+perspectiveShift: "教養を知識の飾りではなく、問いを立て直すための実用的な道具として見直す。"
+smallStep: "今日触れた情報に対して、なぜそう言えるのかを一度だけ問い直す。"
+cocoNote: "ココちゃんと本棚から一冊選ぶように、難しい言葉も暮らしの問いへ引き寄せてみる。"
+lingeringQuestion: "いまの生活で、知識を使って見直したい前提は何だろう。"
+editorialStatus: "reviewed"
 published: true
 ---
 

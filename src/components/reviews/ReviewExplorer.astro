@@ -1,0 +1,248 @@
+---
+type ReviewExplorerItem = {
+  slug: string;
+  title: string;
+  bookTitle?: string | null;
+  author?: string;
+  href: string;
+  image?: string;
+  dateLabel: string;
+  summary: string;
+  readerWorry?: string;
+  smallStep?: string;
+  tags: string[];
+};
+
+interface Props {
+  items: ReviewExplorerItem[];
+  initialLimit?: number;
+}
+
+const { items, initialLimit = 8 } = Astro.props;
+const initialItems = items.slice(0, initialLimit);
+const situations = [...new Set(items.map((item) => item.readerWorry).filter(Boolean))] as string[];
+const payload = JSON.stringify(items)
+  .replace(/</g, '\\u003C')
+  .replace(/>/g, '\\u003E')
+  .replace(/&/g, '\\u0026');
+---
+
+<section class="review-explorer" data-review-explorer data-page-size={initialLimit}>
+  <form class="review-controls" role="search" aria-label="レビューを探す">
+    <label>
+      <span>キーワード</span>
+      <input type="search" name="q" autocomplete="off" placeholder="本の題名、著者、問い" aria-label="レビューを検索" />
+    </label>
+    <label>
+      <span>今のモヤモヤ</span>
+      <select name="situation">
+        <option value="">すべての入口</option>
+        {situations.map((situation) => <option value={situation}>{situation}</option>)}
+      </select>
+    </label>
+    <button type="submit">この条件で探す</button>
+    <button type="reset">条件を戻す</button>
+  </form>
+
+  <p class="review-results" aria-live="polite" data-review-results>
+    {items.length}冊のうち{Math.min(initialLimit, items.length)}冊を表示
+  </p>
+
+  <ol class="review-list" data-review-list>
+    {initialItems.map((item, index) => (
+      <li class="review-item" data-review-slug={item.slug}>
+        <span class="review-order" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+        {item.image && (
+          <a class="review-media" href={item.href} tabindex="-1" aria-hidden="true">
+            <img src={item.image} alt="" loading="lazy" decoding="async" width="180" height="220" />
+          </a>
+        )}
+        <div class="review-copy">
+          <p class="review-tags">{item.tags.slice(0, 2).join(' / ') || 'Review'}</p>
+          <h3><a href={item.href}>{item.title}</a></h3>
+          {item.bookTitle && <p class="review-book-title">{item.bookTitle}</p>}
+          {item.author && <p class="review-author">著者: {item.author}</p>}
+          <p>{item.summary}</p>
+          {item.readerWorry && <p class="review-worry"><strong>こんなモヤモヤに</strong>{item.readerWorry}</p>}
+          {item.smallStep && <p class="review-step"><strong>今日の一歩</strong>{item.smallStep}</p>}
+          <a class="review-link" href={item.href}>レビューを読む</a>
+        </div>
+      </li>
+    ))}
+  </ol>
+
+  <div class="review-more-wrap" data-review-more-wrap hidden={items.length <= initialLimit}>
+    <button class="review-more" type="button" data-review-more>さらにレビューを読む</button>
+  </div>
+
+  <div class="review-empty" data-review-empty hidden>
+    <h3>近い入口が見つかりませんでした。</h3>
+    <p>条件を少し広げるか、すべてのレビューへ戻してみてください。</p>
+  </div>
+</section>
+
+<script is:inline type="application/json" data-review-payload set:html={payload}></script>
+
+<script>
+  type Item = {
+    slug: string;
+    title: string;
+    bookTitle?: string | null;
+    author?: string;
+    href: string;
+    image?: string;
+    dateLabel: string;
+    summary: string;
+    readerWorry?: string;
+    smallStep?: string;
+    tags: string[];
+  };
+
+  const root = document.querySelector<HTMLElement>('[data-review-explorer]');
+  const payloadNode = document.querySelector<HTMLScriptElement>('[data-review-payload]');
+  const form = root?.querySelector<HTMLFormElement>('form');
+  const list = root?.querySelector<HTMLOListElement>('[data-review-list]');
+  const results = root?.querySelector<HTMLElement>('[data-review-results]');
+  const more = root?.querySelector<HTMLButtonElement>('[data-review-more]');
+  const moreWrap = root?.querySelector<HTMLElement>('[data-review-more-wrap]');
+  const empty = root?.querySelector<HTMLElement>('[data-review-empty]');
+
+  if (root && payloadNode && form && list && results && more && moreWrap && empty) {
+    const allItems = JSON.parse(payloadNode.textContent || '[]') as Item[];
+    const pageSize = Number(root.dataset.pageSize || 8);
+    let visibleCount = pageSize;
+
+    const text = (tag: string, value: string, className?: string) => {
+      const node = document.createElement(tag);
+      node.textContent = value;
+      if (className) node.className = className;
+      return node;
+    };
+
+    const createItem = (item: Item, index: number) => {
+      const li = document.createElement('li');
+      li.className = 'review-item';
+      li.dataset.reviewSlug = item.slug;
+      li.append(text('span', String(index + 1).padStart(2, '0'), 'review-order'));
+
+      if (item.image) {
+        const media = document.createElement('a');
+        media.className = 'review-media';
+        media.href = item.href;
+        media.tabIndex = -1;
+        media.setAttribute('aria-hidden', 'true');
+        const image = document.createElement('img');
+        image.src = item.image;
+        image.alt = '';
+        image.loading = 'lazy';
+        image.decoding = 'async';
+        image.width = 180;
+        image.height = 220;
+        media.append(image);
+        li.append(media);
+      }
+
+      const copy = document.createElement('div');
+      copy.className = 'review-copy';
+      copy.append(text('p', item.tags.slice(0, 2).join(' / ') || 'Review', 'review-tags'));
+      const heading = document.createElement('h3');
+      const titleLink = document.createElement('a');
+      titleLink.href = item.href;
+      titleLink.textContent = item.title;
+      heading.append(titleLink);
+      copy.append(heading);
+      if (item.bookTitle) copy.append(text('p', item.bookTitle, 'review-book-title'));
+      if (item.author) copy.append(text('p', `著者: ${item.author}`, 'review-author'));
+      copy.append(text('p', item.summary));
+      if (item.readerWorry) {
+        const worry = text('p', '', 'review-worry');
+        worry.append(text('strong', 'こんなモヤモヤに'), document.createTextNode(item.readerWorry));
+        copy.append(worry);
+      }
+      if (item.smallStep) {
+        const step = text('p', '', 'review-step');
+        step.append(text('strong', '今日の一歩'), document.createTextNode(item.smallStep));
+        copy.append(step);
+      }
+      const link = text('a', 'レビューを読む', 'review-link') as HTMLAnchorElement;
+      link.href = item.href;
+      copy.append(link);
+      li.append(copy);
+      return li;
+    };
+
+    const readState = () => {
+      const params = new URLSearchParams(location.search);
+      const q = params.get('q') ?? '';
+      const situation = params.get('situation') ?? '';
+      const page = Math.max(1, Number(params.get('page') ?? 1));
+      const search = form.elements.namedItem('q') as HTMLInputElement;
+      const select = form.elements.namedItem('situation') as HTMLSelectElement;
+      search.value = q;
+      select.value = situation;
+      visibleCount = page * pageSize;
+      return { q, situation };
+    };
+
+    const render = () => {
+      const { q, situation } = readState();
+      const needle = q.trim().toLocaleLowerCase('ja');
+      const filtered = allItems.filter((item) => {
+        const haystack = [item.title, item.bookTitle, item.author, item.summary, item.readerWorry, item.smallStep, ...item.tags]
+          .filter(Boolean)
+          .join(' ')
+          .toLocaleLowerCase('ja');
+        return (!needle || haystack.includes(needle)) && (!situation || item.readerWorry === situation);
+      });
+      const shown = filtered.slice(0, visibleCount);
+      list.replaceChildren(...shown.map(createItem));
+      results.textContent = `${filtered.length}冊のうち${shown.length}冊を表示`;
+      empty.hidden = filtered.length > 0;
+      moreWrap.hidden = shown.length >= filtered.length;
+    };
+
+    const writeState = (page = 1) => {
+      const data = new FormData(form);
+      const params = new URLSearchParams();
+      const q = String(data.get('q') ?? '').trim();
+      const situation = String(data.get('situation') ?? '');
+      if (q) params.set('q', q);
+      if (situation) params.set('situation', situation);
+      if (page > 1) params.set('page', String(page));
+      history.pushState(null, '', `${location.pathname}${params.size ? `?${params}` : ''}`);
+      render();
+    };
+
+    form.addEventListener('submit', (event) => { event.preventDefault(); writeState(1); });
+    form.addEventListener('reset', () => requestAnimationFrame(() => writeState(1)));
+    more.addEventListener('click', () => writeState(Math.floor(visibleCount / pageSize) + 1));
+    addEventListener('popstate', render);
+    render();
+  }
+</script>
+
+<style>
+  .review-explorer { display: grid; gap: 18px; }
+  .review-controls { display: grid; grid-template-columns: minmax(180px, 1fr) minmax(180px, 1fr) auto auto; gap: 10px; align-items: end; }
+  .review-controls label { display: grid; gap: 6px; color: var(--color-muted); font-size: 0.86rem; }
+  .review-controls input, .review-controls select, .review-controls button, .review-more { min-height: 46px; border: 1px solid var(--color-border); border-radius: 14px; padding: 0 12px; background: rgba(255,255,255,.86); color: var(--color-text); font: inherit; }
+  .review-controls button, .review-more { cursor: pointer; font-weight: 700; }
+  .review-results { margin: 0; color: var(--color-muted); }
+  .review-list { display: grid; gap: 14px; margin: 0; padding: 0; list-style: none; }
+  .review-item { display: grid; grid-template-columns: 42px 112px minmax(0, 1fr); gap: 18px; align-items: start; padding: 18px 0; border-top: 1px solid var(--color-border); }
+  .review-order, .review-tags, .review-author, .review-book-title { color: var(--color-muted); font-size: .86rem; }
+  .review-media { overflow: hidden; border-radius: 16px; aspect-ratio: 4 / 5; background: var(--color-nav-strong); }
+  .review-media img { width: 100%; height: 100%; object-fit: cover; }
+  .review-copy { display: grid; gap: 8px; }
+  .review-copy :is(h3,p) { margin: 0; }
+  .review-copy h3 { font-family: var(--font-headline); font-size: clamp(1.25rem, 2vw, 1.65rem); }
+  .review-copy > p:not([class]) { color: var(--color-muted); line-height: 1.7; }
+  .review-worry, .review-step { display: grid; gap: 2px; line-height: 1.6; }
+  .review-worry strong, .review-step strong { color: #7a5c17; font-size: .78rem; }
+  .review-link { justify-self: start; font-weight: 700; text-decoration: underline; text-underline-offset: .22em; }
+  .review-more-wrap { text-align: center; }
+  .review-more { padding-inline: 20px; }
+  .review-empty { padding: 28px; text-align: center; background: rgba(255,255,255,.5); border-radius: 20px; }
+  @media (max-width: 780px) { .review-controls { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 560px) { .review-controls { grid-template-columns: 1fr; } .review-item { grid-template-columns: 34px 82px minmax(0,1fr); gap: 10px; } }
+</style>

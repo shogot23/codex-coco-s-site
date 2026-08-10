@@ -19,6 +19,14 @@ recommendedFor:
 purchaseLinks:
   - label: "楽天で見る"
     url: "https://af.moshimo.com/af/c/click?a_id=5459507&p_id=54&pc_id=54&pl_id=616&url=https%3A%2F%2Fitem.rakuten.co.jp%2Fbook%2F18127388%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbook%2Fi%2F21514668%2F"
+excerptKind: "site-takeaway"
+readerWorry: "先が見えない状況で、一人で抱え込みそうになるとき。"
+bookQuestion: "仲間を信じて進むとは、何を守る選択なのか。"
+perspectiveShift: "冒険の派手さの奥にある信頼を、自分の周りの関係を見直す手がかりにする。"
+smallStep: "今日、頼りたい相手に短い相談を一つしてみる。"
+cocoNote: "ココちゃんがそばの人を確かめるように、先の見えなさを一人で背負わない。"
+lingeringQuestion: "いまの自分は、誰と何を守るために進みたいだろう。"
+editorialStatus: "reviewed"
 published: true
 ---
 やっぱり『ONE PIECE』を読むと、
@@ -35,4 +43,3 @@ published: true
 元気を出したいときはもちろん、
 自分が誰とどんなふうに進みたいのかを思い出したいときにも合う巻でした。
 波が引いたあとにも、前を向く気持ちだけがしっかり残ります。
-
