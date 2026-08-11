@@ -191,20 +191,15 @@ test('home first viewport shows brand and review-led hero CTA flow', async ({ pa
 
   await hero.getByRole('link', { name: 'レビューを見る', exact: true }).click();
   await expect(page).toHaveURL(/\/codex-coco-s-site\/reviews\/$/);
-  await expect(page.getByRole('heading', { name: '次の一冊をひらく前に、言葉の余韻をひとくち。' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'いまの気持ちに、静かな一冊を。' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'まずは、この一冊から。' })).toBeVisible();
-  await expect(page.locator('#review-compass')).toBeVisible();
-  await expect(page.getByRole('heading', { name: '今の入口から、一冊を選ぶ。' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: '気分から選ぶ' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'モヤモヤから選ぶ' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: '気づきから選ぶ' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: '今日の小さな一歩' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: '気になる余韻から、次の一冊へ。' })).toBeVisible();
-  await expect(page.getByRole('searchbox', { name: 'レビューを検索' })).toBeVisible();
+  await expect(page.getByText('今日の小さな一歩', { exact: true })).toBeVisible();
   await expect(page.locator('#review-stream')).toBeVisible();
+  await expect(page.getByRole('heading', { name: '本棚から、次の一冊へ。' })).toBeVisible();
+  await expect(page.getByRole('searchbox', { name: 'レビューを検索' })).toBeVisible();
 
   await page
-    .locator('#review-compass')
+    .locator('#review-stream')
     .getByRole('link', { name: /積読こそが完全な読書術である/ })
     .click();
   await expect(page).toHaveURL(/\/codex-coco-s-site\/reviews\/tsundoku-dokushojutsu\/$/);
@@ -252,7 +247,7 @@ test('primary navigation keeps reviews first and makes every public room discove
 
   await primaryNav.getByRole('link', { name: 'レビュー', exact: true }).click();
   await expect(page).toHaveURL(/\/codex-coco-s-site\/reviews\/$/);
-  await expect(page.getByRole('heading', { name: '次の一冊をひらく前に、言葉の余韻をひとくち。' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'いまの気持ちに、静かな一冊を。' })).toBeVisible();
 
   await openMobileMenuIfNeeded(page);
   primaryNav = page.getByRole('navigation', { name: '主要ナビゲーション' });
@@ -300,7 +295,7 @@ test('profile introduces coco as the site guide and keeps review/gallery as the 
 
   await hero.getByRole('link', { name: 'レビューを見る', exact: true }).click();
   await expect(page).toHaveURL(/\/codex-coco-s-site\/reviews\/$/);
-  await expect(page.getByRole('heading', { name: '次の一冊をひらく前に、言葉の余韻をひとくち。' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'いまの気持ちに、静かな一冊を。' })).toBeVisible();
   await expectNoHorizontalOverflow(page);
 });
 
@@ -423,7 +418,7 @@ test('gallery works as a scenic side path without breaking the review-led struct
 
   await page.getByRole('link', { name: 'レビューを読む', exact: true }).click();
   await expect(page).toHaveURL(/\/codex-coco-s-site\/reviews\/$/);
-  await expect(page.getByRole('heading', { name: '次の一冊をひらく前に、言葉の余韻をひとくち。' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'いまの気持ちに、静かな一冊を。' })).toBeVisible();
 });
 
 test('gallery archive works as a searchable catalog with grid-first state sync', async ({ page }) => {
@@ -579,7 +574,7 @@ test('gallery detail falls back to purchase links when no related review exists'
   await expect(reviewListLink).toBeVisible();
   await reviewListLink.click();
   await expect(page).toHaveURL(/\/codex-coco-s-site\/reviews\/$/);
-  await expect(page.getByRole('heading', { name: '次の一冊をひらく前に、言葉の余韻をひとくち。' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'いまの気持ちに、静かな一冊を。' })).toBeVisible();
 });
 
 test('about page remains readable on small and large viewports', async ({ page }) => {
@@ -615,7 +610,7 @@ test('mobile brand pages keep compact first-view cues', async ({ page, isMobile 
 
   await page.goto(`${SITE_BASE}reviews/`);
   await expectMobileHeaderCompact(page);
-  await expect(page.locator('.hero-panel img, .hero-panel .media-fallback').first()).toBeVisible();
+  await expect(page.locator('.featured-media img, .featured-media .media-fallback').first()).toBeVisible();
   await expectHeroCtasCompact(page.locator('.hero .hero-actions .hero-button'));
   await expectVisibleInViewport(
     page,
