@@ -187,48 +187,4 @@ const gallery = defineCollection({
   }),
 });
 
-// Allowed video URL hosts for embed
-const ALLOWED_VIDEO_HOSTS = [
-  'youtube.com',
-  'www.youtube.com',
-  'youtu.be',
-  'instagram.com',
-  'www.instagram.com',
-] as const;
-
-// Validate video URL: must be https and from allowed hosts
-// Empty strings are treated as undefined (CMS may save empty strings for optional fields)
-const videoUrlSchema = z.preprocess(
-  (val) => (val === '' ? undefined : val),
-  z.string().url().optional().refine(
-    (url) => {
-      if (!url) return true;
-      try {
-        const parsed = new URL(url);
-        if (parsed.protocol !== 'https:') return false;
-        return ALLOWED_VIDEO_HOSTS.includes(parsed.hostname as typeof ALLOWED_VIDEO_HOSTS[number]);
-      } catch {
-        return false;
-      }
-    },
-    { message: 'URL must be https and from youtube.com, youtu.be, or instagram.com' }
-  )
-);
-
-const videos = defineCollection({
-  type: 'content',
-  schema: z.object({
-    title: z.string(),
-    date: z.coerce.date(),
-    thumbnail: optionalString,
-    url: videoUrlSchema,
-    videoSrc: optionalString,
-    poster: optionalString,
-    captions: optionalString,
-    transcript: optionalString,
-    updatedAt: z.coerce.date().optional(),
-    note: optionalString,
-  }),
-});
-
-export const collections = { profile, about, reviews, gallery, videos };
+export const collections = { profile, about, reviews, gallery };

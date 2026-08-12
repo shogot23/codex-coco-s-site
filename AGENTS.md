@@ -34,7 +34,7 @@
 - `src/pages/`: Astro pages。`index.astro` が first viewport の基準。
 - `src/layouts/`: 共通レイアウト。全体トークンと global shell はここを起点に扱う。
 - `src/components/`: SEO などの共通部品。
-- `src/content/`: About / Profile / Reviews / Gallery / Videos の実データ。
+- `src/content/`: About / Profile / Reviews / Gallery の実データ。
 - `src/utils/`: content collections を整形する補助。
 - `src/styles/`: 共通デザイントークンとベーススタイル。
 - `public/`: 固定アセットと CMS。

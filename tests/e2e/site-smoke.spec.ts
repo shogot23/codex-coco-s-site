@@ -152,31 +152,6 @@ const expectImageObjectFitCover = async (locator: Locator) => {
   expect(objectFit).toBe('cover');
 };
 
-const expectVideoCardsFitViewport = async (page: Page) => {
-  const videoCards = page.locator('.fragment-card').filter({ has: page.locator('video') });
-  await expect(videoCards).toHaveCount(3);
-
-  const cardMetrics = await videoCards.evaluateAll((elements) => {
-    return elements.map((element) => {
-      const rect = element.getBoundingClientRect();
-      const video = element.querySelector('video');
-      return {
-        height: Math.ceil(rect.height),
-        viewportHeight: window.innerHeight,
-        title: element.querySelector('h3')?.textContent?.trim() ?? 'untitled',
-        videoObjectFit: video ? getComputedStyle(video).objectFit : '',
-      };
-    });
-  });
-
-  for (const metric of cardMetrics) {
-    expect(metric.height, `${metric.title} card should fit in one viewport`).toBeLessThanOrEqual(
-      metric.viewportHeight
-    );
-    expect(metric.videoObjectFit).toBe('contain');
-  }
-};
-
 test('home first viewport shows brand and review-led hero CTA flow', async ({ page }) => {
   await page.goto(SITE_BASE);
 
@@ -237,13 +212,20 @@ test('home offers a secondary shortcut to the 3books landing page', async ({ pag
   await expectNoHorizontalOverflow(page);
 });
 
-test('primary navigation keeps reviews first and makes every public room discoverable', async ({ page }) => {
+test('primary navigation keeps reviews first and removes the retired videos room', async ({ page }) => {
   await page.goto(SITE_BASE);
   await openMobileMenuIfNeeded(page);
 
   let primaryNav = page.getByRole('navigation', { name: '主要ナビゲーション' });
 
-  await expect(primaryNav.getByRole('link', { name: '動画', exact: true })).toBeVisible();
+  await expect(primaryNav.getByRole('link')).toHaveText([
+    'ホーム',
+    'レビュー',
+    'ギャラリー',
+    'このサイトについて',
+    'プロフィール',
+  ]);
+  await expect(primaryNav.getByRole('link', { name: '動画', exact: true })).toHaveCount(0);
 
   await primaryNav.getByRole('link', { name: 'レビュー', exact: true }).click();
   await expect(page).toHaveURL(/\/codex-coco-s-site\/reviews\/$/);
@@ -258,25 +240,30 @@ test('primary navigation keeps reviews first and makes every public room discove
   await expectNoHorizontalOverflow(page);
 });
 
-test('about page guides interested readers to the moving fragments room', async ({ page }) => {
+test('about page keeps review and gallery as its only world bridge paths', async ({ page }) => {
   await page.goto(`${SITE_BASE}about/`);
 
-  const fragmentsLink = page.getByRole('link', { name: '動く断片を見る', exact: true });
-  await expect(fragmentsLink).toBeVisible();
-  await fragmentsLink.click();
-
-  await expect(page).toHaveURL(/\/codex-coco-s-site\/videos\/$/);
-  await expect(page.getByRole('heading', { name: '読後の余韻を、少しだけ動かして置いておく。' })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'レビューへ戻る', exact: true })).toBeVisible();
+  const bridge = page.locator('.bridge-room');
+  await expect(bridge.getByRole('link')).toHaveCount(2);
+  await expect(bridge.getByRole('link', { name: 'レビューを見る', exact: true })).toBeVisible();
+  await expect(bridge.getByRole('link', { name: 'ギャラリーを見る', exact: true })).toBeVisible();
+  await expect(page.getByRole('link', { name: '動く断片を見る', exact: true })).toHaveCount(0);
   await expectNoHorizontalOverflow(page);
 });
 
-test('videos page keeps self-hosted video cards inside one viewport', async ({ page }) => {
-  await page.goto(`${SITE_BASE}videos/`);
+test('retired videos route uses the branded 404 with a review path', async ({ page }) => {
+  const response = await page.goto(`${SITE_BASE}videos/`);
 
-  await expect(page.getByRole('heading', { name: '読後の余韻を、少しだけ動かして置いておく。' })).toBeVisible();
-  await expect(page.locator('.fragment-card video').first()).toBeVisible();
-  await expectVideoCardsFitViewport(page);
+  expect(response?.status()).toBe(404);
+  await expect(page.getByRole('heading', { name: 'しおりを挟んだページが、見つかりませんでした。' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'レビューから探す', exact: true })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'ホームへ戻る', exact: true })).toBeVisible();
+  const notFoundBounds = await page.locator('.not-found').evaluate((element) => {
+    const rect = element.getBoundingClientRect();
+    return { left: rect.left, right: rect.right, viewportWidth: window.innerWidth };
+  });
+  expect(notFoundBounds.left).toBeGreaterThanOrEqual(0);
+  expect(notFoundBounds.right).toBeLessThanOrEqual(notFoundBounds.viewportWidth);
   await expectNoHorizontalOverflow(page);
 });
 
@@ -289,7 +276,7 @@ test('profile introduces coco as the site guide and keeps review/gallery as the 
   await expect(hero.locator('.hero-footnote p')).toContainText('難しい本への緊張をほどき');
   await expect(page.getByText('このサイトでのおしごと', { exact: true })).toBeVisible();
   await expect(page.getByText('いっしょに、次の一冊の景色を見にいこう。')).toBeVisible();
-  await expect(page.getByRole('link', { name: /Fragments/ })).toHaveCount(0);
+  await expect(page.getByRole('link', { name: /Fragments|動画|動く断片/ })).toHaveCount(0);
   await expect(hero.getByRole('link', { name: 'レビューを見る', exact: true })).toBeVisible();
   await expect(hero.getByRole('link', { name: 'ギャラリーを見る', exact: true })).toBeVisible();
 

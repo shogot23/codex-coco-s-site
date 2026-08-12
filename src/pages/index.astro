@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import ResponsivePicture from '../components/ResponsivePicture.astro';
-import { getCollection, getEntry } from 'astro:content';
+import { getEntry } from 'astro:content';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { buildReviewGalleryMap, getPublishedGallery, hasDetailContent } from '../utils/gallery';
@@ -165,9 +165,6 @@ const heroPostcards = galleryHighlights.slice(0, 2);
 const galleryLead = galleryHighlights[0] ?? null;
 const galleryTrail = galleryHighlights.slice(1, 3);
 
-const videoEntries = await getCollection('videos');
-const publishedVideoCount = videoEntries.length;
-
 const supportItems = [
   {
     label: 'Review',
@@ -178,11 +175,6 @@ const supportItems = [
     label: 'Gallery',
     title: '読書からこぼれた景色を、そっと見返す。',
     body: '気になった一冊の空気を、ココちゃんと一緒にビジュアルで確かめます。',
-  },
-  {
-    label: 'Fragments',
-    title: '余韻が動いた瞬間だけ、静かな断片として残す。',
-    body: `${publishedVideoCount}本の動くメモは、レビューとギャラリーを読み終えたあとにだけ、そっと開ける小さな余白です。`,
   },
 ];
 
@@ -198,7 +190,7 @@ const worldAsideCopy =
 
 <Layout
   title="読書 with Coco - 読書で生まれた世界を、ココちゃんが旅する"
-  description="レビューを入口に、ギャラリーと静かな断片で読書の余韻を深める『読書 with Coco』のトップページ。"
+  description="レビューを入口に、ココちゃんとギャラリーで本から生まれた景色を見返す『読書 with Coco』のトップページ。"
   image={getSocialImage(avatar, BASE_URL)}
   imageAlt="読書 with Coco の案内役ココちゃん"
 >
@@ -284,10 +276,10 @@ const worldAsideCopy =
 
     <section class="support-section" aria-labelledby="support-heading">
       <div class="section-intro">
-        <p class="section-label">Three Quiet Windows</p>
-        <h2 id="support-heading">一冊の余韻を、三つの窓でひらく。</h2>
+        <p class="section-label">Two Quiet Windows</p>
+        <h2 id="support-heading">一冊の余韻を、二つの窓でひらく。</h2>
         <p>
-          主役はいつもレビューです。ギャラリーと静かな断片は、その余韻をそっと深くするために置いています。
+          まずレビューで言葉をひらき、ギャラリーでココちゃんと本から生まれた景色を見返します。
         </p>
       </div>
 

@@ -35,17 +35,11 @@ Astroが生成する内容ハッシュ付きderivativeは、移行後のimmutabl
 
 CMSログインや外部publishはこのrepo内の自動テスト対象にしない。認証情報なしに成功を主張してはならない。
 
-## 動画derivativeの前提
-
-`scripts/check-video-toolchain.mjs`でsystem `ffmpeg`の有無とversionを記録する。2026-08-10の実行環境ではsystem `ffmpeg`は見つからなかった。この状態で動画からposterを自動切り出したり、音声を推測して字幕・transcriptを生成したりしない。
-
-poster、WebVTT、transcriptを追加する前に、利用する固定versionのffmpegを決め、動画の音声と字幕本文を人手で照合する。音声がない映像は、音声がある前提のcaptionを作らず、視覚的な内容を説明する補助テキストとして扱う。
-
 ## ヘッダと長期cacheが必須になったときの候補
 
 ### Cloudflare Pages
 
-Cloudflare Pagesへ移行し、`_headers`でHTMLとhash assetを分ける。CSPには実際に使うhostだけを許可する。YouTube/Instagram embedや将来のCMSを使う場合は、必要な`frame-src`、`script-src`、`connect-src`を実機検証で追加する。
+Cloudflare Pagesへ移行し、`_headers`でHTMLとhash assetを分ける。CSPには実際に使うhostだけを許可する。外部embedや将来のCMSを使う場合は、必要な`frame-src`、`script-src`、`connect-src`を実機検証で追加する。
 
 ### Cloudflare proxy / Workers
 
