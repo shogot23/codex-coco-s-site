@@ -46,6 +46,12 @@ const jsonLdNodes = (value) => {
 const hasSchemaType = (nodes, type) =>
   nodes.some((node) => node && typeof node === 'object' && node['@type'] === type);
 
+const hasRetiredInternalVideoPath = (html) =>
+  [...html.matchAll(/\b(?:href|src|poster)=["']([^"']+)["']/giu)].some(([, value]) => {
+    if (/^(?:[a-z][a-z\d+.-]*:)?\/\//iu.test(value)) return false;
+    return /(?:^|\/)videos\//u.test(value);
+  });
+
 const checkCmsConfig = async (failures) => {
   if (!(await exists(cmsConfigPath))) {
     if (requireCms) failures.push(`CMS config is required but missing: ${toPosix(path.relative(rootDir, cmsConfigPath))}`);
@@ -72,6 +78,9 @@ const checkCmsConfig = async (failures) => {
   if (!Array.isArray(config.collections) || config.collections.length === 0) {
     failures.push('CMS YAML requires at least one collection.');
     return;
+  }
+  if (config.collections.some((collection) => collection?.name === 'videos')) {
+    failures.push('CMS config must not restore the retired videos collection.');
   }
 
   const reviewsCollection = config.collections.find((collection) => collection?.name === 'reviews');
@@ -110,14 +119,19 @@ const main = async () => {
   if (await exists(path.join(distDir, 'admin'))) {
     failures.push('dist/admin must not be deployed while the CMS authentication backend is unavailable on GitHub Pages.');
   }
+  if (await exists(path.join(distDir, 'videos'))) {
+    failures.push('dist/videos must not be generated after the videos feature is retired.');
+  }
 
-  const htmlFiles = (await walk(distDir)).filter((file) => {
+  const distFiles = await walk(distDir);
+  const htmlFiles = distFiles.filter((file) => {
     const relative = toPosix(path.relative(distDir, file));
     return path.extname(file) === '.html' && !relative.startsWith('admin/');
   });
   for (const file of htmlFiles) {
     const html = await readFile(file, 'utf8');
     const relative = toPosix(path.relative(distDir, file));
+    if (hasRetiredInternalVideoPath(html)) failures.push(`${relative}: retired /videos/ reference found.`);
     const requiredMeta = ['og:image', 'og:image:alt', 'og:image:width', 'og:image:height', 'twitter:image:alt'];
     for (const property of requiredMeta) {
       const pattern = new RegExp(`<meta[^>]+(?:property|name)=["']${property}["']`, 'iu');
@@ -150,6 +164,13 @@ const main = async () => {
 
   if (!(await exists(path.join(distDir, 'rss.xml')))) failures.push('Missing RSS output: rss.xml');
   if (!(await exists(path.join(distDir, 'sitemap-index.xml')))) failures.push('Missing sitemap output: sitemap-index.xml');
+  const sitemapFiles = distFiles.filter((file) => /^sitemap.*\.xml$/u.test(path.basename(file)));
+  for (const file of sitemapFiles) {
+    const sitemap = await readFile(file, 'utf8');
+    if (/\/videos\//u.test(sitemap)) {
+      failures.push(`${toPosix(path.relative(distDir, file))}: retired /videos/ route found.`);
+    }
+  }
   await checkCmsConfig(failures);
 
   if (failures.length > 0) throw new Error(`Distribution integrity failures (${failures.length})\n${failures.join('\n')}`);

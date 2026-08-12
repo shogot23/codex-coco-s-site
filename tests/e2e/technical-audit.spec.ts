@@ -36,20 +36,8 @@ test('review and gallery details expose structured data and responsive media', a
   expect(gallerySchema.join('\n')).toContain('"BreadcrumbList"');
 });
 
-test('self-hosted videos have a poster, captions, and a transcript route', async ({ page }) => {
-  await page.goto(`${SITE_BASE}videos/`);
-  const videos = page.locator('video');
-  expect(await videos.count()).toBeGreaterThan(0);
-
-  for (const video of await videos.all()) {
-    await expect(video).toHaveAttribute('poster', /.+/);
-    await expect(video.locator('track[kind="captions"][srclang="ja"]')).toHaveCount(1);
-    await expect(video.locator('xpath=ancestor::article[1]').getByRole('link', { name: /文字起こし|transcript/i })).toHaveCount(1);
-  }
-});
-
-test('key public pages have no serious or critical axe violations', async ({ page }) => {
-  for (const pagePath of ['', 'reviews/', 'reviews/seiten/', 'gallery/', 'gallery/business-0d597c/', 'videos/']) {
+test('key public and error pages have no serious or critical axe violations', async ({ page }) => {
+  for (const pagePath of ['', 'reviews/', 'reviews/seiten/', 'gallery/', 'gallery/business-0d597c/', 'about/', 'videos/']) {
     await assertNoSeriousA11yViolations(pagePath, page);
   }
 });
