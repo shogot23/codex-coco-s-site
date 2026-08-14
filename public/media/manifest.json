@@ -5776,91 +5776,91 @@
       }
     },
     "/uploads/gallery/books/Omotesando_Celebrity_Dog_and_Fortress_Stray_Dog_Wakabayashi_Masayasu.jpeg": {
-      "hash": "73701859a962ea23",
-      "width": 360,
-      "height": 540,
+      "hash": "583a1c8b44e27be4",
+      "width": 724,
+      "height": 1086,
       "variants": {
         "card": {
           "320": {
             "avif": {
-              "path": "73701859a962ea23/card-320.avif",
+              "path": "583a1c8b44e27be4/card-320.avif",
               "width": 320,
               "height": 480
             },
             "webp": {
-              "path": "73701859a962ea23/card-320.webp",
+              "path": "583a1c8b44e27be4/card-320.webp",
               "width": 320,
               "height": 480
             }
           },
           "640": {
             "avif": {
-              "path": "73701859a962ea23/card-640.avif",
-              "width": 360,
-              "height": 540
+              "path": "583a1c8b44e27be4/card-640.avif",
+              "width": 640,
+              "height": 960
             },
             "webp": {
-              "path": "73701859a962ea23/card-640.webp",
-              "width": 360,
-              "height": 540
+              "path": "583a1c8b44e27be4/card-640.webp",
+              "width": 640,
+              "height": 960
             }
           }
         },
         "detail": {
           "768": {
             "avif": {
-              "path": "73701859a962ea23/detail-768.avif",
-              "width": 360,
-              "height": 540
+              "path": "583a1c8b44e27be4/detail-768.avif",
+              "width": 724,
+              "height": 1086
             },
             "webp": {
-              "path": "73701859a962ea23/detail-768.webp",
-              "width": 360,
-              "height": 540
+              "path": "583a1c8b44e27be4/detail-768.webp",
+              "width": 724,
+              "height": 1086
             }
           },
           "1200": {
             "avif": {
-              "path": "73701859a962ea23/detail-1200.avif",
-              "width": 360,
-              "height": 540
+              "path": "583a1c8b44e27be4/detail-1200.avif",
+              "width": 724,
+              "height": 1086
             },
             "webp": {
-              "path": "73701859a962ea23/detail-1200.webp",
-              "width": 360,
-              "height": 540
+              "path": "583a1c8b44e27be4/detail-1200.webp",
+              "width": 724,
+              "height": 1086
             }
           }
         },
         "hero": {
           "960": {
             "avif": {
-              "path": "73701859a962ea23/hero-960.avif",
-              "width": 360,
-              "height": 540
+              "path": "583a1c8b44e27be4/hero-960.avif",
+              "width": 724,
+              "height": 1086
             },
             "webp": {
-              "path": "73701859a962ea23/hero-960.webp",
-              "width": 360,
-              "height": 540
+              "path": "583a1c8b44e27be4/hero-960.webp",
+              "width": 724,
+              "height": 1086
             }
           },
           "1440": {
             "avif": {
-              "path": "73701859a962ea23/hero-1440.avif",
-              "width": 360,
-              "height": 540
+              "path": "583a1c8b44e27be4/hero-1440.avif",
+              "width": 724,
+              "height": 1086
             },
             "webp": {
-              "path": "73701859a962ea23/hero-1440.webp",
-              "width": 360,
-              "height": 540
+              "path": "583a1c8b44e27be4/hero-1440.webp",
+              "width": 724,
+              "height": 1086
             }
           }
         }
       },
       "social": {
-        "path": "73701859a962ea23/social-1200x630.jpg",
+        "path": "583a1c8b44e27be4/social-1200x630.jpg",
         "width": 1200,
         "height": 630
       }
@@ -11891,6 +11891,96 @@
       },
       "social": {
         "path": "c1e275eab4c3f2af/social-1200x630.jpg",
+        "width": 1200,
+        "height": 630
+      }
+    },
+    "/uploads/review/infographic/omotesando_no_serebu_ken_to_kabanya_yosai_no_nora_inu_wakabayashi_masayasu.png": {
+      "hash": "d0dbc16a381c08df",
+      "width": 1080,
+      "height": 1350,
+      "variants": {
+        "card": {
+          "320": {
+            "avif": {
+              "path": "d0dbc16a381c08df/card-320.avif",
+              "width": 320,
+              "height": 400
+            },
+            "webp": {
+              "path": "d0dbc16a381c08df/card-320.webp",
+              "width": 320,
+              "height": 400
+            }
+          },
+          "640": {
+            "avif": {
+              "path": "d0dbc16a381c08df/card-640.avif",
+              "width": 640,
+              "height": 800
+            },
+            "webp": {
+              "path": "d0dbc16a381c08df/card-640.webp",
+              "width": 640,
+              "height": 800
+            }
+          }
+        },
+        "detail": {
+          "768": {
+            "avif": {
+              "path": "d0dbc16a381c08df/detail-768.avif",
+              "width": 768,
+              "height": 960
+            },
+            "webp": {
+              "path": "d0dbc16a381c08df/detail-768.webp",
+              "width": 768,
+              "height": 960
+            }
+          },
+          "1200": {
+            "avif": {
+              "path": "d0dbc16a381c08df/detail-1200.avif",
+              "width": 1080,
+              "height": 1350
+            },
+            "webp": {
+              "path": "d0dbc16a381c08df/detail-1200.webp",
+              "width": 1080,
+              "height": 1350
+            }
+          }
+        },
+        "hero": {
+          "960": {
+            "avif": {
+              "path": "d0dbc16a381c08df/hero-960.avif",
+              "width": 960,
+              "height": 1200
+            },
+            "webp": {
+              "path": "d0dbc16a381c08df/hero-960.webp",
+              "width": 960,
+              "height": 1200
+            }
+          },
+          "1440": {
+            "avif": {
+              "path": "d0dbc16a381c08df/hero-1440.avif",
+              "width": 1080,
+              "height": 1350
+            },
+            "webp": {
+              "path": "d0dbc16a381c08df/hero-1440.webp",
+              "width": 1080,
+              "height": 1350
+            }
+          }
+        }
+      },
+      "social": {
+        "path": "d0dbc16a381c08df/social-1200x630.jpg",
         "width": 1200,
         "height": 630
       }
