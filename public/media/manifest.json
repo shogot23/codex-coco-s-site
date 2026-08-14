@@ -7845,6 +7845,96 @@
         "height": 630
       }
     },
+    "/uploads/gallery/books/Stoic_Mindset_Mark_Tuitert.png": {
+      "hash": "f13c790989688d2f",
+      "width": 1122,
+      "height": 1402,
+      "variants": {
+        "card": {
+          "320": {
+            "avif": {
+              "path": "f13c790989688d2f/card-320.avif",
+              "width": 320,
+              "height": 400
+            },
+            "webp": {
+              "path": "f13c790989688d2f/card-320.webp",
+              "width": 320,
+              "height": 400
+            }
+          },
+          "640": {
+            "avif": {
+              "path": "f13c790989688d2f/card-640.avif",
+              "width": 640,
+              "height": 800
+            },
+            "webp": {
+              "path": "f13c790989688d2f/card-640.webp",
+              "width": 640,
+              "height": 800
+            }
+          }
+        },
+        "detail": {
+          "768": {
+            "avif": {
+              "path": "f13c790989688d2f/detail-768.avif",
+              "width": 768,
+              "height": 960
+            },
+            "webp": {
+              "path": "f13c790989688d2f/detail-768.webp",
+              "width": 768,
+              "height": 960
+            }
+          },
+          "1200": {
+            "avif": {
+              "path": "f13c790989688d2f/detail-1200.avif",
+              "width": 1122,
+              "height": 1402
+            },
+            "webp": {
+              "path": "f13c790989688d2f/detail-1200.webp",
+              "width": 1122,
+              "height": 1402
+            }
+          }
+        },
+        "hero": {
+          "960": {
+            "avif": {
+              "path": "f13c790989688d2f/hero-960.avif",
+              "width": 960,
+              "height": 1200
+            },
+            "webp": {
+              "path": "f13c790989688d2f/hero-960.webp",
+              "width": 960,
+              "height": 1200
+            }
+          },
+          "1440": {
+            "avif": {
+              "path": "f13c790989688d2f/hero-1440.avif",
+              "width": 1122,
+              "height": 1402
+            },
+            "webp": {
+              "path": "f13c790989688d2f/hero-1440.webp",
+              "width": 1122,
+              "height": 1402
+            }
+          }
+        }
+      },
+      "social": {
+        "path": "f13c790989688d2f/social-1200x630.jpg",
+        "width": 1200,
+        "height": 630
+      }
+    },
     "/uploads/gallery/books/Stop_Over_Thinking_Nick_Trenton.png": {
       "hash": "f2a8269a2b011c7f",
       "width": 1024,
@@ -12071,6 +12161,96 @@
       },
       "social": {
         "path": "292a780cf301e232/social-1200x630.jpg",
+        "width": 1200,
+        "height": 630
+      }
+    },
+    "/uploads/review/infographic/stoic_mindset_mark_tuitert.png": {
+      "hash": "30000ecb2903d38f",
+      "width": 1080,
+      "height": 1350,
+      "variants": {
+        "card": {
+          "320": {
+            "avif": {
+              "path": "30000ecb2903d38f/card-320.avif",
+              "width": 320,
+              "height": 400
+            },
+            "webp": {
+              "path": "30000ecb2903d38f/card-320.webp",
+              "width": 320,
+              "height": 400
+            }
+          },
+          "640": {
+            "avif": {
+              "path": "30000ecb2903d38f/card-640.avif",
+              "width": 640,
+              "height": 800
+            },
+            "webp": {
+              "path": "30000ecb2903d38f/card-640.webp",
+              "width": 640,
+              "height": 800
+            }
+          }
+        },
+        "detail": {
+          "768": {
+            "avif": {
+              "path": "30000ecb2903d38f/detail-768.avif",
+              "width": 768,
+              "height": 960
+            },
+            "webp": {
+              "path": "30000ecb2903d38f/detail-768.webp",
+              "width": 768,
+              "height": 960
+            }
+          },
+          "1200": {
+            "avif": {
+              "path": "30000ecb2903d38f/detail-1200.avif",
+              "width": 1080,
+              "height": 1350
+            },
+            "webp": {
+              "path": "30000ecb2903d38f/detail-1200.webp",
+              "width": 1080,
+              "height": 1350
+            }
+          }
+        },
+        "hero": {
+          "960": {
+            "avif": {
+              "path": "30000ecb2903d38f/hero-960.avif",
+              "width": 960,
+              "height": 1200
+            },
+            "webp": {
+              "path": "30000ecb2903d38f/hero-960.webp",
+              "width": 960,
+              "height": 1200
+            }
+          },
+          "1440": {
+            "avif": {
+              "path": "30000ecb2903d38f/hero-1440.avif",
+              "width": 1080,
+              "height": 1350
+            },
+            "webp": {
+              "path": "30000ecb2903d38f/hero-1440.webp",
+              "width": 1080,
+              "height": 1350
+            }
+          }
+        }
+      },
+      "social": {
+        "path": "30000ecb2903d38f/social-1200x630.jpg",
         "width": 1200,
         "height": 630
       }
