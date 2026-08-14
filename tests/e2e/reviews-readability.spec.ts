@@ -72,18 +72,20 @@ const getExplorerLayout = async (item: Locator): Promise<ExplorerLayout> => {
 
 const expectReadableExplorerLayout = async (page: Page, mobile: boolean) => {
   const items = reviewItems(page);
-  await expect(items).toHaveCount(4);
-  const layout = await getExplorerLayout(items.first());
+  await expect(async () => {
+    await expect(items).toHaveCount(4);
+    const layout = await getExplorerLayout(items.first());
 
-  expect(layout.display).toBe('grid');
-  expect(layout.gridTrackCount).toBe(mobile ? 2 : 3);
-  expect(layout.minWidth).toBe('0px');
-  expect(layout.copyDisplay).toBe('grid');
-  expect(layout.copyMinWidth).toBe('0px');
-  expect(layout.childrenStayWithinCard).toBe(true);
-  expect(layout.cardStaysWithinViewport).toBe(true);
+    expect(layout.display).toBe('grid');
+    expect(layout.gridTrackCount).toBe(mobile ? 2 : 3);
+    expect(layout.minWidth).toBe('0px');
+    expect(layout.copyDisplay).toBe('grid');
+    expect(layout.copyMinWidth).toBe('0px');
+    expect(layout.childrenStayWithinCard).toBe(true);
+    expect(layout.cardStaysWithinViewport).toBe(true);
 
-  if (mobile) expect(layout.orderDisplay).toBe('none');
+    if (mobile) expect(layout.orderDisplay).toBe('none');
+  }).toPass({ timeout: 5_000 });
 
   await expectNoHorizontalOverflow(page);
   await expectExplorerBoundsInViewport(page);

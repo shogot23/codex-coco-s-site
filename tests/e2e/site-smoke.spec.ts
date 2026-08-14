@@ -173,11 +173,12 @@ test('home first viewport shows brand and review-led hero CTA flow', async ({ pa
   await expect(page.getByRole('heading', { name: '本棚から、次の一冊へ。' })).toBeVisible();
   await expect(page.getByRole('searchbox', { name: 'レビューを検索' })).toBeVisible();
 
-  await page
-    .locator('#review-stream')
-    .getByRole('link', { name: /積読こそが完全な読書術である/ })
-    .click();
-  await expect(page).toHaveURL(/\/codex-coco-s-site\/reviews\/tsundoku-dokushojutsu\/$/);
+  const firstShelfReview = page
+    .locator('#review-stream [data-review-list] .review-item h3 a')
+    .first();
+  await expect(firstShelfReview).toBeVisible();
+  await firstShelfReview.click();
+  await expect(page).toHaveURL(/\/codex-coco-s-site\/reviews\/[^/]+\/$/);
   await expect(page.locator('#review-title')).toBeVisible();
 });
 

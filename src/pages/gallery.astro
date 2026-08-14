@@ -35,7 +35,20 @@ const getChapterSectionId = (chapter: GalleryBrowseChapter) => `chapter-${chapte
 
 const galleryEntries = sortGalleryEntries(await getPublishedGallery());
 const fullBrowseModel = buildGalleryBrowseModel(galleryEntries, baseWithSlash);
-const initialBrowseModel = buildGalleryBrowseModel(galleryEntries.slice(0, 8), baseWithSlash);
+const initialBrowseLimit = 8;
+const initialBrowseSlugs = new Set(
+  fullBrowseModel.chapters
+    .flatMap((chapter) => chapter.items[0]?.slug ? [chapter.items[0].slug] : [])
+    .slice(0, initialBrowseLimit)
+);
+
+for (const entry of galleryEntries) {
+  if (initialBrowseSlugs.size >= initialBrowseLimit) break;
+  initialBrowseSlugs.add(entry.slug);
+}
+
+const initialBrowseEntries = galleryEntries.filter((entry) => initialBrowseSlugs.has(entry.slug));
+const initialBrowseModel = buildGalleryBrowseModel(initialBrowseEntries, baseWithSlash);
 const browseChapters = fullBrowseModel.chapters;
 const detailedEntries = galleryEntries.filter((entry) => hasDetailContent(entry));
 const linkedReviewCount = (await Promise.all(
@@ -400,7 +413,7 @@ const galleryJsonLd = buildJsonLdGraph([
           genres={fullBrowseModel.genres}
           chapters={fullBrowseModel.chapters}
           dataEndpoint={galleryDataUrl}
-          initialItemLimit={8}
+          initialItemLimit={initialBrowseLimit}
           testId="gallery-browse"
         />
       </section>

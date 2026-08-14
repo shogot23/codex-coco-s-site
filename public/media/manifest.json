@@ -6495,6 +6495,96 @@
         "height": 630
       }
     },
+    "/uploads/gallery/books/Saikyo_no_Dairinin_Ryugo_Masaya.png": {
+      "hash": "3521052d15e35a20",
+      "width": 1122,
+      "height": 1402,
+      "variants": {
+        "card": {
+          "320": {
+            "avif": {
+              "path": "3521052d15e35a20/card-320.avif",
+              "width": 320,
+              "height": 400
+            },
+            "webp": {
+              "path": "3521052d15e35a20/card-320.webp",
+              "width": 320,
+              "height": 400
+            }
+          },
+          "640": {
+            "avif": {
+              "path": "3521052d15e35a20/card-640.avif",
+              "width": 640,
+              "height": 800
+            },
+            "webp": {
+              "path": "3521052d15e35a20/card-640.webp",
+              "width": 640,
+              "height": 800
+            }
+          }
+        },
+        "detail": {
+          "768": {
+            "avif": {
+              "path": "3521052d15e35a20/detail-768.avif",
+              "width": 768,
+              "height": 960
+            },
+            "webp": {
+              "path": "3521052d15e35a20/detail-768.webp",
+              "width": 768,
+              "height": 960
+            }
+          },
+          "1200": {
+            "avif": {
+              "path": "3521052d15e35a20/detail-1200.avif",
+              "width": 1122,
+              "height": 1402
+            },
+            "webp": {
+              "path": "3521052d15e35a20/detail-1200.webp",
+              "width": 1122,
+              "height": 1402
+            }
+          }
+        },
+        "hero": {
+          "960": {
+            "avif": {
+              "path": "3521052d15e35a20/hero-960.avif",
+              "width": 960,
+              "height": 1200
+            },
+            "webp": {
+              "path": "3521052d15e35a20/hero-960.webp",
+              "width": 960,
+              "height": 1200
+            }
+          },
+          "1440": {
+            "avif": {
+              "path": "3521052d15e35a20/hero-1440.avif",
+              "width": 1122,
+              "height": 1402
+            },
+            "webp": {
+              "path": "3521052d15e35a20/hero-1440.webp",
+              "width": 1122,
+              "height": 1402
+            }
+          }
+        }
+      },
+      "social": {
+        "path": "3521052d15e35a20/social-1200x630.jpg",
+        "width": 1200,
+        "height": 630
+      }
+    },
     "/uploads/gallery/books/Scientific_Snacks_for_Alcohol_Tsshi.jpeg": {
       "hash": "21b177d0223d3ba7",
       "width": 724,
@@ -11621,6 +11711,96 @@
       },
       "social": {
         "path": "c1e275eab4c3f2af/social-1200x630.jpg",
+        "width": 1200,
+        "height": 630
+      }
+    },
+    "/uploads/review/infographic/saikyo_no_dairinin_ryugo_masaya.png": {
+      "hash": "c282a67f85611250",
+      "width": 1080,
+      "height": 1350,
+      "variants": {
+        "card": {
+          "320": {
+            "avif": {
+              "path": "c282a67f85611250/card-320.avif",
+              "width": 320,
+              "height": 400
+            },
+            "webp": {
+              "path": "c282a67f85611250/card-320.webp",
+              "width": 320,
+              "height": 400
+            }
+          },
+          "640": {
+            "avif": {
+              "path": "c282a67f85611250/card-640.avif",
+              "width": 640,
+              "height": 800
+            },
+            "webp": {
+              "path": "c282a67f85611250/card-640.webp",
+              "width": 640,
+              "height": 800
+            }
+          }
+        },
+        "detail": {
+          "768": {
+            "avif": {
+              "path": "c282a67f85611250/detail-768.avif",
+              "width": 768,
+              "height": 960
+            },
+            "webp": {
+              "path": "c282a67f85611250/detail-768.webp",
+              "width": 768,
+              "height": 960
+            }
+          },
+          "1200": {
+            "avif": {
+              "path": "c282a67f85611250/detail-1200.avif",
+              "width": 1080,
+              "height": 1350
+            },
+            "webp": {
+              "path": "c282a67f85611250/detail-1200.webp",
+              "width": 1080,
+              "height": 1350
+            }
+          }
+        },
+        "hero": {
+          "960": {
+            "avif": {
+              "path": "c282a67f85611250/hero-960.avif",
+              "width": 960,
+              "height": 1200
+            },
+            "webp": {
+              "path": "c282a67f85611250/hero-960.webp",
+              "width": 960,
+              "height": 1200
+            }
+          },
+          "1440": {
+            "avif": {
+              "path": "c282a67f85611250/hero-1440.avif",
+              "width": 1080,
+              "height": 1350
+            },
+            "webp": {
+              "path": "c282a67f85611250/hero-1440.webp",
+              "width": 1080,
+              "height": 1350
+            }
+          }
+        }
+      },
+      "social": {
+        "path": "c282a67f85611250/social-1200x630.jpg",
         "width": 1200,
         "height": 630
       }
