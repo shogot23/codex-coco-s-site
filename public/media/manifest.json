@@ -2895,6 +2895,96 @@
         "height": 630
       }
     },
+    "/uploads/gallery/books/Hayabusa_Shobodan_Mori_e_Tsuzuku_Michi_Ikeido_Jun.png": {
+      "hash": "a5a1e95526158bc6",
+      "width": 1092,
+      "height": 1440,
+      "variants": {
+        "card": {
+          "320": {
+            "avif": {
+              "path": "a5a1e95526158bc6/card-320.avif",
+              "width": 320,
+              "height": 422
+            },
+            "webp": {
+              "path": "a5a1e95526158bc6/card-320.webp",
+              "width": 320,
+              "height": 422
+            }
+          },
+          "640": {
+            "avif": {
+              "path": "a5a1e95526158bc6/card-640.avif",
+              "width": 640,
+              "height": 844
+            },
+            "webp": {
+              "path": "a5a1e95526158bc6/card-640.webp",
+              "width": 640,
+              "height": 844
+            }
+          }
+        },
+        "detail": {
+          "768": {
+            "avif": {
+              "path": "a5a1e95526158bc6/detail-768.avif",
+              "width": 768,
+              "height": 1013
+            },
+            "webp": {
+              "path": "a5a1e95526158bc6/detail-768.webp",
+              "width": 768,
+              "height": 1013
+            }
+          },
+          "1200": {
+            "avif": {
+              "path": "a5a1e95526158bc6/detail-1200.avif",
+              "width": 1092,
+              "height": 1440
+            },
+            "webp": {
+              "path": "a5a1e95526158bc6/detail-1200.webp",
+              "width": 1092,
+              "height": 1440
+            }
+          }
+        },
+        "hero": {
+          "960": {
+            "avif": {
+              "path": "a5a1e95526158bc6/hero-960.avif",
+              "width": 960,
+              "height": 1266
+            },
+            "webp": {
+              "path": "a5a1e95526158bc6/hero-960.webp",
+              "width": 960,
+              "height": 1266
+            }
+          },
+          "1440": {
+            "avif": {
+              "path": "a5a1e95526158bc6/hero-1440.avif",
+              "width": 1092,
+              "height": 1440
+            },
+            "webp": {
+              "path": "a5a1e95526158bc6/hero-1440.webp",
+              "width": 1092,
+              "height": 1440
+            }
+          }
+        }
+      },
+      "social": {
+        "path": "a5a1e95526158bc6/social-1200x630.jpg",
+        "width": 1200,
+        "height": 630
+      }
+    },
     "/uploads/gallery/books/Hayashibara_Megumi_Zenbu_Kyara_kara_Osawatta.png": {
       "hash": "c26e08c11507bcef",
       "width": 1122,
@@ -11081,6 +11171,96 @@
       },
       "social": {
         "path": "013b8b5d80736052/social-1200x630.jpg",
+        "width": 1200,
+        "height": 630
+      }
+    },
+    "/uploads/review/infographic/hayabusa_shobodan_mori_e_tsuzuku_michi_ikeido_jun.png": {
+      "hash": "92b26137a419fb64",
+      "width": 1080,
+      "height": 1350,
+      "variants": {
+        "card": {
+          "320": {
+            "avif": {
+              "path": "92b26137a419fb64/card-320.avif",
+              "width": 320,
+              "height": 400
+            },
+            "webp": {
+              "path": "92b26137a419fb64/card-320.webp",
+              "width": 320,
+              "height": 400
+            }
+          },
+          "640": {
+            "avif": {
+              "path": "92b26137a419fb64/card-640.avif",
+              "width": 640,
+              "height": 800
+            },
+            "webp": {
+              "path": "92b26137a419fb64/card-640.webp",
+              "width": 640,
+              "height": 800
+            }
+          }
+        },
+        "detail": {
+          "768": {
+            "avif": {
+              "path": "92b26137a419fb64/detail-768.avif",
+              "width": 768,
+              "height": 960
+            },
+            "webp": {
+              "path": "92b26137a419fb64/detail-768.webp",
+              "width": 768,
+              "height": 960
+            }
+          },
+          "1200": {
+            "avif": {
+              "path": "92b26137a419fb64/detail-1200.avif",
+              "width": 1080,
+              "height": 1350
+            },
+            "webp": {
+              "path": "92b26137a419fb64/detail-1200.webp",
+              "width": 1080,
+              "height": 1350
+            }
+          }
+        },
+        "hero": {
+          "960": {
+            "avif": {
+              "path": "92b26137a419fb64/hero-960.avif",
+              "width": 960,
+              "height": 1200
+            },
+            "webp": {
+              "path": "92b26137a419fb64/hero-960.webp",
+              "width": 960,
+              "height": 1200
+            }
+          },
+          "1440": {
+            "avif": {
+              "path": "92b26137a419fb64/hero-1440.avif",
+              "width": 1080,
+              "height": 1350
+            },
+            "webp": {
+              "path": "92b26137a419fb64/hero-1440.webp",
+              "width": 1080,
+              "height": 1350
+            }
+          }
+        }
+      },
+      "social": {
+        "path": "92b26137a419fb64/social-1200x630.jpg",
         "width": 1200,
         "height": 630
       }
