@@ -4,7 +4,7 @@ image: "/uploads/gallery/books/Hayabusa_Shobodan_Mori_e_Tsuzuku_Michi_Ikeido_Jun
 alt: "ココちゃんと『ハヤブサ消防団 森へつづく道』（池井戸潤）が写るギャラリー画像"
 genre: "現代文学"
 author: "池井戸潤"
-description: "風景の下に積もる町の記憶。川の事件と作家の疑惑を追ううちに、のどかな町が知らない顔を見せていく。"
+description: "見慣れた町の奥に眠る記憶をたどると、いつもの景色が別の表情を見せる。森へつづく道の先で、受け継ぐことの意味を静かに考える。"
 note: "雨の山道でココちゃんと立ち止まると、見慣れた景色の下に眠る町の記憶をたどる余白が残る。"
 needs_review: false
 galleryEditorialStatus: "reviewed"
