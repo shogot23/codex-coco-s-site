@@ -187,4 +187,25 @@ const gallery = defineCollection({
   }),
 });
 
-export const collections = { profile, about, reviews, gallery };
+const works = defineCollection({
+  type: 'content',
+  schema: z.object({
+    title: z.string().trim().min(1),
+    description: z.string().trim().min(1),
+    durationMinutes: z.number().int().min(1).max(30),
+    readerWorry: z.string().trim().min(1),
+    image: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*\.png$/),
+    imageAlt: z.string().trim().min(1),
+    relatedReview: reference('reviews'),
+    bookTitle: z.string().trim().min(1),
+    bookConnection: z.string().trim().min(1),
+    completion: z.string().trim().min(1),
+    question: z.string().trim().min(1),
+    evidenceNote: z.string().trim().min(1),
+    safetyNote: z.string().trim().min(1),
+    sources: z.array(z.object({ label: z.string().trim().min(1), url: z.string().url().startsWith('https://') })).min(1),
+    published: z.boolean().default(false),
+  }),
+});
+
+export const collections = { profile, about, reviews, gallery, works };

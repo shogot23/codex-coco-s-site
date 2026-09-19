@@ -223,6 +223,7 @@ test('primary navigation keeps reviews first and removes the retired videos room
     'ホーム',
     'レビュー',
     'ギャラリー',
+    'ワーク',
     'このサイトについて',
     'プロフィール',
   ]);

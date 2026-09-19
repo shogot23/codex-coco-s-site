@@ -22,7 +22,7 @@
     "check:integrity": "node scripts/check-dist-integrity.mjs --require-cms",
     "check:performance": "node scripts/check-performance-budget.mjs",
     "check:content": "node scripts/audit-review-editorial-fields.mjs src/content/reviews",
-    "check:dist": "npm run check:links && npm run check:integrity && npm run check:performance",
+    "check:dist": "npm run check:links && npm run check:integrity && npm run check:performance && npm run check:works-dist",
     "test:content-tools": "node --test scripts/migrate-review-editorial-fields.test.mjs scripts/audit-review-editorial-fields.test.mjs",
     "gallery:import": "node scripts/gallery-import.ts",
     "gallery:pipeline": "node scripts/gallery-pipeline.mjs",
@@ -30,7 +30,12 @@
     "gallery:apply-corrections": "node scripts/apply-gallery-corrections.ts",
     "gallery:generate": "node scripts/generate-gallery-md.ts",
     "gallery:sync": "npm run gallery:ocr && npm run gallery:apply-corrections && npm run gallery:generate",
-    "test:gallery-generate": "node --test scripts/generate-gallery-md.test.ts"
+    "test:gallery-generate": "node --test scripts/generate-gallery-md.test.ts",
+    "works:import": "node scripts/work-import.mjs",
+    "works:preview": "WORKS_PREVIEW=1 astro dev --host 127.0.0.1 --port 4327",
+    "test:works": "node --test scripts/work-import.test.mjs",
+    "check:works-dist": "node scripts/check-works-dist.mjs",
+    "test:works-preview": "WORKS_PREVIEW=1 playwright test tests/e2e/works.spec.ts --config playwright.works.config.ts"
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.19",

@@ -1,0 +1,34 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import WorkImage from '../../components/works/WorkImage.astro';
+import { getVisibleWorks, worksPreview } from '../../utils/works';
+import '../../styles/works.css';
+const works = await getVisibleWorks();
+const base = import.meta.env.BASE_URL;
+---
+<Layout title="ワーク | 読書 with Coco" description="本から、今日の小さな一歩へ。今の困りごとから選んで、紙や手元のメモで試せる短いワーク。">
+  <div class="works-shell">
+    {worksPreview && <p class="work-preview">下書きプレビュー · まだ公開されていません</p>}
+    <header class="works-heading">
+      <p class="work-kicker">読書 with Coco / ワーク</p>
+      <h1>本から、今日の<br />小さな一歩へ。</h1>
+      <p>読んだあとに、少しだけ試してみる。<br />今の自分に近いものを、一つ選んでみませんか。</p>
+      <p class="work-muted">本をまだ読んでいなくても、紙や手元のメモで始められます。</p>
+    </header>
+    {works.length ? <div class="work-list">
+      {works.map((work, index) => <article class="work-entry">
+        <a class="work-art" href={`${base}works/${work.slug}/`} aria-label={`${work.data.title}の手順を見る`}>
+          <WorkImage slug={work.slug} alt={work.data.imageAlt} eager={index === 0} />
+        </a>
+        <div class="work-entry-copy">
+          <p class="work-kicker">{String(index + 1).padStart(2, '0')} / {work.data.durationMinutes}分を目安に</p>
+          <p class="work-worry">{work.data.readerWorry}</p>
+          <h2><a href={`${base}works/${work.slug}/`}>{work.data.title}</a></h2>
+          <p>{work.data.description}</p>
+          <p class="work-muted">参考：『{work.data.bookTitle}』</p>
+          <a class="work-action" href={`${base}works/${work.slug}/#steps`}>このワークを試す <span aria-hidden="true">↗</span></a>
+        </div>
+      </article>)}
+    </div> : <p>ワークはただいま準備中です。<a href={`${base}reviews/`}>本のレビューを読む</a></p>}
+  </div>
+</Layout>

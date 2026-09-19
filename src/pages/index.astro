@@ -1,5 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { getVisibleWorks } from '../utils/works';
+const hasWorks = (await getVisibleWorks()).length > 0;
 import ResponsivePicture from '../components/ResponsivePicture.astro';
 import { getEntry } from 'astro:content';
 import { existsSync } from 'node:fs';
@@ -388,6 +390,14 @@ const worldAsideCopy =
         </div>
       )}
     </section>
+
+    {hasWorks && <section class="support-section" aria-labelledby="home-works-heading">
+      <div class="section-intro"><p class="section-label">本から、暮らしへ</p>
+        <h2 id="home-works-heading">読んだあとに、<br />小さく試してみる。</h2>
+        <p>自分を責めてしまう日も、誰かとの会話が気になる日も。紙やメモをひらいて、今の自分に近いワークを一つ。</p>
+        <a class="section-link ui-action" href={`${BASE_URL}works/`}>今日のワークを選ぶ</a>
+      </div>
+    </section>}
 
     <section class="gallery-section" aria-labelledby="featured-gallery-heading">
       <div class="section-head">

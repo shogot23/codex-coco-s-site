@@ -1,0 +1,9 @@
+---
+import { workImageUrl } from '../../utils/works';
+interface Props { slug: string; alt: string; eager?: boolean; }
+const { slug, alt, eager = false } = Astro.props;
+---
+<img src={workImageUrl(slug, 480)} srcset={`${workImageUrl(slug, 480)} 480w, ${workImageUrl(slug, 1080)} 1080w`}
+  sizes="(max-width: 720px) 94vw, 480px" alt={alt} width="1080" height="1350"
+  loading={eager ? 'eager' : 'lazy'} decoding="async" />
+<style>img { display: block; width: 100%; height: auto; border-radius: var(--radius-md); }</style>

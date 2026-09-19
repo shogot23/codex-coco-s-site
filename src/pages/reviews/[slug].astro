@@ -1,5 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import { getVisibleWorks } from '../../utils/works';
 import ResponsivePicture from '../../components/ResponsivePicture.astro';
 import { getEntry, type CollectionEntry } from 'astro:content';
 import { getPublishedGallery, hasDetailContent } from '../../utils/gallery';
@@ -20,6 +21,10 @@ type Props = {
 };
 
 const { review } = Astro.props as Props;
+const relatedWorks = (await Promise.all((await getVisibleWorks()).map(async (work) => {
+  const linkedReview = await getEntry(work.data.relatedReview);
+  return linkedReview?.id === review.id ? work : null;
+}))).filter((work) => work !== null);
 const {
   title,
   description,
@@ -349,6 +354,13 @@ const reviewJsonLd = buildJsonLdGraph([
           </p>
         </div>
 
+        {relatedWorks.length > 0 && <section aria-labelledby="related-works-heading">
+          <h3 id="related-works-heading">この本から試せるワーク</h3>
+          <ul>{relatedWorks.map((work) => <li>
+            <a class="secondary-link ui-action" href={`${baseWithSlash}works/${work.slug}/`}>{work.data.title}</a>
+            <p>{work.data.readerWorry} / {work.data.durationMinutes}分を目安に</p>
+          </li>)}</ul>
+        </section>}
         <div class="afterglow-grid">
           {primaryRelatedGallery ? (
             <a class="afterglow-gallery ui-action" href={relatedGalleryUrl}>

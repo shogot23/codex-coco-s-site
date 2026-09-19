@@ -1,0 +1,68 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import WorkImage from '../../components/works/WorkImage.astro';
+import { getEntry, type CollectionEntry } from 'astro:content';
+import { getVisibleWorks, workImageUrl } from '../../utils/works';
+import { getPublishedGallery, hasDetailContent } from '../../utils/gallery';
+import '../../styles/works.css';
+export async function getStaticPaths() {
+  return (await getVisibleWorks()).map((work) => ({ params: { slug: work.slug }, props: { work } }));
+}
+interface Props { work: CollectionEntry<'works'>; }
+const { work } = Astro.props;
+const data = work.data;
+const review = await getEntry(data.relatedReview);
+if (!review) throw new Error(`Work ${work.slug}: related review is missing`);
+const galleries = (await Promise.all((await getPublishedGallery()).map(async (entry) => {
+  if (!entry.data.relatedReview || !hasDetailContent(entry)) return null;
+  const linkedReview = await getEntry(entry.data.relatedReview);
+  return linkedReview?.id === review.id ? entry : null;
+}))).filter((entry) => entry !== null);
+const purchaseLinks = [...(review.data.purchaseLinks ?? []), ...galleries.flatMap((entry) => entry.data.purchaseLinks ?? [])]
+  .filter((link, index, links) => {
+    const url = new URL(link.url);
+    return url.protocol === 'https:' && url.hostname === 'af.moshimo.com' && links.findIndex((other) => other.url === link.url) === index;
+  });
+const { Content } = await work.render();
+const base = import.meta.env.BASE_URL;
+---
+<Layout title={`${data.title} | 読書 with Coco`} description={data.description}
+  image={workImageUrl(work.slug, 1080)} imageAlt={data.imageAlt} imageWidth={1080} imageHeight={1350} type="article">
+  <article class="works-shell">
+    {!data.published && <p class="work-preview">下書きプレビュー · まだ公開されていません</p>}
+    <nav class="work-breadcrumb" aria-label="パンくずリスト"><a href={`${base}works/`}>ワーク</a><span aria-hidden="true"> / </span><span aria-current="page">{data.title}</span></nav>
+    <header class="work-opening">
+      <div>
+        <p class="work-kicker">読書 with Coco / {data.durationMinutes}分を目安に</p>
+        <p class="work-worry">{data.readerWorry}</p>
+        <h1>{data.title}</h1>
+        <p>{data.description}</p>
+        <p class="work-muted">参考：『{data.bookTitle}』</p>
+        <a class="work-action" href="#steps">手順へ進む <span aria-hidden="true">↓</span></a>
+      </div>
+      <figure><WorkImage slug={work.slug} alt={data.imageAlt} eager /><figcaption>画像の手順は、この下でも読めます。</figcaption></figure>
+    </header>
+    <div class="work-reading">
+      <section class="work-prose" id="steps" aria-label="準備と手順" tabindex="-1"><Content /></section>
+      <section><h2>ここまでできたら、おしまい</h2><p>{data.completion}</p></section>
+      <section class="work-question"><h2>ココちゃんと、ひと呼吸</h2><p>{data.question}</p></section>
+      <section aria-labelledby="work-book-heading"><h2 id="work-book-heading">このワークにつながる本</h2><p>{data.bookConnection}</p>
+        <div class="work-book-links">
+          <a class="work-action" href={`${base}reviews/${review.slug}/`}>『{data.bookTitle}』のレビューを読む <span aria-hidden="true">↗</span></a>
+          {galleries.map((entry) => <a class="work-action" href={`${base}gallery/${entry.slug}/`}>『{entry.data.title}』のギャラリーを見る <span aria-hidden="true">↗</span></a>)}
+        </div>
+        {purchaseLinks.length > 0 && <div class="work-purchase">
+          <p class="work-muted">本を手元に置きたくなったら</p>
+          <div class="work-book-links">{purchaseLinks.map((link) => <a class="work-action" href={link.url} target="_blank" rel="sponsored nofollow noopener noreferrer">{link.label}<span class="work-muted">（外部サイト・別タブ）</span></a>)}</div>
+          <p class="work-affiliate-note">購入先へのリンクには、もしもアフィリエイトを利用しています。</p>
+        </div>}
+      </section>
+      <section><h2>参考にした研究と、このワークの範囲</h2><p>{data.evidenceNote}</p>
+        <p>この短縮ワーク自体は未検証です。変化を保証するものではありません。</p>
+        <p>{data.safetyNote}</p>
+        <ul class="work-sources">{data.sources.map((source) => <li><a href={source.url}>{source.label}</a></li>)}</ul>
+      </section>
+      <a class="work-action" href={`${base}works/`}>ほかのワークを見る</a>
+    </div>
+  </article>
+</Layout>
