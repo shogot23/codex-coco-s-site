@@ -5,7 +5,7 @@ import { pathToFileURL } from 'node:url';
 import sharp from 'sharp';
 
 const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-const fields = ['title', 'description', 'readerWorry', 'imageAlt', 'relatedReview', 'bookTitle', 'bookConnection', 'completion', 'question', 'evidenceNote', 'safetyNote'];
+const fields = ['title', 'description', 'readerWorry', 'imageAlt', 'bookTitle', 'bookConnection', 'completion', 'question', 'evidenceNote', 'safetyNote'];
 const exists = async (file) => Boolean(await lstat(file).catch((error) => {
   if (error.code === 'ENOENT') return null;
   throw error;
@@ -28,7 +28,10 @@ export async function importWork(packageFile, { root = process.cwd(), dryRun = f
   for (const field of fields) {
     if (typeof input[field] !== 'string' || !input[field].trim()) throw new Error(`Missing ${field}`);
   }
-  if (!slugPattern.test(input.relatedReview)) throw new Error('Invalid relatedReview');
+  const references = ['relatedReview', 'relatedGallery'].filter((key) => input[key] !== undefined);
+  if (references.length !== 1) throw new Error('Provide exactly one relatedReview or relatedGallery');
+  const referenceField = references[0];
+  if (typeof input[referenceField] !== 'string' || !slugPattern.test(input[referenceField])) throw new Error('Invalid book reference');
   if (!Number.isInteger(input.durationMinutes) || input.durationMinutes < 1 || input.durationMinutes > 30) throw new Error('Invalid durationMinutes');
   if (!Array.isArray(input.sources) || !input.sources.length || input.sources.some((s) => {
     try { return !s.label?.trim() || new URL(s.url).protocol !== 'https:'; } catch { return true; }
@@ -42,17 +45,19 @@ export async function importWork(packageFile, { root = process.cwd(), dryRun = f
   if (path.dirname(sourceImage) !== sourceDir) throw new Error('Image escapes package directory');
   const meta = await sharp(sourceImage).metadata();
   if (meta.format !== 'png' || meta.width !== 1080 || meta.height !== 1350) throw new Error('Image must be a 1080×1350 PNG');
-  const reviewFile = path.join(root, 'src/content/reviews', `${input.relatedReview}.md`);
-  const review = await readFile(reviewFile, 'utf8');
-  const frontmatter = review.match(/^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/)?.[1];
+  const collection = referenceField === 'relatedReview' ? 'reviews' : 'gallery';
+  const book = await readFile(path.join(root, 'src/content', collection, `${input[referenceField]}.md`), 'utf8');
+  const frontmatter = book.match(/^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/)?.[1];
   if (!frontmatter || scalar(frontmatter, 'title') !== input.bookTitle) throw new Error('Book title mismatch');
-  // The review collection defaults published to true when the field is absent.
-  if (/^published:/m.test(frontmatter) && scalar(frontmatter, 'published') !== 'true') throw new Error('Related review is unpublished');
+  const published = /^published:/m.test(frontmatter) ? scalar(frontmatter, 'published') === 'true' : collection === 'reviews';
+  if (!published) throw new Error('Related book is unpublished');
+  if (collection === 'gallery' && !['note', 'description'].some((key) => new RegExp(`^${key}:`, 'm').test(frontmatter) && scalar(frontmatter, key))) throw new Error('Gallery has no detail content');
   const contentDir = path.join(root, 'src/content/works');
   const imageDir = path.join(root, 'src/assets/works');
   const contentFile = path.join(contentDir, `${input.slug}.md`);
   const imageFile = path.join(imageDir, `${input.slug}.png`);
   const data = Object.fromEntries(fields.map((field) => [field, input[field].trim()]));
+  data[referenceField] = input[referenceField];
   Object.assign(data, { durationMinutes: input.durationMinutes, image: `${input.slug}.png`, sources: input.sources.map(({ label, url }) => ({ label, url })), published: false });
   const markdown = `---\n${Object.entries(data).map(([key, value]) => `${key}: ${JSON.stringify(value)}`).join('\n')}\n---\n\n${input.body.trim()}\n`;
   const checkCollision = async () => {

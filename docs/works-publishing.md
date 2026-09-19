@@ -9,7 +9,7 @@
 - `version`: 1。`slug`: 半角英小文字・数字・ハイフンによる恒久ID。
 - `title`, `description`, `readerWorry`, `durationMinutes`（整数1〜30）。
 - `imageFilename`: 同じ納品フォルダの1080×1350 PNGファイル名。`imageAlt`: 画像の情景が伝わる説明。
-- `relatedReview`: 既存レビューのファイル名から `.md` を除いたID。`bookTitle`: そのレビューのtitleと完全一致。
+- `relatedReview` または `relatedGallery` のどちらか一方: 既存の公開レビュー、または詳細ページを持つ公開ギャラリーのファイル名から `.md` を除いたID。`bookTitle` は参照先のtitleと完全一致。レビューがある本は `relatedReview` を使う。
 - `bookConnection`: 本から受け取った問いとワークのつながり。本の引用と日常向けの翻案を区別する。
 - `completion`: 終わりの目安。`question`: 振り返る問い。
 - `evidenceNote`: 研究で試した課題と今回の短縮版の違い。`safetyNote`: 対象範囲と中止する目安。
@@ -29,7 +29,7 @@ npm run works:import -- /absolute/path/site-work.json
 npm run works:preview
 ```
 
-- 本が存在し公開済みか、本名が一致するか、必須項目・PNG寸法・パス・衝突を確認する。レビューは既存の単一行title形式に対応する。未対応のYAML記法を推測しない。
+- 本が存在し公開済みか、本名が一致するか、必須項目・PNG寸法・パス・衝突を確認する。参照先のtitle・公開状態・ギャラリーのnote/descriptionは既存の単一行スカラー形式に対応する。記号を含む値は引用符で囲む。未対応のYAML記法を推測しない。
 - `src/content/works/<slug>.md` と `src/assets/works/<slug>.png` を追加し、必ず非公開にする。既存ファイルの上書きオプションはない。既存記事の改訂は差分を確認して別途行う。
 - ロック `.works-import.lock` が残った場合は進行中の処理がないことと記事・画像の状態を確認してから復旧する。
 - プレビューはlocalhost:4327だけで起動する。`WORKS_PREVIEW=1` とAstroの開発モードが両方必要。全ページにnoindexを付ける。共有ホストへ公開しない。

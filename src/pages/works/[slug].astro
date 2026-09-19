@@ -11,14 +11,16 @@ export async function getStaticPaths() {
 interface Props { work: CollectionEntry<'works'>; }
 const { work } = Astro.props;
 const data = work.data;
-const review = await getEntry(data.relatedReview);
-if (!review) throw new Error(`Work ${work.slug}: related review is missing`);
+const review = data.relatedReview ? await getEntry(data.relatedReview) : undefined;
+const directGallery = data.relatedGallery ? await getEntry(data.relatedGallery) : undefined;
 const galleries = (await Promise.all((await getPublishedGallery()).map(async (entry) => {
-  if (!entry.data.relatedReview || !hasDetailContent(entry)) return null;
+  if (!hasDetailContent(entry)) return null;
+  if (directGallery?.id === entry.id) return entry;
+  if (!review || !entry.data.relatedReview) return null;
   const linkedReview = await getEntry(entry.data.relatedReview);
   return linkedReview?.id === review.id ? entry : null;
 }))).filter((entry) => entry !== null);
-const purchaseLinks = [...(review.data.purchaseLinks ?? []), ...galleries.flatMap((entry) => entry.data.purchaseLinks ?? [])]
+const purchaseLinks = [...(review?.data.purchaseLinks ?? []), ...galleries.flatMap((entry) => entry.data.purchaseLinks ?? [])]
   .filter((link, index, links) => {
     const url = new URL(link.url);
     return url.protocol === 'https:' && url.hostname === 'af.moshimo.com' && links.findIndex((other) => other.url === link.url) === index;
@@ -48,7 +50,7 @@ const base = import.meta.env.BASE_URL;
       <section class="work-question"><h2>ココちゃんと、ひと呼吸</h2><p>{data.question}</p></section>
       <section aria-labelledby="work-book-heading"><h2 id="work-book-heading">このワークにつながる本</h2><p>{data.bookConnection}</p>
         <div class="work-book-links">
-          <a class="work-action" href={`${base}reviews/${review.slug}/`}>『{data.bookTitle}』のレビューを読む <span aria-hidden="true">↗</span></a>
+          {review && <a class="work-action" href={`${base}reviews/${review.slug}/`}>『{data.bookTitle}』のレビューを読む <span aria-hidden="true">↗</span></a>}
           {galleries.map((entry) => <a class="work-action" href={`${base}gallery/${entry.slug}/`}>『{entry.data.title}』のギャラリーを見る <span aria-hidden="true">↗</span></a>)}
         </div>
         {purchaseLinks.length > 0 && <div class="work-purchase">

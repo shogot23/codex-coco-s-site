@@ -196,7 +196,8 @@ const works = defineCollection({
     readerWorry: z.string().trim().min(1),
     image: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*\.png$/),
     imageAlt: z.string().trim().min(1),
-    relatedReview: reference('reviews'),
+    relatedReview: reference('reviews').optional(),
+    relatedGallery: reference('gallery').optional(),
     bookTitle: z.string().trim().min(1),
     bookConnection: z.string().trim().min(1),
     completion: z.string().trim().min(1),
@@ -205,7 +206,7 @@ const works = defineCollection({
     safetyNote: z.string().trim().min(1),
     sources: z.array(z.object({ label: z.string().trim().min(1), url: z.string().url().startsWith('https://') })).min(1),
     published: z.boolean().default(false),
-  }),
+  }).refine((data) => Boolean(data.relatedReview) !== Boolean(data.relatedGallery), { message: 'Provide exactly one relatedReview or relatedGallery' }),
 });
 
 export const collections = { profile, about, reviews, gallery, works };
