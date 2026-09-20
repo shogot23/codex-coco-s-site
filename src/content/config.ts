@@ -1,5 +1,25 @@
 import { defineCollection, reference, z } from 'astro:content';
 import { GALLERY_GENRES, type GalleryGenre } from '../lib/gallery-taxonomy';
+import workTaxonomy from '../data/work-taxonomy.json';
+
+const workTaxonomyIds = (axis: 'moods' | 'concerns') => {
+  const entries = workTaxonomy[axis];
+  if (!Array.isArray(entries)) {
+    throw new Error(`Invalid work taxonomy: ${axis} must be an array.`);
+  }
+  const ids = entries.map((entry) => (
+    entry && typeof entry === 'object' && 'id' in entry
+      ? (entry as { id?: unknown }).id
+      : undefined
+  ));
+  if (ids.length === 0 || ids.some((id) => typeof id !== 'string' || !id.trim()) || new Set(ids).size !== ids.length) {
+    throw new Error(`Invalid work taxonomy: ${axis} must contain unique, non-empty ids.`);
+  }
+  return ids as [string, ...string[]];
+};
+
+const workMoodIds = workTaxonomyIds('moods');
+const workConcernIds = workTaxonomyIds('concerns');
 
 const optionalString = z.preprocess(
   (value) => (value === '' ? undefined : value),
@@ -194,6 +214,8 @@ const works = defineCollection({
     description: z.string().trim().min(1),
     durationMinutes: z.number().int().min(1).max(30),
     readerWorry: z.string().trim().min(1),
+    moods: z.array(z.enum(workMoodIds)).min(1).refine((values) => new Set(values).size === values.length, 'Work moods must be unique'),
+    concerns: z.array(z.enum(workConcernIds)).min(1).refine((values) => new Set(values).size === values.length, 'Work concerns must be unique'),
     image: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*\.png$/),
     imageAlt: z.string().trim().min(1),
     relatedReview: reference('reviews').optional(),

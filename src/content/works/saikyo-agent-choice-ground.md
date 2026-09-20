@@ -2,6 +2,8 @@
 title: "3分の選べる土壌メモ"
 description: "本人が決めることと自分が整えられることを分け、選択を返す一文を作ります。"
 readerWorry: "支える責任から、相手へ答えを先回りして渡したくなるとき。"
+moods: ["rushed", "uneasy"]
+concerns: ["relationships", "self"]
 imageAlt: "夕方のサッカー場へ続く本の道を歩くココちゃんと、選択を本人へ返す4手順。"
 bookTitle: "最強の代理人"
 bookConnection: "選手が決断できるよう人・情報・環境を整える代理人の働きから着想し、身近な支援場面へ移しました。"

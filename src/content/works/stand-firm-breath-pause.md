@@ -2,6 +2,8 @@
 title: "2分の「呼吸でいったん保留」"
 description: "返事の前に2分立ち止まり、今すぐ増やさなくてよいことを選びます。"
 readerWorry: "頼まれごとを反射的に引き受けそうになるとき。"
+moods: ["rushed", "uneasy"]
+concerns: ["work", "relationships"]
 imageAlt: "椅子、呼吸の輪、保留のメモへ続く3手順と、耳の後ろをかくココちゃん。"
 bookTitle: "地に足をつけて生きろ！"
 bookConnection: "加速する暮らしの中で立ち止まる本の視点から、呼吸と返事の保留を組み合わせる手順へ翻案しました。"

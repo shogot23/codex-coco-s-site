@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, readFile, rm, symlink, writeFile } from 'node:fs/promises';
+import { copyFile, mkdtemp, mkdir, readFile, rm, symlink, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
@@ -10,12 +10,14 @@ async function fixture(t) {
   const root = await mkdtemp(path.join(os.tmpdir(), 'coco-work-'));
   t.after(() => rm(root, { recursive: true, force: true }));
   await mkdir(path.join(root, 'src/content/reviews'), { recursive: true });
+  await mkdir(path.join(root, 'src/data'), { recursive: true });
+  await copyFile(path.join(process.cwd(), 'src/data/work-taxonomy.json'), path.join(root, 'src/data/work-taxonomy.json'));
   const review = path.join(root, 'src/content/reviews/book.md');
   await writeFile(review, '---\ntitle: "本"\npublished: true\n---\n');
   const folder = path.join(root, 'package');
   await mkdir(folder);
   await sharp({ create: { width: 1080, height: 1350, channels: 3, background: '#faf6ef' } }).png().toFile(path.join(folder, 'image.png'));
-  const input = { version: 1, slug: 'sample', title: 'ワーク', description: '説明', readerWorry: '場面', durationMinutes: 3, imageFilename: 'image.png', imageAlt: '画像の説明', relatedReview: 'book', bookTitle: '本', bookConnection: '本との関係', completion: '終了目安', question: '問い', evidenceNote: '研究との違い', safetyNote: '範囲', sources: [{ label: '原典', url: 'https://example.org/paper' }], body: '## 用意するもの\n\nメモ\n\n## 手順\n\n1. 一行書く。', published: true };
+  const input = { version: 1, slug: 'sample', title: 'ワーク', description: '説明', readerWorry: '場面', moods: ['tired'], concerns: ['rest'], durationMinutes: 3, imageFilename: 'image.png', imageAlt: '画像の説明', relatedReview: 'book', bookTitle: '本', bookConnection: '本との関係', completion: '終了目安', question: '問い', evidenceNote: '研究との違い', safetyNote: '範囲', sources: [{ label: '原典', url: 'https://example.org/paper' }], body: '## 用意するもの\n\nメモ\n\n## 手順\n\n1. 一行書く。', published: true };
   const file = path.join(folder, 'site-work.json');
   const save = () => writeFile(file, JSON.stringify(input));
   await save();
@@ -29,6 +31,8 @@ test('dry run does not write; import forces draft; repeated import preserves byt
   const result = await importWork(f.file, { root: f.root });
   const before = await readFile(result.contentFile);
   assert.match(before.toString(), /published: false/);
+  assert.match(before.toString(), /moods: \["tired"\]/);
+  assert.match(before.toString(), /concerns: \["rest"\]/);
   assert.deepEqual(await readFile(result.imageFile), await readFile(path.join(f.folder, 'image.png')));
   await assert.rejects(importWork(f.file, { root: f.root }), /Already exists/);
   assert.deepEqual(await readFile(result.contentFile), before);
@@ -36,6 +40,11 @@ test('dry run does not write; import forces draft; repeated import preserves byt
 
 for (const [name, edit, pattern] of [
   ['missing required field', (f) => { delete f.input.question; }, /Missing question/],
+  ['missing mood classification', (f) => { delete f.input.moods; }, /Invalid moods/],
+  ['unknown concern classification', (f) => { f.input.concerns = ['unknown']; }, /Invalid concerns/],
+  ['empty classification', (f) => { f.input.moods = []; }, /Invalid moods/],
+  ['duplicate classification', (f) => { f.input.moods = ['tired', 'tired']; }, /duplicate values/],
+  ['non-array classification', (f) => { f.input.concerns = 'rest'; }, /expected an array/],
   ['title mismatch', (f) => { f.input.bookTitle = '別の本'; }, /Book title mismatch/],
   ['invalid slug', (f) => { f.input.slug = '../outside'; }, /Invalid version or slug/],
   ['missing book', (f) => { f.input.relatedReview = 'missing'; }, /ENOENT/],

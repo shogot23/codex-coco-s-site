@@ -8,6 +8,7 @@
 
 - `version`: 1。`slug`: 半角英小文字・数字・ハイフンによる恒久ID。
 - `title`, `description`, `readerWorry`, `durationMinutes`（整数1〜30）。
+- `moods`: `src/data/work-taxonomy.json` の気分IDを1つ以上、`concerns`: 同ファイルの悩みIDを1つ以上。各ワークは両方の軸を必ず持ち、未知のIDや重複は取り込まない。
 - `imageFilename`: 同じ納品フォルダの1080×1350 PNGファイル名。`imageAlt`: 画像の情景が伝わる説明。
 - `relatedReview` または `relatedGallery` のどちらか一方: 既存の公開レビュー、または詳細ページを持つ公開ギャラリーのファイル名から `.md` を除いたID。`bookTitle` は参照先のtitleと完全一致。レビューがある本は `relatedReview` を使う。
 - `bookConnection`: 本から受け取った問いとワークのつながり。本の引用と日常向けの翻案を区別する。

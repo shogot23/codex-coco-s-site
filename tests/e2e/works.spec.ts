@@ -3,6 +3,10 @@ import AxeBuilder from '@axe-core/playwright';
 import { readFileSync, readdirSync } from 'node:fs';
 const base = '/codex-coco-s-site/';
 const preview = process.env.WORKS_PREVIEW === '1';
+const taxonomy = JSON.parse(readFileSync('src/data/work-taxonomy.json', 'utf8')) as {
+  moods: Array<{ id: string; label: string }>;
+  concerns: Array<{ id: string; label: string }>;
+};
 const items = readdirSync('src/content/works').filter((name) => name.endsWith('.md')).map((name) => {
   const text = readFileSync(`src/content/works/${name}`, 'utf8');
   const header = text.split('---')[1];
@@ -12,14 +16,28 @@ const items = readdirSync('src/content/works').filter((name) => name.endsWith('.
     if (!match) throw new Error(`${name}: missing ${key}`);
     return JSON.parse(match[1]);
   };
-  return { slug: name.slice(0, -3), review: field('relatedReview', true), gallery: field('relatedGallery', true), title: field('title'), book: field('bookTitle'), published: field('published') === true, steps: (text.match(/^\d+\. /gm) ?? []).length };
+  return { slug: name.slice(0, -3), review: field('relatedReview', true), gallery: field('relatedGallery', true), title: field('title'), book: field('bookTitle'), moods: field('moods'), concerns: field('concerns'), published: field('published') === true, steps: (text.match(/^\d+\. /gm) ?? []).length };
 });
 const visibleItems = items.filter((item) => preview || item.published);
+
+test('work taxonomy covers every work and every option', async () => {
+  const moodIds = new Set(taxonomy.moods.map((mood) => mood.id));
+  const concernIds = new Set(taxonomy.concerns.map((concern) => concern.id));
+  for (const item of items) {
+    expect(item.moods.length).toBeGreaterThan(0);
+    expect(item.concerns.length).toBeGreaterThan(0);
+    expect(item.moods.every((mood: string) => moodIds.has(mood))).toBe(true);
+    expect(item.concerns.every((concern: string) => concernIds.has(concern))).toBe(true);
+  }
+  for (const mood of taxonomy.moods) expect(items.some((item) => item.published && item.moods.includes(mood.id))).toBe(true);
+  for (const concern of taxonomy.concerns) expect(items.some((item) => item.published && item.concerns.includes(concern.id))).toBe(true);
+});
 
 test('works visibility matches preview mode', async ({ page }) => {
   await page.goto(`${base}works/`);
   await expect(page).toHaveTitle('ワーク | 読書 with Coco');
   await expect(page.locator('.work-entry')).toHaveCount(visibleItems.length);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 2)).toBe(true);
   if (visibleItems.length === 0) {
     await expect(page.getByText('ワークはただいま準備中です。', { exact: false })).toBeVisible();
     await page.goto(`${base}reviews/seiten/`);
@@ -32,13 +50,64 @@ test('works visibility matches preview mode', async ({ page }) => {
     }
   } else {
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex, nofollow');
-    await expect.poll(() => page.locator('.work-entry img').evaluateAll((images) => images.every((img) => (img as HTMLImageElement).complete && (img as HTMLImageElement).naturalWidth > 0))).toBe(true);
+    const listImages = page.locator('.work-entry img');
+    for (let index = 0; index < await listImages.count(); index += 1) await listImages.nth(index).scrollIntoViewIfNeeded();
+    await expect.poll(() => listImages.evaluateAll((images) => images.every((img) => (img as HTMLImageElement).complete && (img as HTMLImageElement).naturalWidth > 0))).toBe(true);
     expect((await new AxeBuilder({ page }).include('.works-shell').analyze()).violations).toEqual([]);
     await page.screenshot({ path: `test-results/works-list-${test.info().project.name}.png`, fullPage: true });
     await page.goto(base);
     await page.getByRole('link', { name: '今日のワークを選ぶ' }).click();
     await expect(page).toHaveURL(new RegExp('/works/$'));
   }
+});
+
+test('work finder ranks matching works and clears back to the full list', async ({ page }) => {
+  test.skip(!preview && visibleItems.length === 0, 'The finder is only rendered when works are visible');
+  await page.goto(`${base}works/`);
+  await expect(page.locator('[data-work-finder]')).toBeVisible();
+  const mood = taxonomy.moods[0].id;
+  const concern = taxonomy.concerns.find((candidate) => visibleItems.some((item) => item.moods.includes(mood) && item.concerns.includes(candidate.id)))?.id;
+  expect(concern).toBeDefined();
+  const moodMatches = items.filter((item) => visibleItems.includes(item) && item.moods.includes(mood));
+  const bothMatches = items.filter((item) => visibleItems.includes(item) && item.moods.includes(mood) && item.concerns.includes(concern!));
+  const unionMatches = items.filter((item) => visibleItems.includes(item) && (item.moods.includes(mood) || item.concerns.includes(concern!)));
+  const originalSlugs = await page.locator('[data-work-entry] h2 a').evaluateAll((links) => links.map((link) => (link as HTMLAnchorElement).pathname.split('/').filter(Boolean).at(-1)));
+  const orderedSlugs = (expected: typeof moodMatches) => expected.map((item) => item.slug).sort((a, b) => originalSlugs.indexOf(a) - originalSlugs.indexOf(b));
+  const moodAny = page.locator('input[name="work-mood"][value=""]');
+  await moodAny.focus();
+  await page.keyboard.press('ArrowDown');
+  await expect(page.locator(`input[name="work-mood"][value="${mood}"]`)).toBeChecked();
+  const moodVisibleEntries = page.locator('[data-work-entry]:not([hidden])');
+  await expect(moodVisibleEntries).toHaveCount(moodMatches.length);
+  await expect(page.locator('[data-work-finder-status]')).toHaveText(`${moodMatches.length}件のワークを表示しています。`);
+  const visibleSlugs = async () => (await page.locator('[data-work-entry]:not([hidden]) h2 a').evaluateAll((links) => links.map((link) => (link as HTMLAnchorElement).pathname.split('/').filter(Boolean).at(-1)))) as string[];
+  expect(await visibleSlugs()).toEqual(orderedSlugs(moodMatches));
+  await page.locator(`input[name="work-concern"][value="${concern!}"]`).check();
+  const visibleEntries = page.locator('[data-work-entry]:not([hidden])');
+  await expect(visibleEntries).toHaveCount(unionMatches.length);
+  expect(bothMatches.length).toBeGreaterThan(0);
+  const scores = await visibleEntries.evaluateAll((entries) => entries.map((entry) => Number(entry.getAttribute('data-match-score'))));
+  expect(scores[0]).toBe(2);
+  expect(scores.slice(0, bothMatches.length).every((score) => score === 2)).toBe(true);
+  expect(await visibleSlugs()).toEqual([...orderedSlugs(bothMatches), ...orderedSlugs(unionMatches.filter((item) => !bothMatches.includes(item)))]);
+  await expect(page.locator('[data-work-finder-status]')).toHaveText(`${unionMatches.length}件のワーク。選択に近い順に表示しています。`);
+  await page.locator(`input[name="work-concern"][value="${concern!}"]`).focus();
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('button', { name: '選択をクリア' })).toBeFocused();
+  await page.getByRole('button', { name: '選択をクリア' }).click();
+  await expect(page.locator('[data-work-entry]:not([hidden])')).toHaveCount(visibleItems.length);
+  await expect(page.locator('[data-work-finder-status]')).toHaveText(`全${visibleItems.length}件のワークを表示しています。`);
+});
+
+test('work finder keeps the full list available without JavaScript', async ({ browser }) => {
+  test.skip(visibleItems.length === 0, 'The list is empty');
+  const context = await browser.newContext({ javaScriptEnabled: false });
+  const page = await context.newPage();
+  await page.goto(`${base}works/`);
+  await expect(page.locator('[data-work-finder]')).toBeHidden();
+  await expect(page.locator('[data-work-entry]')).toHaveCount(visibleItems.length);
+  await expect(page.locator('[data-work-entry]').first().getByRole('link').first()).toBeVisible();
+  await context.close();
 });
 
 for (const { slug, review, gallery, title, book, published, steps } of items) test(`work and book round trip: ${slug}`, async ({ page }) => {

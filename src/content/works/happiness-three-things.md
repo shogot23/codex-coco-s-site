@@ -2,6 +2,8 @@
 title: "3分の「今日に残った3つ」メモ"
 description: "今日の「少し助かった」を拾い、明日も残したい支えを一つ選ぶワークです。"
 readerWorry: "足りなかったことばかり思い出す夜に。"
+moods: ["self-critical", "reflective"]
+concerns: ["rest", "self"]
 imageAlt: "3つの灯りがともる谷の道で、今日の小さな支えを見上げるココちゃん。"
 relatedReview: "happiness-curve-jonathan-rausch"
 bookTitle: "ハピネス・カーブ"

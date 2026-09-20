@@ -6,6 +6,7 @@ import sharp from 'sharp';
 
 const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const fields = ['title', 'description', 'readerWorry', 'imageAlt', 'bookTitle', 'bookConnection', 'completion', 'question', 'evidenceNote', 'safetyNote'];
+const taxonomyFields = ['moods', 'concerns'];
 const exists = async (file) => Boolean(await lstat(file).catch((error) => {
   if (error.code === 'ENOENT') return null;
   throw error;
@@ -27,6 +28,22 @@ export async function importWork(packageFile, { root = process.cwd(), dryRun = f
   if (input.version !== 1 || !slugPattern.test(input.slug ?? '')) throw new Error('Invalid version or slug');
   for (const field of fields) {
     if (typeof input[field] !== 'string' || !input[field].trim()) throw new Error(`Missing ${field}`);
+  }
+  const taxonomy = JSON.parse(await readFile(path.join(root, 'src/data/work-taxonomy.json'), 'utf8'));
+  for (const field of taxonomyFields) {
+    const taxonomyEntries = taxonomy[field];
+    if (!Array.isArray(taxonomyEntries)) throw new Error(`Invalid taxonomy: ${field} must be an array`);
+    const taxonomyIds = taxonomyEntries.map((item) => item?.id);
+    if (taxonomyIds.length === 0 || taxonomyIds.some((id) => typeof id !== 'string' || !id.trim()) || new Set(taxonomyIds).size !== taxonomyIds.length) {
+      throw new Error(`Invalid taxonomy: ${field} must contain unique, non-empty ids`);
+    }
+    const allowed = new Set(taxonomyIds);
+    const values = input[field];
+    if (!Array.isArray(values)) throw new Error(`Invalid ${field}: expected an array`);
+    if (values.length === 0) throw new Error(`Invalid ${field}: must not be empty`);
+    const invalid = values.find((value) => typeof value !== 'string' || !allowed.has(value));
+    if (invalid !== undefined) throw new Error(`Invalid ${field}: unknown value ${JSON.stringify(invalid)}`);
+    if (new Set(values).size !== values.length) throw new Error(`Invalid ${field}: duplicate values`);
   }
   const references = ['relatedReview', 'relatedGallery'].filter((key) => input[key] !== undefined);
   if (references.length !== 1) throw new Error('Provide exactly one relatedReview or relatedGallery');
@@ -58,7 +75,7 @@ export async function importWork(packageFile, { root = process.cwd(), dryRun = f
   const imageFile = path.join(imageDir, `${input.slug}.png`);
   const data = Object.fromEntries(fields.map((field) => [field, input[field].trim()]));
   data[referenceField] = input[referenceField];
-  Object.assign(data, { durationMinutes: input.durationMinutes, image: `${input.slug}.png`, sources: input.sources.map(({ label, url }) => ({ label, url })), published: false });
+  Object.assign(data, { moods: input.moods, concerns: input.concerns, durationMinutes: input.durationMinutes, image: `${input.slug}.png`, sources: input.sources.map(({ label, url }) => ({ label, url })), published: false });
   const markdown = `---\n${Object.entries(data).map(([key, value]) => `${key}: ${JSON.stringify(value)}`).join('\n')}\n---\n\n${input.body.trim()}\n`;
   const checkCollision = async () => {
     if (await exists(contentFile) || await exists(imageFile)) throw new Error(`Already exists: ${input.slug}`);

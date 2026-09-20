@@ -2,6 +2,8 @@
 title: "4分の第三者メモ"
 description: "会話を一行にして、両方の事情を気にかける視点から、次に確かめる質問を一つ書くワークです。"
 readerWorry: "相手への反応を、少し整理したいときに。"
+moods: ["uneasy", "reflective"]
+concerns: ["relationships", "self"]
 imageAlt: "二つの椅子の間にある透明な窓を、ココちゃんがそっと確かめる部屋。"
 relatedReview: "watashi-ga-machigatteru-kamosirenai"
 bookTitle: "私が間違っているかもしれない"

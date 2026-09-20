@@ -2,12 +2,16 @@
 import Layout from '../../layouts/Layout.astro';
 import WorkImage from '../../components/works/WorkImage.astro';
 import { getVisibleWorks, worksPreview } from '../../utils/works';
+import workTaxonomy from '../../data/work-taxonomy.json';
 import '../../styles/works.css';
 const works = await getVisibleWorks();
 const base = import.meta.env.BASE_URL;
 ---
 <Layout title="ワーク | 読書 with Coco" description="本から、今日の小さな一歩へ。今の困りごとから選んで、紙や手元のメモで試せる短いワーク。">
   <div class="works-shell">
+    <script is:inline>
+      document.documentElement.classList.add('has-work-finder');
+    </script>
     {worksPreview && <p class="work-preview">下書きプレビュー · まだ公開されていません</p>}
     <header class="works-heading">
       <p class="work-kicker">読書 with Coco / ワーク</p>
@@ -15,20 +19,121 @@ const base = import.meta.env.BASE_URL;
       <p>読んだあとに、少しだけ試してみる。<br />今の自分に近いものを、一つ選んでみませんか。</p>
       <p class="work-muted">本をまだ読んでいなくても、紙や手元のメモで始められます。</p>
     </header>
-    {works.length ? <div class="work-list">
-      {works.map((work, index) => <article class="work-entry">
-        <a class="work-art" href={`${base}works/${work.slug}/`} aria-label={`${work.data.title}の手順を見る`}>
-          <WorkImage slug={work.slug} alt={work.data.imageAlt} eager={index === 0} />
-        </a>
-        <div class="work-entry-copy">
-          <p class="work-kicker">{String(index + 1).padStart(2, '0')} / {work.data.durationMinutes}分を目安に</p>
-          <p class="work-worry">{work.data.readerWorry}</p>
-          <h2><a href={`${base}works/${work.slug}/`}>{work.data.title}</a></h2>
-          <p>{work.data.description}</p>
-          <p class="work-muted">参考：『{work.data.bookTitle}』</p>
-          <a class="work-action" href={`${base}works/${work.slug}/#steps`}>このワークを試す <span aria-hidden="true">↗</span></a>
+    {works.length ? <div class="work-results">
+      <section class="work-finder" data-work-finder aria-labelledby="work-finder-heading">
+        <div class="work-finder-intro">
+          <p class="work-kicker">道しるべ</p>
+          <h2 id="work-finder-heading">いまの自分に近いところから。</h2>
+          <p>気分と気になっていることを一つずつ選ぶと、合いそうなワークが先に見つかります。</p>
+          <p class="work-muted">診断ではありません。選びにくい日は、すべてのワークを眺めるだけでも大丈夫です。</p>
         </div>
-      </article>)}
+        <div class="work-finder-controls">
+          <fieldset class="work-filter-group">
+            <legend>今の気分</legend>
+            <div class="work-filter-options">
+              <label class="work-filter-option" for="work-mood-any"><input id="work-mood-any" type="radio" name="work-mood" value="" checked /><span>指定しない</span></label>
+              {workTaxonomy.moods.map((mood) => <label class="work-filter-option" for={`work-mood-${mood.id}`}><input id={`work-mood-${mood.id}`} type="radio" name="work-mood" value={mood.id} /><span>{mood.label}</span></label>)}
+            </div>
+          </fieldset>
+          <fieldset class="work-filter-group">
+            <legend>気になっていること</legend>
+            <div class="work-filter-options">
+              <label class="work-filter-option" for="work-concern-any"><input id="work-concern-any" type="radio" name="work-concern" value="" checked /><span>指定しない</span></label>
+              {workTaxonomy.concerns.map((concern) => <label class="work-filter-option" for={`work-concern-${concern.id}`}><input id={`work-concern-${concern.id}`} type="radio" name="work-concern" value={concern.id} /><span>{concern.label}</span></label>)}
+            </div>
+          </fieldset>
+          <button class="work-finder-clear" type="button" data-work-filter-reset disabled>選択をクリア</button>
+        </div>
+        <p class="work-finder-status" data-work-finder-status aria-live="polite" aria-atomic="true">全{works.length}件のワークを表示しています。</p>
+      </section>
+      <div class="work-list" data-work-list>
+        {works.map((work, index) => <article class="work-entry" data-work-entry data-moods={work.data.moods.join(' ')} data-concerns={work.data.concerns.join(' ')}>
+          <a class="work-art" href={`${base}works/${work.slug}/`} aria-label={`${work.data.title}の手順を見る`}>
+            <WorkImage slug={work.slug} alt={work.data.imageAlt} eager={index === 0} />
+          </a>
+          <div class="work-entry-copy">
+            <p class="work-match-label" data-work-match-label hidden>今の選択に合いそう</p>
+            <p class="work-kicker"><span data-work-position>{String(index + 1).padStart(2, '0')}</span> / {work.data.durationMinutes}分を目安に</p>
+            <p class="work-worry">{work.data.readerWorry}</p>
+            <h2><a href={`${base}works/${work.slug}/`}>{work.data.title}</a></h2>
+            <p>{work.data.description}</p>
+            <p class="work-muted">参考：『{work.data.bookTitle}』</p>
+            <a class="work-action" href={`${base}works/${work.slug}/#steps`}>このワークを試す <span aria-hidden="true">↗</span></a>
+          </div>
+        </article>)}
+      </div>
     </div> : <p>ワークはただいま準備中です。<a href={`${base}reviews/`}>本のレビューを読む</a></p>}
   </div>
 </Layout>
+<script>
+  const finder = document.querySelector('[data-work-finder]');
+  const list = document.querySelector('[data-work-list]');
+
+  if (finder instanceof HTMLElement && list instanceof HTMLElement) {
+    const entries = [...list.querySelectorAll<HTMLElement>('[data-work-entry]')].map((entry, index) => ({
+      entry,
+      index,
+      moods: (entry.getAttribute('data-moods') || '').split(' ').filter(Boolean),
+      concerns: (entry.getAttribute('data-concerns') || '').split(' ').filter(Boolean),
+      label: entry.querySelector<HTMLElement>('[data-work-match-label]'),
+      position: entry.querySelector<HTMLElement>('[data-work-position]'),
+    }));
+    const status = finder.querySelector<HTMLElement>('[data-work-finder-status]');
+    const reset = finder.querySelector<HTMLButtonElement>('[data-work-filter-reset]');
+    const inputs = [...finder.querySelectorAll<HTMLInputElement>('input[type="radio"]')];
+    const options = [...finder.querySelectorAll<HTMLElement>('.work-filter-option')];
+
+    const selected = (name: string) => finder.querySelector<HTMLInputElement>(`input[name="${name}"]:checked`)?.value || '';
+
+    const update = () => {
+      const mood = selected('work-mood');
+      const concern = selected('work-concern');
+      const hasSelection = Boolean(mood || concern);
+      const ranked = entries.map((item) => {
+        const moodMatch = mood ? item.moods.includes(mood) : false;
+        const concernMatch = concern ? item.concerns.includes(concern) : false;
+        const score = Number(moodMatch) + Number(concernMatch);
+        return { ...item, score };
+      }).sort((a, b) => (b.score - a.score) || (a.index - b.index));
+      const visible = ranked.filter((item) => !hasSelection || item.score > 0);
+      const topScore = visible[0]?.score || 0;
+      const hasRankDifference = visible.some((item) => item.score !== topScore);
+      const visiblePosition = new Map(visible.map((item, index) => [item.entry, index]));
+      const currentEntries = [...list.children];
+      const orderChanged = ranked.some((item, index) => currentEntries[index] !== item.entry);
+
+      ranked.forEach((item) => {
+        const isVisible = !hasSelection || item.score > 0;
+        item.entry.hidden = !isVisible;
+        item.entry.dataset.matchScore = String(item.score);
+        if (item.label instanceof HTMLElement) item.label.hidden = !hasSelection || !hasRankDifference || item.score !== topScore;
+        if (item.position instanceof HTMLElement) item.position.textContent = String((visiblePosition.get(item.entry) ?? item.index) + 1).padStart(2, '0');
+      });
+      if (orderChanged) ranked.forEach((item) => list.append(item.entry));
+      options.forEach((option) => {
+        const input = option.querySelector('input');
+        option.classList.toggle('is-selected', input?.checked === true);
+      });
+      if (reset instanceof HTMLButtonElement) reset.disabled = !hasSelection;
+      if (status instanceof HTMLElement) {
+        if (!hasSelection) {
+          status.textContent = `全${entries.length}件のワークを表示しています。`;
+        } else if (visible.length === 0) {
+          status.textContent = '選択に合うワークはまだありません。別の選択を試すか、選択をクリアして一覧を眺めてみてください。';
+        } else if (!hasRankDifference) {
+          status.textContent = `${visible.length}件のワークを表示しています。`;
+        } else {
+          status.textContent = `${visible.length}件のワーク。選択に近い順に表示しています。`;
+        }
+      }
+    };
+
+    inputs.forEach((input) => input.addEventListener('change', update));
+    reset?.addEventListener('click', () => {
+      finder.querySelector<HTMLInputElement>('input[name="work-mood"][value=""]')?.click();
+      finder.querySelector<HTMLInputElement>('input[name="work-concern"][value=""]')?.click();
+      update();
+    });
+    update();
+  }
+</script>

@@ -10,7 +10,14 @@ async function files(dir) {
 }
 const dist = await files('dist');
 const textFiles = dist.filter((file) => /\.(html|xml|json|js)$/.test(file));
-const combined = (await Promise.all(textFiles.map((file) => readFile(file, 'utf8')))).join('\n');
+const textContents = await Promise.all(textFiles.map((file) => readFile(file, 'utf8')));
+const contentsByFile = new Map(textFiles.map((file, index) => [file, textContents[index]]));
+const htmlFiles = dist.filter((file) => file.endsWith('.html'));
+for (const file of htmlFiles) {
+  const html = contentsByFile.get(file);
+  assert(/^<!doctype html>/i.test(html), `HTML document must begin with doctype: ${file}`);
+}
+const combined = textContents.join('\n');
 const drafts = [];
 for (const name of await readdir('src/content/works')) {
   if (!name.endsWith('.md')) continue;
