@@ -2,6 +2,8 @@
 title: "3分の回復区切り"
 description: "疲れを数字で確かめ、3分だけ作業から離れて休憩前後の状態を残します。"
 readerWorry: "休むほど遅れる気がして、画面を閉じられないとき。"
+moods: ["tired", "self-critical"]
+concerns: ["rest", "work"]
 imageAlt: "窓の遠くを見つめて伏せるココちゃんと、3分タイマー、水、休憩前後を測る手順。"
 bookTitle: "究極の筋トレ休息法"
 bookConnection: "休息を続けるための準備として捉える本の視点から、短い休憩を予定へ戻す手順に翻案しました。"

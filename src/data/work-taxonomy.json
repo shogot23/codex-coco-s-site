@@ -1,0 +1,18 @@
+{
+  "moods": [
+    { "id": "tired", "label": "疲れている" },
+    { "id": "uneasy", "label": "不安・落ち着かない" },
+    { "id": "rushed", "label": "焦っている" },
+    { "id": "self-critical", "label": "自分を責めている" },
+    { "id": "stuck", "label": "動き出せない" },
+    { "id": "reflective", "label": "気持ちを整理したい" }
+  ],
+  "concerns": [
+    { "id": "work", "label": "仕事・働き方" },
+    { "id": "rest", "label": "休息・体調" },
+    { "id": "relationships", "label": "人との関わり" },
+    { "id": "habits", "label": "行動・習慣" },
+    { "id": "information", "label": "情報との付き合い" },
+    { "id": "self", "label": "自分との対話" }
+  ]
+}

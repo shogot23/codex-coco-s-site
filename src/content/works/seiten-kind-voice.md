@@ -2,6 +2,8 @@
 title: "3分の自分にも味方の声"
 description: "自分に向ける言葉を一文書いて、明日の最小のやり直しを一つ選ぶワークです。"
 readerWorry: "小さな失敗で、自分を責めてしまうときに。"
+moods: ["self-critical", "uneasy"]
+concerns: ["self", "habits"]
 imageAlt: "雨上がりのフィールドで空を見上げるココちゃんと、自分への言葉を選ぶ3つの手順。"
 relatedReview: "seiten"
 bookTitle: "青天"

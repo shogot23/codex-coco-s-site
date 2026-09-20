@@ -2,6 +2,8 @@
 title: "2分のもし・なら一行"
 description: "迷いやすい場面と最初の30秒の動作を、「もし・なら」の一行で結びます。"
 readerWorry: "同じ小さな場面で毎回迷い、始める前に疲れるとき。"
+moods: ["stuck", "rushed"]
+concerns: ["habits", "work"]
 imageAlt: "開いた本から伸びる細い道が一本にまとまり、ココちゃんが見つめる景色。もし・ならを作る3手順。"
 bookTitle: "SIMPLE RULES"
 bookConnection: "少数のルールで判断を整える本の視点から、日常の合図と最初の動作を先に結ぶメモへ翻案しました。"
