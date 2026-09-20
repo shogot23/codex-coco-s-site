@@ -75,3 +75,45 @@ test('image-only collision preserves existing file and creates no article', asyn
   assert.equal(await readFile(existing, 'utf8'), 'keep');
   await assert.rejects(readFile(path.join(f.root, 'src/content/works/sample.md')), { code: 'ENOENT' });
 });
+
+for (const [name, edit] of [
+  ['no book reference', (input) => { delete input.relatedReview; }],
+  ['both book references', (input) => { input.relatedGallery = 'book'; }],
+]) test(name, async (t) => {
+  const f = await fixture(t); edit(f.input); await f.save();
+  await assert.rejects(importWork(f.file, { root: f.root }), /exactly one/);
+});
+
+for (const [name, header, pattern] of [
+  ['published gallery', 'published: true\nnote: "情景"', null],
+  ['gallery description only', 'published: true\ndescription: "説明"', null],
+  ['gallery default is draft', 'note: "情景"', /unpublished/],
+  ['unpublished gallery', 'published: false\nnote: "情景"', /unpublished/],
+  ['gallery without detail', 'published: true', /no detail/],
+  ['gallery empty detail', 'published: true\nnote: ""\ndescription: ""', /no detail/],
+]) test(name, async (t) => {
+  const f = await fixture(t);
+  await mkdir(path.join(f.root, 'src/content/gallery'), { recursive: true });
+  await writeFile(path.join(f.root, 'src/content/gallery/book.md'), `---\ntitle: "本"\n${header}\n---\n`);
+  delete f.input.relatedReview; f.input.relatedGallery = 'book'; await f.save();
+  if (pattern) await assert.rejects(importWork(f.file, { root: f.root }), pattern);
+  else {
+    const result = await importWork(f.file, { root: f.root });
+    const text = await readFile(result.contentFile, 'utf8');
+    assert.match(text, /relatedGallery: "book"/); assert.match(text, /published: false/);
+    assert.doesNotMatch(text, /relatedReview:/);
+  }
+});
+
+test('missing gallery and mismatched gallery title are rejected', async (t) => {
+  const f = await fixture(t); delete f.input.relatedReview; f.input.relatedGallery = 'book'; await f.save();
+  await assert.rejects(importWork(f.file, { root: f.root }), /ENOENT/);
+  await mkdir(path.join(f.root, 'src/content/gallery'), { recursive: true });
+  await writeFile(path.join(f.root, 'src/content/gallery/book.md'), '---\ntitle: "別の本"\npublished: true\nnote: "情景"\n---\n');
+  await assert.rejects(importWork(f.file, { root: f.root }), /Book title mismatch/);
+});
+
+test('gallery reference cannot escape its collection', async (t) => {
+  const f = await fixture(t); delete f.input.relatedReview; f.input.relatedGallery = '../reviews/book'; await f.save();
+  await assert.rejects(importWork(f.file, { root: f.root }), /Invalid book reference/);
+});

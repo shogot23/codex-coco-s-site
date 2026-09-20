@@ -6,12 +6,13 @@ const preview = process.env.WORKS_PREVIEW === '1';
 const items = readdirSync('src/content/works').filter((name) => name.endsWith('.md')).map((name) => {
   const text = readFileSync(`src/content/works/${name}`, 'utf8');
   const header = text.split('---')[1];
-  const field = (key: string) => {
+  const field = (key: string, optional = false) => {
     const match = header.match(new RegExp(`^${key}: (.+)$`, 'm'));
+    if (!match && optional) return undefined;
     if (!match) throw new Error(`${name}: missing ${key}`);
     return JSON.parse(match[1]);
   };
-  return { slug: name.slice(0, -3), review: field('relatedReview'), title: field('title'), book: field('bookTitle'), published: field('published') === true, steps: (text.match(/^\d+\. /gm) ?? []).length };
+  return { slug: name.slice(0, -3), review: field('relatedReview', true), gallery: field('relatedGallery', true), title: field('title'), book: field('bookTitle'), published: field('published') === true, steps: (text.match(/^\d+\. /gm) ?? []).length };
 });
 const visibleItems = items.filter((item) => preview || item.published);
 
@@ -40,7 +41,7 @@ test('works visibility matches preview mode', async ({ page }) => {
   }
 });
 
-for (const { slug, review, title, book, published, steps } of items) test(`work and book round trip: ${slug}`, async ({ page }) => {
+for (const { slug, review, gallery, title, book, published, steps } of items) test(`work and book round trip: ${slug}`, async ({ page }) => {
   test.skip(!preview && !published, 'Drafts are only available in explicit local preview');
   await page.goto(`${base}works/`);
   await page.getByRole('heading', { name: title, exact: true }).getByRole('link').click();
@@ -57,12 +58,11 @@ for (const { slug, review, title, book, published, steps } of items) test(`work 
   await expect(page.locator('#steps ol li')).toHaveCount(steps);
   await expect(page.getByText('この短縮ワーク自体は未検証です。変化を保証するものではありません。')).toBeVisible();
   const bookSection = page.getByRole('region', { name: 'このワークにつながる本' });
-  const expectedGallery = ({
-    'seiten-kind-voice': 'novel-seiten',
-    'happiness-three-things': 'psychology-eaa988',
-    'third-party-note': 'nonfiction-watashi-ga-machigatteru',
-  } as Record<string, string>)[slug];
-  if (expectedGallery) {
+  const expectedGalleries = gallery ? [gallery] : readdirSync('src/content/gallery').filter((name) => {
+    const source = readFileSync(`src/content/gallery/${name}`, 'utf8');
+    return new RegExp(`^relatedReview: ["']?${review}["']?\\s*$`, 'm').test(source) && /^published: true$/m.test(source) && /^(?:description|note): .+/m.test(source);
+  }).map((name) => name.replace(/\.md$/, ''));
+  for (const expectedGallery of expectedGalleries) {
     const galleryLink = bookSection.locator(`a[href="${base}gallery/${expectedGallery}/"]`);
     await expect(galleryLink).toBeVisible();
     await galleryLink.click();
@@ -70,8 +70,11 @@ for (const { slug, review, title, book, published, steps } of items) test(`work 
     await page.goBack();
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(title);
   }
+  const bookPath = review ? `reviews/${review}` : `gallery/${gallery}`;
+  await expect(bookSection.locator(`a[href="${base}${bookPath}/"]`)).toContainText(book);
+  if (!review) await expect(bookSection.locator('a[href*="/reviews/"]')).toHaveCount(0);
   const purchaseLinks = bookSection.locator('a[href^="https://af.moshimo.com/"]');
-  const expectedPurchaseUrls = [...readFileSync(`src/content/reviews/${review}.md`, 'utf8').matchAll(/^\s+url: "(https:\/\/af\.moshimo\.com\/[^"]+)"$/gm)].map((match) => match[1]);
+  const expectedPurchaseUrls = [...readFileSync(`src/content/${bookPath}.md`, 'utf8').matchAll(/^\s+url: "(https:\/\/af\.moshimo\.com\/[^"]+)"$/gm)].map((match) => match[1]);
   const actualPurchaseUrls = await purchaseLinks.evaluateAll((links) => links.map((link) => (link as HTMLAnchorElement).href));
   expect(expectedPurchaseUrls.length).toBeGreaterThan(0);
   for (const url of expectedPurchaseUrls) expect(actualPurchaseUrls).toContain(url);
@@ -84,9 +87,12 @@ for (const { slug, review, title, book, published, steps } of items) test(`work 
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2)).toBe(true);
   const audit = await new AxeBuilder({ page }).include('.works-shell').analyze();
   expect(audit.violations).toEqual([]);
+  await picture.scrollIntoViewIfNeeded();
+  await picture.evaluate((img: HTMLImageElement) => img.decode());
+  await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
   await page.screenshot({ path: `test-results/works-${slug}-${test.info().project.name}.png`, fullPage: true });
-  await page.getByRole('link', { name: `『${book}』のレビューを読む` }).click();
-  await expect(page).toHaveURL(new RegExp(`/reviews/${review}/$`));
+  await bookSection.locator(`a[href="${base}${bookPath}/"]`).click();
+  await expect(page).toHaveURL(`${base}${bookPath}/`);
   await page.getByRole('link', { name: title, exact: true }).click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(title);
 });

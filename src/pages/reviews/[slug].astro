@@ -22,6 +22,7 @@ type Props = {
 
 const { review } = Astro.props as Props;
 const relatedWorks = (await Promise.all((await getVisibleWorks()).map(async (work) => {
+  if (!work.data.relatedReview) return null;
   const linkedReview = await getEntry(work.data.relatedReview);
   return linkedReview?.id === review.id ? work : null;
 }))).filter((work) => work !== null);
