@@ -61,6 +61,23 @@ test('works visibility matches preview mode', async ({ page }) => {
   }
 });
 
+test('works landing shares its own image with X', async ({ page }) => {
+  await page.goto(`${base}works/`);
+  const site = process.env.ASTRO_SITE || 'https://shogot23.github.io';
+  const socialUrl = new URL(`${base}works/works-social-20260926.jpg`, site).toString();
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', socialUrl);
+  await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute('content', socialUrl);
+  await expect(page.locator('meta[property="og:image:width"]')).toHaveAttribute('content', '1200');
+  await expect(page.locator('meta[property="og:image:height"]')).toHaveAttribute('content', '630');
+  await expect(page.locator('meta[property="og:image:alt"]')).toHaveAttribute('content', /ココちゃん/);
+  const image = page.locator('.works-hero-image');
+  await expect(image).toBeVisible();
+  expect(await image.evaluate((element: HTMLImageElement) => element.complete && element.naturalWidth === 1200 && element.naturalHeight === 630)).toBe(true);
+  const response = await page.request.get(`${base}works/works-social-20260926.jpg`);
+  expect(response.ok()).toBe(true);
+  expect(response.headers()['content-type']).toContain('image/jpeg');
+});
+
 test('work finder ranks matching works and clears back to the full list', async ({ page }) => {
   test.skip(!preview && visibleItems.length === 0, 'The finder is only rendered when works are visible');
   await page.goto(`${base}works/`);
