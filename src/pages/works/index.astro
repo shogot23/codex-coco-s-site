@@ -7,17 +7,25 @@ import '../../styles/works.css';
 const works = await getVisibleWorks();
 const base = import.meta.env.BASE_URL;
 ---
-<Layout title="ワーク | 読書 with Coco" description="本から、今日の小さな一歩へ。今の困りごとから選んで、紙や手元のメモで試せる短いワーク。">
+<Layout title="ワーク | 読書 with Coco" description="本から、今日の小さな一歩へ。今の困りごとから選んで、紙や手元のメモで試せる短いワーク。"
+  image={`${base}works/works-social-20260926.jpg`}
+  imageAlt="開いた本から白紙のメモへ、ココちゃんが小さな一歩を案内するイラスト"
+  imageWidth={1200} imageHeight={630}>
   <div class="works-shell">
     <script is:inline>
       document.documentElement.classList.add('has-work-finder');
     </script>
     {worksPreview && <p class="work-preview">下書きプレビュー · まだ公開されていません</p>}
     <header class="works-heading">
-      <p class="work-kicker">読書 with Coco / ワーク</p>
-      <h1>本から、今日の<br />小さな一歩へ。</h1>
-      <p>読んだあとに、少しだけ試してみる。<br />今の自分に近いものを、一つ選んでみませんか。</p>
-      <p class="work-muted">本をまだ読んでいなくても、紙や手元のメモで始められます。</p>
+      <div class="works-heading-copy">
+        <p class="work-kicker">読書 with Coco / ワーク</p>
+        <h1>本から、今日の<br />小さな一歩へ。</h1>
+        <p>読んだあとに、少しだけ試してみる。<br />今の自分に近いものを、一つ選んでみませんか。</p>
+        <p class="work-muted">本をまだ読んでいなくても、紙や手元のメモで始められます。</p>
+      </div>
+      <img class="works-hero-image" src={`${base}works/works-hero-20260926.webp`}
+        alt="開いた本から白紙のメモへ歩くココちゃん" width="1200" height="630"
+        loading="eager" decoding="async" fetchpriority="high" />
     </header>
     {works.length ? <div class="work-results">
       <section class="work-finder" data-work-finder aria-labelledby="work-finder-heading">
