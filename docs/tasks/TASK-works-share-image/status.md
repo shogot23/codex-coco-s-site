@@ -3,8 +3,8 @@
 ## Task
 
 - task-id: TASK-works-share-image
-- state: in-progress
-- updated: 2026-09-26
+- state: done
+- updated: 2026-09-28
 
 ## Summary
 
@@ -17,12 +17,14 @@
 - ビルドHTML: `og:image` と `twitter:image` が同一の専用画像URLを指す。寸法と代替テキストも一致。
 - 画面と画像: desktop/mobileおよび300px幅のXカード縮小表示を目視確認済み。
 - Claude review gate: planのarch/diff、実装のarch/diff、記録のdiff、横断確認でblockingなし。
+- PR #179をsquash merge。GitHub Pagesのデプロイは成功し、公開ページのdesktop/mobile表示を目視確認した。
+- 公開HTMLの `og:image` と `twitter:image` は `https://shogot23.github.io/codex-coco-s-site/works/works-social-20260926.jpg` を指す。公開画像とページ用WebPはHTTP 200で、ローカルとSHA-256が一致した。
+- Xの投稿作成画面では、2026-09-27に通常URLで旧キャッシュの汎用アイコン、クエリ付きURLで専用画像を確認した。2026-09-28に通常の `/works/` URLを再確認すると、専用画像の大きなカードが表示された。投稿はしていない。
 
-## Next Action
+## Sharing Note
 
-- PRとGitHub Pages反映後に公開HTML、画像HTTP応答、Xのリンクカードを確認する。
-- 公開確認が済んだら、このstatusと当日dailyを最終結果に更新する。
+- Xに共有するURLは `https://shogot23.github.io/codex-coco-s-site/works/`。通常URLで専用画像のカード表示を確認済み。
 
 ## Daily Record
 
-- 記録先: `daily-2026-09-26.md`
+- 記録先: `daily-2026-09-26.md`、`daily-2026-09-28.md`
