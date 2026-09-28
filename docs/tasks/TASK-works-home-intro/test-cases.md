@@ -28,11 +28,11 @@
 
 ## Release Checks
 
-- [ ] `public/works/works-intro-20260928.jpg` と`public/works/works-intro-20260928-768.jpg`がPRの変更に含まれる
-- [ ] PR checks成功、Pages deploy成功
-- [ ] cache-bypass公開URLでページ構成・CTAと画像が確認できる
-- [ ] 公開HTML内のOGP/X画像が従来のsocial画像を参照する
-- [ ] 紹介画像の公開URLが成功応答し、実表示できる
+- [x] `public/works/works-intro-20260928.jpg` と`public/works/works-intro-20260928-768.jpg`がPRの変更に含まれる
+- [x] PR checks成功、Pages deploy成功（PR #184、run 36386038361）
+- [x] cache-bypass公開URLでページ構成・CTAと画像が確認できる
+- [x] 公開HTML内のOGP/X画像が従来のsocial画像を参照する（1200×630）
+- [x] 紹介画像の公開URLがHTTP 200で実表示できる（desktop/mobile viewport screenshotで確認）
 
 ## Plan Review Note
 
