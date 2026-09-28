@@ -3,7 +3,7 @@
 ## Task
 
 - task-id: TASK-works-hero-refine
-- state: implementation-verified
+- state: done
 - updated: 2026-09-28
 
 ## Summary
@@ -17,6 +17,15 @@
 - `npm run build`: passed
 - 追加確認: `npm run verify:frontend` passed (lint/typecheck/build/E2E; 91 passed, 7 skipped)。`npm run test:works-preview` passed (40 tests)。PlanGate plan reviewは`ok: true`, blockingなし。Claude architectureと最終diff reviewは`ok: true`、blockingなし。初回diff reviewの読み上げ順指摘は修正済み。
 
+## Release Verification
+
+- PR #182をsquash merge。merge SHA: `410e20f2f8ed5de63f986212932fc8057bc88cb9`。
+- GitHub Pages deploy run `36365213694` 成功。cache-bypass付き公開URLで見出し、CTA、既存hero画像を確認。desktop/mobileの公開画面でCTAから`#work-finder`へ移動し、focusがfinderへ移ることを確認。
+- merge SHA `410e20f` のmain CI run `36365213803` 成功。
+- desktop: finder上端64.47px、見出し上端153.67px。mobile: finder上端63.98px、見出し上端133.19px。いずれもsticky header下端は隠れない。
+- hero画像は200/image-webp、X/OGP画像は従来URLで200/image/jpeg。公開HTMLの`twitter:image`と`og:image`は`works-social-20260926.jpg`のまま。
+- 公開確認スクリーンショット: `/tmp/coco-works-hero/desktop-public.png`, `/tmp/coco-works-hero/mobile-public.png`。
+
 ## Scope Check
 
 - scope 内で収まっているか: はい。Astro page、works.css、works e2e、TASK-works-hero-refine記録、dailyのみ。
@@ -24,8 +33,8 @@
 
 ## Next Action
 
-- 残件: commit/PR/checks/merge/Pages確認。
-- 次に見る人へのメモ: 元mainはdirty/untrackedのため保護。`codex/works-hero-refine` の隔離worktreeで作業中。
+- 残件: なし。
+- 次に見る人へのメモ: 元mainのdirty/untracked変更は隔離worktreeで保護し、書き換えていない。
 
 ## Daily Record
 
