@@ -62,7 +62,7 @@ test('works visibility matches preview mode', async ({ page }) => {
   }
 });
 
-test('works landing shares its own image with X', async ({ page }) => {
+test('works landing keeps its social image separate from the intro image', async ({ page }, testInfo) => {
   await page.goto(`${base}works/`);
   const site = process.env.ASTRO_SITE || 'https://shogot23.github.io';
   const socialUrl = new URL(`${base}works/works-social-20260926.jpg`, site).toString();
@@ -73,7 +73,19 @@ test('works landing shares its own image with X', async ({ page }) => {
   await expect(page.locator('meta[property="og:image:alt"]')).toHaveAttribute('content', /ココちゃん/);
   const image = page.locator('.works-hero-image');
   await expect(image).toBeVisible();
-  expect(await image.evaluate((element: HTMLImageElement) => element.complete && element.naturalWidth === 1200 && element.naturalHeight === 630)).toBe(true);
+  await expect(image).toHaveAttribute('src', `${base}works/works-intro-20260928.jpg`);
+  await expect.poll(() => image.evaluate((element: HTMLImageElement) => element.complete && element.naturalWidth > 0)).toBe(true);
+  const mobileViewport = testInfo.project.name === 'mobile-chrome';
+  if (mobileViewport) {
+    await expect.poll(() => image.evaluate((element: HTMLImageElement) => element.currentSrc.endsWith('works-intro-20260928-768.jpg'))).toBe(true);
+  } else {
+    await expect.poll(() => image.evaluate((element: HTMLImageElement) => element.currentSrc.endsWith('works-intro-20260928-768.jpg') || element.currentSrc.endsWith('works-intro-20260928.jpg'))).toBe(true);
+  }
+  for (const filename of ['works-intro-20260928.jpg', 'works-intro-20260928-768.jpg']) {
+    const introResponse = await page.request.get(`${base}works/${filename}`);
+    expect(introResponse.ok()).toBe(true);
+    expect(introResponse.headers()['content-type']).toContain('image/jpeg');
+  }
   const response = await page.request.get(`${base}works/works-social-20260926.jpg`);
   expect(response.ok()).toBe(true);
   expect(response.headers()['content-type']).toContain('image/jpeg');
@@ -82,11 +94,16 @@ test('works landing shares its own image with X', async ({ page }) => {
 test('works hero CTA moves focus to the finder', async ({ page }) => {
   test.skip(visibleItems.length === 0, 'The finder is only rendered when works are visible');
   await page.goto(`${base}works/`);
-  await expect(page.locator('.works-heading > *').nth(0)).toHaveClass(/works-heading-copy/);
-  await expect(page.locator('.works-heading > *').nth(1)).toHaveClass(/works-hero-image/);
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText(/本から、今日の\s*小さな一歩へ。/);
-  await expect(page.locator('.works-heading-lead')).toHaveText('本をまだ読んでいなくても、紙やメモで試せる短いワークです。');
-  await page.getByRole('link', { name: '今の気分から探す' }).click();
+  await expect(page.locator('.works-hero-inner > *').nth(0)).toHaveClass(/works-heading-copy/);
+  await expect(page.locator('.works-hero-inner > *').nth(1)).toHaveClass(/works-hero-media/);
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(/本の問いを、\s*今日の自分へ。/);
+  await expect(page.locator('.works-heading-lead')).toHaveText('本から生まれた問いを、手元で試せる短いワークにしました。今の気分や気がかりから、合いそうなひとつを選べます。');
+  await expect(page.locator('.works-howto li')).toHaveText([
+    '01 気分や気がかりを選ぶ',
+    '02 合いそうなワークをひとつ開く',
+    '03 紙やメモで数分試す',
+  ]);
+  await page.getByRole('link', { name: '気分からワークを探す' }).click();
   await expect(page).toHaveURL(/#work-finder$/);
   await expect(page.locator('#work-finder')).toBeFocused();
   await expect(page.locator('[data-work-finder-status]')).toHaveText(`全${visibleItems.length}件のワークを表示しています。`);
