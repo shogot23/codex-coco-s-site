@@ -6,7 +6,7 @@
 - 制作ゲート: 完了。入力7ファイルのbyte一致、PNG SHA-256・1080×1350、研究・書誌・画像/ OCR確認、history監査、制作Claude各phase `glm-5.3` / valid / gate_ok / blocking 0 を照合。
 - サイト取り込み: dry-run成功後にimport。import時は `published:false` を確認。previewのdesktop/mobileで詳細・一覧・画像・手順・研究と安全範囲・関連レビュー導線を確認。
 - 検証: `npm run test:works` 28 passed。`npm run test:works-preview` desktop/mobile合計42 passed。`npm run verify:frontend` のlint/typecheck/buildを通過し、全体E2E 93 passed / 7 skipped。`npm run check:works-dist` 通過し、記事と最適化画像2種がbuildに含まれることを確認。
-- Claude review: arch/diff とも成立（GLM-5.3、ok:true、blocking 0）。arch advisory（test-cases.mdの検証済みcheckbox不足）は反映済み。diff advisory（PMIDの独立照合）はPubMedで論文名・年・著者・PMIDの一致を確認済み（https://pubmed.ncbi.nlm.nih.gov/35822037/）。最終diff再確認、GitHub / Pages: 実施中。
+- Claude review: arch/diff とも成立（GLM-5.3、ok:true、blocking 0）。arch advisory（test-cases.mdの検証済みcheckbox不足）は反映済み。diff advisory（PMIDの独立照合）はPubMedで論文名・年・著者・PMIDの一致を確認済み（https://pubmed.ncbi.nlm.nih.gov/35822037/）。最終diffはblocking 0で完了。PR #186はsquash merge済み（merge commit `16255b26f5ba94132aac7362782062d0d4b04ab3`）。PR checksのfrontend-verify、Workers Builds、Netlify deploy-previewが成功（Netlify config check 3件はskipping）。main CI run `36497726016` とPages run `36497726160` が成功。
 
 ## 参照したブランド根拠
 
@@ -14,7 +14,7 @@
 
 ## 残件
 
-Claudeのサイト差分レビュー、commit/push/PR/CI/squash merge、Pages公開とcache-bypassの一覧/詳細/相互リンク/共有画像/最適化画像確認。X/Instagram投稿は行わない。
+残件なし。cache-bypassで一覧・詳細・レビュー相互リンク、共有画像meta、最適化WebP 2種を実URL/HTMLとHTTP 200で確認済み。X/Instagram投稿なし。
 
 ## 日次記録
 
