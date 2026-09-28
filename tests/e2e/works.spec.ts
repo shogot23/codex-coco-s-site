@@ -37,6 +37,7 @@ test('works visibility matches preview mode', async ({ page }) => {
   await page.goto(`${base}works/`);
   await expect(page).toHaveTitle('ワーク | 読書 with Coco');
   await expect(page.locator('.work-entry')).toHaveCount(visibleItems.length);
+  await expect(page.locator('.works-heading-cta')).toHaveCount(visibleItems.length > 0 ? 1 : 0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 2)).toBe(true);
   if (visibleItems.length === 0) {
     await expect(page.getByText('ワークはただいま準備中です。', { exact: false })).toBeVisible();
@@ -76,6 +77,19 @@ test('works landing shares its own image with X', async ({ page }) => {
   const response = await page.request.get(`${base}works/works-social-20260926.jpg`);
   expect(response.ok()).toBe(true);
   expect(response.headers()['content-type']).toContain('image/jpeg');
+});
+
+test('works hero CTA moves focus to the finder', async ({ page }) => {
+  test.skip(visibleItems.length === 0, 'The finder is only rendered when works are visible');
+  await page.goto(`${base}works/`);
+  await expect(page.locator('.works-heading > *').nth(0)).toHaveClass(/works-heading-copy/);
+  await expect(page.locator('.works-heading > *').nth(1)).toHaveClass(/works-hero-image/);
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(/本から、今日の\s*小さな一歩へ。/);
+  await expect(page.locator('.works-heading-lead')).toHaveText('本をまだ読んでいなくても、紙やメモで試せる短いワークです。');
+  await page.getByRole('link', { name: '今の気分から探す' }).click();
+  await expect(page).toHaveURL(/#work-finder$/);
+  await expect(page.locator('#work-finder')).toBeFocused();
+  await expect(page.locator('[data-work-finder-status]')).toHaveText(`全${visibleItems.length}件のワークを表示しています。`);
 });
 
 test('work finder ranks matching works and clears back to the full list', async ({ page }) => {
@@ -122,6 +136,7 @@ test('work finder keeps the full list available without JavaScript', async ({ br
   const page = await context.newPage();
   await page.goto(`${base}works/`);
   await expect(page.locator('[data-work-finder]')).toBeHidden();
+  await expect(page.getByRole('link', { name: '今の気分から探す' })).toBeHidden();
   await expect(page.locator('[data-work-entry]')).toHaveCount(visibleItems.length);
   await expect(page.locator('[data-work-entry]').first().getByRole('link').first()).toBeVisible();
   await context.close();

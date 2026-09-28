@@ -20,19 +20,19 @@ const base = import.meta.env.BASE_URL;
       <div class="works-heading-copy">
         <p class="work-kicker">読書 with Coco / ワーク</p>
         <h1>本から、今日の<br />小さな一歩へ。</h1>
-        <p>読んだあとに、少しだけ試してみる。<br />今の自分に近いものを、一つ選んでみませんか。</p>
-        <p class="work-muted">本をまだ読んでいなくても、紙や手元のメモで始められます。</p>
+        <p class="works-heading-lead">本をまだ読んでいなくても、紙やメモで試せる短いワークです。</p>
+        {works.length > 0 && <a class="works-heading-cta" href="#work-finder">今の気分から探す <span aria-hidden="true">↓</span></a>}
       </div>
       <img class="works-hero-image" src={`${base}works/works-hero-20260926.webp`}
         alt="開いた本から白紙のメモへ歩くココちゃん" width="1200" height="630"
         loading="eager" decoding="async" fetchpriority="high" />
     </header>
     {works.length ? <div class="work-results">
-      <section class="work-finder" data-work-finder aria-labelledby="work-finder-heading">
+      <section class="work-finder" id="work-finder" data-work-finder aria-labelledby="work-finder-heading" tabindex="-1">
         <div class="work-finder-intro">
           <p class="work-kicker">道しるべ</p>
-          <h2 id="work-finder-heading">いまの自分に近いところから。</h2>
-          <p>気分と気になっていることを一つずつ選ぶと、合いそうなワークが先に見つかります。</p>
+          <h2 id="work-finder-heading">気分からワークを探す。</h2>
+          <p>気分や気がかりを選ぶと、合いそうなワークが先に見つかります。</p>
           <p class="work-muted">診断ではありません。選びにくい日は、すべてのワークを眺めるだけでも大丈夫です。</p>
         </div>
         <div class="work-finder-controls">
@@ -76,6 +76,13 @@ const base = import.meta.env.BASE_URL;
 <script>
   const finder = document.querySelector('[data-work-finder]');
   const list = document.querySelector('[data-work-list]');
+  const finderCta = document.querySelector<HTMLAnchorElement>('.works-heading-cta');
+
+  if (finder instanceof HTMLElement && finderCta instanceof HTMLAnchorElement) {
+    finderCta.addEventListener('click', () => {
+      window.requestAnimationFrame(() => finder.focus({ preventScroll: true }));
+    });
+  }
 
   if (finder instanceof HTMLElement && list instanceof HTMLElement) {
     const entries = [...list.querySelectorAll<HTMLElement>('[data-work-entry]')].map((entry, index) => ({
