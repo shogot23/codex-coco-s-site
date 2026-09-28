@@ -7,32 +7,47 @@ import '../../styles/works.css';
 const works = await getVisibleWorks();
 const base = import.meta.env.BASE_URL;
 ---
-<Layout title="ワーク | 読書 with Coco" description="本から、今日の小さな一歩へ。今の困りごとから選んで、紙や手元のメモで試せる短いワーク。"
+<Layout title="ワーク | 読書 with Coco" description="本から生まれた問いを、手元で試せる短いワークにしました。今の気分や気がかりから、合いそうなひとつを選べます。"
   image={`${base}works/works-social-20260926.jpg`}
   imageAlt="開いた本から白紙のメモへ、ココちゃんが小さな一歩を案内するイラスト"
   imageWidth={1200} imageHeight={630}>
-  <div class="works-shell">
+  <div class="works-shell works-home-shell">
     <script is:inline>
       document.documentElement.classList.add('has-work-finder');
     </script>
     {worksPreview && <p class="work-preview">下書きプレビュー · まだ公開されていません</p>}
     <header class="works-heading">
-      <div class="works-heading-copy">
-        <p class="work-kicker">読書 with Coco / ワーク</p>
-        <h1>本から、今日の<br />小さな一歩へ。</h1>
-        <p class="works-heading-lead">本をまだ読んでいなくても、紙やメモで試せる短いワークです。</p>
-        {works.length > 0 && <a class="works-heading-cta" href="#work-finder">今の気分から探す <span aria-hidden="true">↓</span></a>}
+      <div class="works-hero-inner">
+        <div class="works-heading-copy">
+          <p class="work-kicker">読書 with Coco / ワーク</p>
+          <h1>本の問いを、<br />今日の自分へ。</h1>
+          <p class="works-heading-lead">本から生まれた問いを、手元で試せる短いワークにしました。今の気分や気がかりから、合いそうなひとつを選べます。</p>
+          {works.length > 0 && <a class="works-heading-cta" href="#work-finder">気分からワークを探す <span aria-hidden="true">↓</span></a>}
+        </div>
+        <picture class="works-hero-media">
+          <source media="(max-width: 720px)" srcset={`${base}works/works-intro-20260928-768.jpg`} />
+          <img class="works-hero-image" src={`${base}works/works-intro-20260928.jpg`}
+            srcset={`${base}works/works-intro-20260928-768.jpg 768w, ${base}works/works-intro-20260928.jpg 1536w`}
+            sizes="(max-width: 920px) calc(100vw - 32px), (max-width: 1200px) 50vw, 576px"
+            alt="開いた本とノートのあいだで、三枚の白紙から一枚を選ぶココちゃん" width="1536" height="1024"
+            loading="eager" decoding="async" fetchpriority="high" />
+        </picture>
       </div>
-      <img class="works-hero-image" src={`${base}works/works-hero-20260926.webp`}
-        alt="開いた本から白紙のメモへ歩くココちゃん" width="1200" height="630"
-        loading="eager" decoding="async" fetchpriority="high" />
     </header>
+    <section class="works-howto" aria-labelledby="works-howto-heading">
+      <h2 id="works-howto-heading">このページの使い方</h2>
+      <ol>
+        <li><span aria-hidden="true">01</span> 気分や気がかりを選ぶ</li>
+        <li><span aria-hidden="true">02</span> 合いそうなワークをひとつ開く</li>
+        <li><span aria-hidden="true">03</span> 紙やメモで数分試す</li>
+      </ol>
+    </section>
     {works.length ? <div class="work-results">
       <section class="work-finder" id="work-finder" data-work-finder aria-labelledby="work-finder-heading" tabindex="-1">
         <div class="work-finder-intro">
           <p class="work-kicker">道しるべ</p>
           <h2 id="work-finder-heading">気分からワークを探す。</h2>
-          <p>気分や気がかりを選ぶと、合いそうなワークが先に見つかります。</p>
+          <p>選んだ気分や気がかりに合いそうなワークを先に表示します。</p>
           <p class="work-muted">診断ではありません。選びにくい日は、すべてのワークを眺めるだけでも大丈夫です。</p>
         </div>
         <div class="work-finder-controls">
