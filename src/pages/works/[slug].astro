@@ -47,6 +47,15 @@ const base = import.meta.env.BASE_URL;
     <div class="work-reading">
       <section class="work-prose" id="steps" aria-label="準備と手順" tabindex="-1"><Content /></section>
       <section><h2>ここまでできたら、おしまい</h2><p>{data.completion}</p></section>
+      <section class="work-reflection" aria-labelledby="work-reflection-heading">
+        <h2 id="work-reflection-heading">試したあと、手元に残すこと</h2>
+        <p>書けるところだけ、手元のメモに残してみてください。</p>
+        <ol>
+          <li><strong>いまの気がかり・壁</strong><p>このワークを選んだとき、気がかりだったことはありますか？</p></li>
+          <li><strong>試したあとの見え方</strong><p>始める前と比べて、見え方に違いはありましたか？ 違いがなくてもかまいません。</p></li>
+          <li><strong>次の小さな一歩</strong><p>今の自分に合う一歩は何ですか？ 休む、相談する、ここで終えることも選べます。</p></li>
+        </ol>
+      </section>
       <section class="work-question"><h2>ココちゃんと、ひと呼吸</h2><p>{data.question}</p></section>
       <section aria-labelledby="work-book-heading"><h2 id="work-book-heading">このワークにつながる本</h2><p>{data.bookConnection}</p>
         <div class="work-book-links">
