@@ -99,9 +99,10 @@ test('works hero CTA moves focus to the finder', async ({ page }) => {
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(/本の問いを、\s*今日の自分へ。/);
   await expect(page.locator('.works-heading-lead')).toHaveText('本から生まれた問いを、手元で試せる短いワークにしました。今の気分や気がかりから、合いそうなひとつを選べます。');
   await expect(page.locator('.works-howto li')).toHaveText([
-    '01 気分や気がかりを選ぶ',
-    '02 合いそうなワークをひとつ開く',
-    '03 紙やメモで数分試す',
+    '01 困りごとを一つ選ぶ',
+    '02 本の問いから生まれたワークをひらく',
+    '03 数分試し、見方の変化や残った壁を一行にする',
+    '04 今選べる小さな一歩を一つ選ぶ',
   ]);
   await page.getByRole('link', { name: '気分からワークを探す' }).click();
   await expect(page).toHaveURL(/#work-finder$/);
