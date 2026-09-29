@@ -32,11 +32,11 @@
 
 - [x] 生成 HTML の本文、画像、相互リンク、アフィリエイト開き方・開示を確認
 - [x] `dist/` の Review/Gallery HTML で `i.moshimo.com/af/i/impression`、`width="1"`、`height="1"`、`1x1` を検索し、計測 img 0件を確認
-- [ ] Pages 公開 HTML で同じ文字列を検索し、計測 img 0件を確認
+- [x] Pages 公開 HTML で同じ文字列を検索し、計測 img 0件を確認
 - [x] desktop/mobile のレビュー・ギャラリー表示と横スクロールを確認
 - [x] Claude review gate の diff と cross-check が成立し、blocking 0を確認
-- [ ] PR state/draft/mergeable/changed files/checks 確認後 squash merge
-- [ ] main と origin/main の一致、Pages 成功、公開 HTML/最適化画像の HTTP 成功
+- [x] PR state/draft/mergeable/changed files/checks 確認後 squash merge
+- [x] main と origin/main の一致、Pages 成功、公開 HTML/最適化画像の HTTP 成功
 
 ## Out Of Scope
 
