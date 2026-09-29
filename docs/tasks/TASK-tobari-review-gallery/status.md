@@ -2,7 +2,7 @@
 
 - task-id: TASK-tobari-review-gallery
 - classification: publish/dev-critical
-- state: implementation verified; Claude gate and PR/Pages release pending
+- state: complete (PR #192 squash merged; Pages verified)
 - date: 2026-09-29
 
 ## Delivered in branch
@@ -28,4 +28,6 @@
 - 楽天リンク: URL 完全一致、別タブ、`nofollow` を確認。
 - 計測 img: `dist/` の Review/Gallery HTML とも0件。
 - Claude review gate: diff と cross-check が成立、blocking 0。
-- PR / Pages: pending
+- PR: [#192](https://github.com/shogot23/codex-coco-s-site/pull/192) を squash merge。merge commit `b3e7c982d4863e998905c1e093c461aec034d467`。frontend-verify、Cloudflare Workers Builds、Netlify preview は pass。
+- main / origin/main: PR #192 反映時点で同じ `b3e7c982d4863e998905c1e093c461aec034d467`。同期前からの未コミット3ファイルの SHA は変化なし。リモート・ローカルの作業ブランチ削除、専用 worktree はアーカイブ済み。
+- GitHub Pages: [公開run 36545718815](https://github.com/shogot23/codex-coco-s-site/actions/runs/36545718815) の build/deploy が成功。Review/Gallery の公開 HTML は両方 HTTP 200、相互リンク・楽天リンクあり、計測 img 0件。HTML が参照する最適化画像も HTTP 200。
