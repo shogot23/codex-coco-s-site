@@ -10725,6 +10725,96 @@
         "height": 630
       }
     },
+    "/uploads/gallery/books/Yutoronika_no_Kochira_Gawa_Ogawa_Satoshi.png": {
+      "hash": "199cbf903b9040f6",
+      "width": 1092,
+      "height": 1440,
+      "variants": {
+        "card": {
+          "320": {
+            "avif": {
+              "path": "199cbf903b9040f6/card-320.avif",
+              "width": 320,
+              "height": 422
+            },
+            "webp": {
+              "path": "199cbf903b9040f6/card-320.webp",
+              "width": 320,
+              "height": 422
+            }
+          },
+          "640": {
+            "avif": {
+              "path": "199cbf903b9040f6/card-640.avif",
+              "width": 640,
+              "height": 844
+            },
+            "webp": {
+              "path": "199cbf903b9040f6/card-640.webp",
+              "width": 640,
+              "height": 844
+            }
+          }
+        },
+        "detail": {
+          "768": {
+            "avif": {
+              "path": "199cbf903b9040f6/detail-768.avif",
+              "width": 768,
+              "height": 1013
+            },
+            "webp": {
+              "path": "199cbf903b9040f6/detail-768.webp",
+              "width": 768,
+              "height": 1013
+            }
+          },
+          "1200": {
+            "avif": {
+              "path": "199cbf903b9040f6/detail-1200.avif",
+              "width": 1092,
+              "height": 1440
+            },
+            "webp": {
+              "path": "199cbf903b9040f6/detail-1200.webp",
+              "width": 1092,
+              "height": 1440
+            }
+          }
+        },
+        "hero": {
+          "960": {
+            "avif": {
+              "path": "199cbf903b9040f6/hero-960.avif",
+              "width": 960,
+              "height": 1266
+            },
+            "webp": {
+              "path": "199cbf903b9040f6/hero-960.webp",
+              "width": 960,
+              "height": 1266
+            }
+          },
+          "1440": {
+            "avif": {
+              "path": "199cbf903b9040f6/hero-1440.avif",
+              "width": 1092,
+              "height": 1440
+            },
+            "webp": {
+              "path": "199cbf903b9040f6/hero-1440.webp",
+              "width": 1092,
+              "height": 1440
+            }
+          }
+        }
+      },
+      "social": {
+        "path": "199cbf903b9040f6/social-1200x630.jpg",
+        "width": 1200,
+        "height": 630
+      }
+    },
     "/uploads/gallery/books/Zetsuen_Byoutou_Kakitani_Miu.png": {
       "hash": "170e3a6263d35b5c",
       "width": 1024,
@@ -14141,6 +14231,96 @@
       },
       "social": {
         "path": "74a302b45584b84d/social-1200x630.jpg",
+        "width": 1200,
+        "height": 630
+      }
+    },
+    "/uploads/review/infographic/yutoronika_no_kochira_gawa_ogawa_satoshi.png": {
+      "hash": "81b8959e409634a4",
+      "width": 1080,
+      "height": 1350,
+      "variants": {
+        "card": {
+          "320": {
+            "avif": {
+              "path": "81b8959e409634a4/card-320.avif",
+              "width": 320,
+              "height": 400
+            },
+            "webp": {
+              "path": "81b8959e409634a4/card-320.webp",
+              "width": 320,
+              "height": 400
+            }
+          },
+          "640": {
+            "avif": {
+              "path": "81b8959e409634a4/card-640.avif",
+              "width": 640,
+              "height": 800
+            },
+            "webp": {
+              "path": "81b8959e409634a4/card-640.webp",
+              "width": 640,
+              "height": 800
+            }
+          }
+        },
+        "detail": {
+          "768": {
+            "avif": {
+              "path": "81b8959e409634a4/detail-768.avif",
+              "width": 768,
+              "height": 960
+            },
+            "webp": {
+              "path": "81b8959e409634a4/detail-768.webp",
+              "width": 768,
+              "height": 960
+            }
+          },
+          "1200": {
+            "avif": {
+              "path": "81b8959e409634a4/detail-1200.avif",
+              "width": 1080,
+              "height": 1350
+            },
+            "webp": {
+              "path": "81b8959e409634a4/detail-1200.webp",
+              "width": 1080,
+              "height": 1350
+            }
+          }
+        },
+        "hero": {
+          "960": {
+            "avif": {
+              "path": "81b8959e409634a4/hero-960.avif",
+              "width": 960,
+              "height": 1200
+            },
+            "webp": {
+              "path": "81b8959e409634a4/hero-960.webp",
+              "width": 960,
+              "height": 1200
+            }
+          },
+          "1440": {
+            "avif": {
+              "path": "81b8959e409634a4/hero-1440.avif",
+              "width": 1080,
+              "height": 1350
+            },
+            "webp": {
+              "path": "81b8959e409634a4/hero-1440.webp",
+              "width": 1080,
+              "height": 1350
+            }
+          }
+        }
+      },
+      "social": {
+        "path": "81b8959e409634a4/social-1200x630.jpg",
         "width": 1200,
         "height": 630
       }
