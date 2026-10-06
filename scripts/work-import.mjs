@@ -3,6 +3,7 @@ import { copyFile, lstat, mkdir, readFile, realpath, rm, writeFile } from 'node:
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import sharp from 'sharp';
+import { assertReaderFacingWorkCopy } from './works-voice-copy.mjs';
 
 const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const fields = ['title', 'description', 'readerWorry', 'imageAlt', 'bookTitle', 'bookConnection', 'completion', 'question', 'evidenceNote', 'safetyNote'];
@@ -76,6 +77,7 @@ export async function importWork(packageFile, { root = process.cwd(), dryRun = f
   const data = Object.fromEntries(fields.map((field) => [field, input[field].trim()]));
   data[referenceField] = input[referenceField];
   Object.assign(data, { moods: input.moods, concerns: input.concerns, durationMinutes: input.durationMinutes, image: `${input.slug}.png`, sources: input.sources.map(({ label, url }) => ({ label, url })), published: false });
+  assertReaderFacingWorkCopy({ ...data, body: input.body }, `site-work.json (${input.slug})`);
   const markdown = `---\n${Object.entries(data).map(([key, value]) => `${key}: ${JSON.stringify(value)}`).join('\n')}\n---\n\n${input.body.trim()}\n`;
   const checkCollision = async () => {
     if (await exists(contentFile) || await exists(imageFile)) throw new Error(`Already exists: ${input.slug}`);
