@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { assertReaderFacingWorkCopy } from './works-voice-copy.mjs';
 
 async function files(dir) {
   return (await Promise.all((await readdir(dir, { withFileTypes: true })).map((entry) => {
@@ -22,6 +23,7 @@ const drafts = [];
 for (const name of await readdir('src/content/works')) {
   if (!name.endsWith('.md')) continue;
   const text = await readFile(path.join('src/content/works', name), 'utf8');
+  assertReaderFacingWorkCopy(text, `src/content/works/${name}`);
   const slug = name.slice(0, -3);
   if (/^published: true$/m.test(text)) {
     for (const file of [`dist/works/${slug}/index.html`, `dist/works/media/${slug}/480.webp`, `dist/works/media/${slug}/1080.webp`]) {
