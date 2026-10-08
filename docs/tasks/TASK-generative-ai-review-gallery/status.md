@@ -1,0 +1,13 @@
+# 状況
+- 分類: publish/dev-critical。隔離worktreeを使用し、元worktreeの別件変更は未変更。
+- 計画: Claude glm-5.3 diff ok:true、owner承認。初回highは180秒timeout、同モデルlowの有界再試行で成立。advisoryは計画の運用補足へ反映。
+- 内容: 前回確定したレビュー本文を採用。出版社 https://www.sbcr.jp/product/4815622978/ と正式抜粋 https://shueisha.online/articles/-/192944?page=3 で著者・書名・創作論を照合済み。
+- brand参照: docs/brand/の戦略・コンテンツ・AI運用。問い、見方、一行の行動と休む選択をReview/Gallery双方へ反映。
+- 画像: 提供2枚をそのまま配置。SHA・寸法・manifestを照合済み。GalleryのAI制作情報を表示する。
+- local: lint / check:content（公開45件）/ typecheck / build / test:e2e / verify:frontend はすべて成功。E2Eは通常101 passed / 7 skipped、最終verifyも101 passed / 7 skipped。
+- 環境注記: node_modulesを元worktreeからsymlink参照したためdev toolbarのVite allow-list警告が出た。本番build・全テストは成功し、サイトコードは変更していない。
+- UI: desktop 1280幅、mobile 390幅で両ページ・本文CTA・相互遷移・画像を目視確認。DOM上の横溢れなし。購入URL/rel/targetを確認。追跡画像なし。
+- dist: Gallery data.json先頭に新規項目。両HTMLの小さな一歩・休む選択、リンク、画像参照を確認。
+- 変更後Claude review: arch / content diff / media-record diff / cross-checkすべてok:true、blockingなし。glm-5.3、effort low（限定文書・設定レビュー）、fallbackなし。archはschema失敗1回後に成功1回、他phaseは最初から成功1回。最終envelope・dispatch・モデルを照合済み。結果はreview-results.json。advisoryは予定したPR/merge/Pages確認の実施で対応する。
+- 公開: PR/merge/Pages確認は未実施。
+- 日次記録先: 当taskのdaily-2026-10-08.md。

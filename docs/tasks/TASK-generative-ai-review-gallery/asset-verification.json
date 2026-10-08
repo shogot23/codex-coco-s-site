@@ -1,0 +1,18 @@
+[
+  {
+    "path": "public/uploads/gallery/books/Seisei_AI_de_Sekai_wa_Kou_Kawaru_Imai_Shota.png",
+    "sha256": "ce20cf59c330a0f1a6a046b027399b105d4d90a49ea098f0a1d0e5e4f0f741da",
+    "width": 1092,
+    "height": 1440,
+    "manifestHash": "ce20cf59c330a0f1",
+    "copiedBytesMatch": true
+  },
+  {
+    "path": "public/uploads/review/infographic/seisei_ai_de_sekai_wa_kou_kawaru_imai_shota.png",
+    "sha256": "53af9611addd41391ba45c1c8fa0b20677eb0026b3ac9df2dcc508ed400be172",
+    "width": 1080,
+    "height": 1350,
+    "manifestHash": "53af9611addd4139",
+    "copiedBytesMatch": true
+  }
+]
