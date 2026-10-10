@@ -1,0 +1,198 @@
+{
+  "sources": [
+    {
+      "input": "inbox/infographic/20260903-224037-生殖記-朝井リョウ.png",
+      "target": "public/uploads/review/infographic/seishokuki_asai_ryo.png",
+      "sha256": "666ceb294dfce59c8f111faab3b96f6b6199acabdb75c2729a74ff8dbeddf525"
+    },
+    {
+      "input": "inbox/gallery/A29E44E2-D9E4-4CF2-A105-07B4FECF89C7.png",
+      "target": "public/uploads/gallery/books/Seishoki_Asai_Ryo.png",
+      "sha256": "b422e83ee9b86147bb4814b3289fa26f3ebd47385c322e17e97b49da6a8f0564"
+    }
+  ],
+  "manifest": [
+    {
+      "path": "/uploads/review/infographic/seishokuki_asai_ryo.png",
+      "hash": "666ceb294dfce59c",
+      "width": 1080,
+      "height": 1350,
+      "variants": {
+        "card": {
+          "320": {
+            "avif": {
+              "path": "666ceb294dfce59c/card-320.avif",
+              "width": 320,
+              "height": 400
+            },
+            "webp": {
+              "path": "666ceb294dfce59c/card-320.webp",
+              "width": 320,
+              "height": 400
+            }
+          },
+          "640": {
+            "avif": {
+              "path": "666ceb294dfce59c/card-640.avif",
+              "width": 640,
+              "height": 800
+            },
+            "webp": {
+              "path": "666ceb294dfce59c/card-640.webp",
+              "width": 640,
+              "height": 800
+            }
+          }
+        },
+        "detail": {
+          "768": {
+            "avif": {
+              "path": "666ceb294dfce59c/detail-768.avif",
+              "width": 768,
+              "height": 960
+            },
+            "webp": {
+              "path": "666ceb294dfce59c/detail-768.webp",
+              "width": 768,
+              "height": 960
+            }
+          },
+          "1200": {
+            "avif": {
+              "path": "666ceb294dfce59c/detail-1200.avif",
+              "width": 1080,
+              "height": 1350
+            },
+            "webp": {
+              "path": "666ceb294dfce59c/detail-1200.webp",
+              "width": 1080,
+              "height": 1350
+            }
+          }
+        },
+        "hero": {
+          "960": {
+            "avif": {
+              "path": "666ceb294dfce59c/hero-960.avif",
+              "width": 960,
+              "height": 1200
+            },
+            "webp": {
+              "path": "666ceb294dfce59c/hero-960.webp",
+              "width": 960,
+              "height": 1200
+            }
+          },
+          "1440": {
+            "avif": {
+              "path": "666ceb294dfce59c/hero-1440.avif",
+              "width": 1080,
+              "height": 1350
+            },
+            "webp": {
+              "path": "666ceb294dfce59c/hero-1440.webp",
+              "width": 1080,
+              "height": 1350
+            }
+          }
+        }
+      },
+      "social": {
+        "path": "666ceb294dfce59c/social-1200x630.jpg",
+        "width": 1200,
+        "height": 630
+      }
+    },
+    {
+      "path": "/uploads/gallery/books/Seishoki_Asai_Ryo.png",
+      "hash": "b422e83ee9b86147",
+      "width": 1122,
+      "height": 1402,
+      "variants": {
+        "card": {
+          "320": {
+            "avif": {
+              "path": "b422e83ee9b86147/card-320.avif",
+              "width": 320,
+              "height": 400
+            },
+            "webp": {
+              "path": "b422e83ee9b86147/card-320.webp",
+              "width": 320,
+              "height": 400
+            }
+          },
+          "640": {
+            "avif": {
+              "path": "b422e83ee9b86147/card-640.avif",
+              "width": 640,
+              "height": 800
+            },
+            "webp": {
+              "path": "b422e83ee9b86147/card-640.webp",
+              "width": 640,
+              "height": 800
+            }
+          }
+        },
+        "detail": {
+          "768": {
+            "avif": {
+              "path": "b422e83ee9b86147/detail-768.avif",
+              "width": 768,
+              "height": 960
+            },
+            "webp": {
+              "path": "b422e83ee9b86147/detail-768.webp",
+              "width": 768,
+              "height": 960
+            }
+          },
+          "1200": {
+            "avif": {
+              "path": "b422e83ee9b86147/detail-1200.avif",
+              "width": 1122,
+              "height": 1402
+            },
+            "webp": {
+              "path": "b422e83ee9b86147/detail-1200.webp",
+              "width": 1122,
+              "height": 1402
+            }
+          }
+        },
+        "hero": {
+          "960": {
+            "avif": {
+              "path": "b422e83ee9b86147/hero-960.avif",
+              "width": 960,
+              "height": 1200
+            },
+            "webp": {
+              "path": "b422e83ee9b86147/hero-960.webp",
+              "width": 960,
+              "height": 1200
+            }
+          },
+          "1440": {
+            "avif": {
+              "path": "b422e83ee9b86147/hero-1440.avif",
+              "width": 1122,
+              "height": 1402
+            },
+            "webp": {
+              "path": "b422e83ee9b86147/hero-1440.webp",
+              "width": 1122,
+              "height": 1402
+            }
+          }
+        }
+      },
+      "social": {
+        "path": "b422e83ee9b86147/social-1200x630.jpg",
+        "width": 1200,
+        "height": 630
+      }
+    }
+  ]
+}
