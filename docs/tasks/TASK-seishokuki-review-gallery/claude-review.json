@@ -1,0 +1,80 @@
+[
+  {
+    "run": "preflight-release",
+    "model": "glm-5.3",
+    "effort": "low",
+    "phase": "diff",
+    "ok": true,
+    "schema_repaired": false,
+    "failed_dispatches": 0,
+    "success_dispatches": 1,
+    "fallback_used": false,
+    "rate_limit_detected": false,
+    "summary": "疎通確認用のダミー応答。対象コード・差分は提示されていないため、実質的なレビューは実施していない。"
+  },
+  {
+    "run": "arch-release",
+    "model": "glm-5.3",
+    "effort": "low",
+    "phase": "arch",
+    "ok": true,
+    "schema_repaired": true,
+    "failed_dispatches": 1,
+    "success_dispatches": 1,
+    "fallback_used": false,
+    "rate_limit_detected": false,
+    "summary": "公開計画3ファイル（plan.md・pbi-input.md・test-cases.md）をarch観点でレビュー。scopeは既存Astro contentへの追加のみでコード・schema変更なし。ネタバレ要約の削除、確定全文一致、SHA一致、AI制作表示、計測画像除外、本番HTTP 200確認まで検証項目が揃っており、blockingなし。advisoryとして、レビュー全文の固定ソース明示、命名規約の照合、もしもURLの実到達確認、アフィリエイト開示、alt属性確認の5点を挙げる。"
+  },
+  {
+    "run": "release-diff-content",
+    "model": "glm-5.3",
+    "effort": "low",
+    "phase": "diff",
+    "ok": true,
+    "schema_repaired": false,
+    "failed_dispatches": 0,
+    "success_dispatches": 1,
+    "fallback_used": false,
+    "rate_limit_detected": false,
+    "summary": "『生殖記』review新規3ファイルをapproved-review.md確定文と照合。本文は完全一致し、brand構造（悩み→問い→変化→任意の一歩→休息）、本人体験と本説明の区別、旧ネタバレ削除、購入URL維持、gallery双方向リンク（relatedReview）とupdatedAt更新を確認。公開UIコードへの変更なし。blocking無し。"
+  },
+  {
+    "run": "release-diff-records",
+    "model": "glm-5.3",
+    "effort": "low",
+    "phase": "diff",
+    "ok": true,
+    "schema_repaired": true,
+    "failed_dispatches": 1,
+    "success_dispatches": 1,
+    "fallback_used": false,
+    "rate_limit_detected": false,
+    "summary": "5ファイルのtask記録を確認した。scopeはplan.mdの対象範囲内で、approved-review.md固定・既存slug/generated_at保持・updatedAt更新・旧ネタバレ要約削除・AI制作表示・広告開示・noopener noreferrer nofollow・計測画像なし・affiliate URLのquery維持が記録上反映済み。検証記録はverify:frontend成功・103 passed / 7 skipped・SHA一致・manifest確認・desktop/mobile確認が揃い、PR/CI/merge/Pages公開が未実施であることが明記されている。affiliateの外部到達は未確認と区別されており、指針通りblockingとしない。記録上の阻害項目なし。"
+  },
+  {
+    "run": "release-diff-media",
+    "model": "glm-5.3",
+    "effort": "low",
+    "phase": "diff",
+    "ok": true,
+    "schema_repaired": true,
+    "failed_dispatches": 1,
+    "success_dispatches": 1,
+    "fallback_used": false,
+    "rate_limit_detected": false,
+    "summary": "assets.json/manifest差分の整合性を検証。2画像ともSHA256先頭16文字がmanifest hashと一致し、寸法（infographic 1080x1350, gallery 1122x1402）に対する全variantのアスペクト比・キャップ挙動・パスが正しい。manifest差分は対象2エントリのみで無関係なmedia変更なし。blocking無し、advisory 1件。"
+  },
+  {
+    "run": "release-cross-check",
+    "model": "glm-5.3",
+    "effort": "low",
+    "phase": "cross-check",
+    "ok": true,
+    "schema_repaired": false,
+    "failed_dispatches": 0,
+    "success_dispatches": 1,
+    "fallback_used": false,
+    "rate_limit_detected": false,
+    "summary": "公開content・media・記録3組のdiffとarchレビューを横断確認した。全group ok:true、blockingなし。archのadvisory 5件はすべて解消済み(affiliate URLはHTTP 200で正しい商品17919168へ遷移、旧hash 7f8c6c2c3008468aディレクトリは不存在、全文一致・開示・alt・命名は確認済み)。必須フェーズ(arch・diff 3組・cross-check)は完走し、検証はverify:frontend 103 passed / 7 skipped・typecheckエラーゼロ・check:content 46件合格、scopeは2 content+2画像+manifest+task記録のみで逸脱なし。検証・レビュー・公開の権限境界も維持されている。gate通過としてPR・merge・Pages公開へ進める。"
+  }
+]
