@@ -259,3 +259,33 @@ test('review explorer has no serious or critical accessibility violations', asyn
 
   expect(serious).toEqual([]);
 });
+
+test('latest featured review remains searchable by title and author', async ({ page }) => {
+  await page.goto(REVIEW_PATH);
+  const title = (await page.locator('.featured-title a').innerText()).trim();
+  const author = (await page.locator('.featured-meta span').first().innerText()).replace(/^著者:\s*/, '').trim();
+  for (const query of [title, author]) {
+    await page.getByRole('searchbox', { name: 'レビューを検索' }).fill(query);
+    await page.getByRole('button', { name: '探す', exact: true }).click();
+    await expect(reviewItems(page).getByRole('link', { name: title, exact: true })).toBeVisible();
+  }
+});
+
+test('concern entrance shows its search term and can be reset', async ({ page }) => {
+  await page.goto(REVIEW_PATH);
+  const entrance = page.getByRole('navigation', { name: '今の気がかりからレビューを探す' });
+  for (const query of ['責め', '不安', '再起']) {
+    await entrance.getByRole('link', { name: new RegExp(`「${query}」で探す`) }).click();
+    await expect(page.getByRole('searchbox', { name: 'レビューを検索' })).toHaveValue(query);
+    expect(await reviewItems(page).count()).toBeGreaterThan(0);
+    await page.goto(REVIEW_PATH);
+  }
+  await entrance.getByRole('link', { name: /不安・落ち着かない.*「不安」で探す/ }).click();
+  await expect(page.getByRole('searchbox', { name: 'レビューを検索' })).toHaveValue('不安');
+  expect(await reviewItems(page).count()).toBeGreaterThan(0);
+  await page.getByRole('button', { name: '条件を戻す', exact: true }).click();
+  await expect(page.getByRole('searchbox', { name: 'レビューを検索' })).toHaveValue('');
+  await expect(reviewItems(page)).toHaveCount(4);
+  await page.goBack();
+  await expect(page.getByRole('searchbox', { name: 'レビューを検索' })).toHaveValue('不安');
+});

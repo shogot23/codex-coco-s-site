@@ -37,10 +37,10 @@ test('gallery browse progressively reveals its shelf and preserves browser state
   const viewSwitch = page.locator('.view-switch');
   await viewSwitch.getByRole('button', { name: '章で見る' }).focus();
   await page.keyboard.press('ArrowRight');
-  await expect(viewSwitch.getByRole('button', { name: '一覧で見る' })).toBeFocused();
+  await expect(viewSwitch.getByRole('button', { name: 'このページを一覧表示' })).toBeFocused();
 
   await page.keyboard.press('Enter');
-  await expect(page.getByRole('button', { name: '一覧で見る', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('button', { name: 'このページを一覧表示', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(browse.locator('[data-grid-card]')).toHaveCount(12);
   await expect(page.getByRole('button', { name: /さらに.*作品を見る/ })).toBeVisible();
 
@@ -55,7 +55,7 @@ test('gallery browse progressively reveals its shelf and preserves browser state
 
   await page.goBack();
   await expect(page.getByRole('button', { name: 'すべて', exact: true })).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.getByRole('button', { name: '一覧で見る', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('button', { name: 'このページを一覧表示', exact: true })).toHaveAttribute('aria-pressed', 'true');
 });
 
 test('gallery controls stay inside 360 and 390 pixel mobile viewports', async ({ page }) => {
@@ -65,7 +65,7 @@ test('gallery controls stay inside 360 and 390 pixel mobile viewports', async ({
     await expectNoHorizontalOverflow(page);
 
     const browse = page.getByTestId('gallery-browse');
-    await browse.getByRole('button', { name: '一覧で見る', exact: true }).click();
+    await browse.getByRole('button', { name: 'このページを一覧表示', exact: true }).click();
     await expectNoHorizontalOverflow(page);
     await expect(browse.locator('[data-grid-card]').first()).toBeVisible();
   }
@@ -75,7 +75,7 @@ test('gallery browsing respects reduced motion', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto(`${SITE_BASE}gallery/`);
 
-  const duration = await page.getByRole('button', { name: '一覧で見る', exact: true }).evaluate((element) =>
+  const duration = await page.getByRole('button', { name: 'このページを一覧表示', exact: true }).evaluate((element) =>
     getComputedStyle(element).transitionDuration
   );
 
