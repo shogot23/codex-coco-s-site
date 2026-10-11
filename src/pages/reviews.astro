@@ -71,7 +71,6 @@ const reviewCards = sortedReviews.map((review) => {
 });
 
 const featuredReview = reviewCards[0] ?? null;
-const remainingReviews = reviewCards.slice(1);
 const galleryUrl = `${baseWithSlash}gallery/`;
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site!).toString();
 const reviewsJsonLd = buildJsonLdGraph([
@@ -85,7 +84,7 @@ const reviewsJsonLd = buildJsonLdGraph([
     }))
   ),
 ]);
-const explorerItems = remainingReviews.map((review) => ({
+const explorerItems = reviewCards.map((review) => ({
   slug: review.slug,
   title: review.title,
   author: review.author,
@@ -110,8 +109,9 @@ const explorerItems = remainingReviews.map((review) => ({
         <a class="hero-button hero-button-primary ui-action" href={featuredReview ? featuredReview.href : "#review-stream"}>
           {featuredReview ? "最新レビューを読む" : "本棚を見る"}
         </a>
-        {remainingReviews.length > 0 && <a class="hero-button hero-button-secondary ui-action" href="#review-stream">本棚から選ぶ</a>}
+        {reviewCards.length > 0 && <a class="hero-button hero-button-secondary ui-action" href="#review-stream">本棚から選ぶ</a>}
       </div>
+      <a class="first-books-link ui-action" href={`${baseWithSlash}3books/`}>はじめての方へ：最初の3冊</a>
     </section>
 
     {featuredReview ? (
@@ -164,7 +164,7 @@ const explorerItems = remainingReviews.map((review) => ({
       </section>
     )}
 
-    {remainingReviews.length > 0 && (
+    {reviewCards.length > 0 && (
       <section class="stream-section" id="review-stream" aria-labelledby="review-stream-heading">
         <div class="section-header">
           <div>
@@ -191,6 +191,7 @@ const explorerItems = remainingReviews.map((review) => ({
 <style>
   .reviews-story { display: grid; grid-template-columns: minmax(0,1fr); gap: clamp(2.2rem,4vw,3.8rem); min-width: 0; padding: clamp(.5rem,1vw,1rem) 0 clamp(2rem,4vw,3rem); }
   .reviews-story > * { min-width: 0; }
+  .first-books-link { display: inline-flex; min-height: 48px; align-items: center; text-decoration: underline; text-underline-offset: .2em; }
   .hero, .featured-review, .afterword, .empty-state { border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: rgba(255,250,243,.82); }
   .hero { display: grid; justify-items: start; gap: .85rem; padding: clamp(1.5rem,4vw,3rem); background: radial-gradient(circle at top right,rgba(235,224,209,.65),transparent 34%),rgba(255,250,243,.92); box-shadow: var(--shadow-soft); }
   .hero-kicker, .section-label, .featured-eyebrow, .featured-quote > p, .featured-step > p { margin: 0; color: var(--color-accent); font-size: var(--text-meta); font-weight: 700; letter-spacing: var(--tracking-label); text-transform: uppercase; }

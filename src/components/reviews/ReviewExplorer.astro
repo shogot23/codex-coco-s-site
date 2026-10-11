@@ -1,4 +1,5 @@
 ---
+import workTaxonomy from "../../data/work-taxonomy.json";
 type ReviewExplorerItem = {
   slug: string;
   title: string;
@@ -15,6 +16,15 @@ interface Props {
 }
 
 const { items, initialLimit = 8 } = Astro.props;
+const concernEntrances = [
+  { id: 'self-critical', q: '責め' },
+  { id: 'uneasy', q: '不安' },
+  { id: 'stuck', q: '再起' },
+].map(({ id, q }) => {
+  const mood = workTaxonomy.moods.find((entry) => entry.id === id);
+  if (!mood) throw new Error(`Unknown review entrance mood: ${id}`);
+  return { label: mood.label, q };
+});
 const initialItems = items.slice(0, initialLimit);
 const situations = [...new Set(items.flatMap((item) => item.tags))].sort((a, b) => a.localeCompare(b, "ja"));
 const payload = JSON.stringify(items)
@@ -24,10 +34,16 @@ const payload = JSON.stringify(items)
 ---
 
 <section class="review-explorer" data-review-explorer data-page-size={initialLimit}>
+  <nav class="concern-entrances" aria-label="今の気がかりからレビューを探す">
+    <p>今の気がかりに近い言葉から</p>
+    <ul>{concernEntrances.map(({ label, q }) => (
+      <li><a href={`?q=${encodeURIComponent(q)}#review-stream`}>{label}<span>「{q}」で探す</span></a></li>
+    ))}</ul>
+  </nav>
   <form class="review-controls" role="search" aria-label="レビューを探す">
     <label>
       <span>キーワード</span>
-      <input type="search" name="q" autocomplete="off" placeholder="書名、著者から探す" aria-label="レビューを検索" />
+      <input type="search" name="q" autocomplete="off" placeholder="書名・著者・気がかりから探す" aria-label="レビューを検索" />
     </label>
     <label>
       <span>テーマ</span>
@@ -201,6 +217,12 @@ const payload = JSON.stringify(items)
 </script>
 
 <style is:global>
+  .concern-entrances { margin-bottom: 1rem; }
+  .concern-entrances p { margin: 0 0 .5rem; color: var(--color-muted); }
+  .concern-entrances ul { display: flex; flex-wrap: wrap; gap: .5rem 1rem; list-style: none; margin: 0; padding: 0; }
+  .concern-entrances a { display: grid; min-height: 48px; color: var(--color-text); text-decoration: underline; text-underline-offset: .2em; }
+  .concern-entrances span { font-size: .8rem; color: var(--color-muted); }
+
   [data-review-explorer] {
     display: grid;
     gap: 1rem;

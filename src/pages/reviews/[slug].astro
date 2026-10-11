@@ -135,8 +135,7 @@ const heroImage = infographic ?? cover ?? primaryRelatedGallery?.data.image ?? n
 const socialHeroImage = heroImage ? getSocialImage(heroImage, baseWithSlash) : null;
 const heroImageUrl = socialHeroImage ? resolveImageUrl(socialHeroImage) : null;
 const supplementalTitle = bookTitle && bookTitle !== title ? bookTitle : null;
-const hasGuidance = Boolean((recommendedFor && recommendedFor.length > 0) || (tags && tags.length > 0));
-const hasCompanionNote = Boolean(readingCompass);
+
 const primaryPurchaseLink = purchaseLinks?.[0] ?? null;
 const hasMultiplePurchaseLinks = (purchaseLinks?.length ?? 0) > 1;
 const openingPurchaseHref = hasMultiplePurchaseLinks ? '#review-purchase-shelf' : primaryPurchaseLink?.url;
@@ -183,7 +182,7 @@ const reviewJsonLd = buildJsonLdGraph([
     <article class="story-shell">
       <header class="opening">
         <div class="opening-copy">
-          <p class="eyebrow">Review Detail / 読後のしおり</p>
+          <p class="eyebrow">読後のしおり</p>
 
           {tags && tags.length > 0 && (
             <ul class="tags" aria-label="タグ">
@@ -203,7 +202,7 @@ const reviewJsonLd = buildJsonLdGraph([
             </time>
           </div>
 
-          {description && <p class="lead">{description}</p>}
+          {(readerWorry || description) && <p class="lead">{readerWorry || description}</p>}
 
           {excerpt && (
             <div class="opening-quote">
@@ -214,11 +213,6 @@ const reviewJsonLd = buildJsonLdGraph([
               {excerptKind === 'direct-quote' && excerptSource && <cite>{excerptSource}</cite>}
             </div>
           )}
-
-          <p class="opening-note">
-            言葉を追うだけで終わらせず、読み終えたあとに残る景色まで受け取れるように、
-            本文の前後に静かな導線を添えました。
-          </p>
 
           <div class="opening-actions ui-action-group ui-action-group--stack">
             <a class="primary-link ui-action" href="#review-body">本文を読む</a>
@@ -239,7 +233,7 @@ const reviewJsonLd = buildJsonLdGraph([
 
           {hasMultiplePurchaseLinks && (
             <p class="purchase-shortcut-note">
-              購入先の一覧はページ下部の Reading Shelf にまとめています。
+              購入先はページ下部にまとめています。
             </p>
           )}
         </div>
@@ -264,50 +258,8 @@ const reviewJsonLd = buildJsonLdGraph([
             )}
           </div>
 
-          {hasCompanionNote && (
-            <aside class="companion-note" aria-labelledby="companion-title">
-              <p class="companion-label">Reading Compass</p>
-              <h2 id="companion-title">読みはじめる前の、ひとこと。</h2>
-              <p>{readingCompass}</p>
-            </aside>
-          )}
         </div>
       </header>
-
-      {hasGuidance && (
-        <section class="guidance" aria-labelledby="guidance-title">
-          <div class="guidance-head">
-            <p class="section-label">Reading Note</p>
-            <h2 id="guidance-title">ページに入る前の、短い手がかり。</h2>
-          </div>
-
-          <div class="guidance-grid">
-            {recommendedFor && recommendedFor.length > 0 && (
-              <section class="guidance-panel" aria-labelledby="recommended-title">
-                <p class="panel-kicker">For Readers</p>
-                <h3 id="recommended-title">こんな人におすすめ</h3>
-                <ul>
-                  {recommendedFor.map((item) => (
-                    <li>{item}</li>
-                  ))}
-                </ul>
-              </section>
-            )}
-
-            {tags && tags.length > 0 && (
-              <section class="guidance-panel guidance-panel-soft" aria-labelledby="theme-title">
-                <p class="panel-kicker">Themes</p>
-                <h3 id="theme-title">この本の余韻に残る言葉</h3>
-                <ul class="theme-list" aria-label="レビューのテーマ">
-                  {tags.map((tag) => (
-                    <li>{tag}</li>
-                  ))}
-                </ul>
-              </section>
-            )}
-          </div>
-        </section>
-      )}
 
       <section class="body-section" id="review-body" aria-labelledby="impression-title">
         <div class="section-head">
@@ -323,6 +275,14 @@ const reviewJsonLd = buildJsonLdGraph([
           </div>
         </div>
       </section>
+
+      {(Boolean(readingCompass) || (recommendedFor?.length ?? 0) > 0) && (
+        <details class="reader-guidance">
+          <summary>この本を読むときの手がかり</summary>
+          {readingCompass && <p>{readingCompass}</p>}
+          {recommendedFor && recommendedFor.length > 0 && <ul>{recommendedFor.map((item) => <li>{item}</li>)}</ul>}
+        </details>
+      )}
 
       {(readerWorry || bookQuestion || perspectiveShift || smallStep || cocoNote || lingeringQuestion) && (
         <section class="reading-repair" aria-labelledby="reading-repair-title">
@@ -350,8 +310,7 @@ const reviewJsonLd = buildJsonLdGraph([
             <h2 id="afterglow-title">言葉を読み終えたあと、景色のほうへ。</h2>
           </div>
           <p class="section-copy">
-            読後の余韻をそのまま閉じずに、景色か次の一冊へゆるやかにつなぎます。
-            読み終わった手の温度に合わせた、静かな終端です。
+            ココちゃんと同じ本の景色を眺めることも、ここで本を閉じることもできます。
           </p>
         </div>
 
@@ -391,7 +350,7 @@ const reviewJsonLd = buildJsonLdGraph([
               <p class="panel-kicker">Lingering Note</p>
               <h3>読後の景色は、まだ静かに育っています。</h3>
               <p>
-                いまは言葉の余韻を中心に置いたページです。景色の展示が増えたら、この先の導線もここからつながります。
+                ほかの本から生まれた景色も、ギャラリーで眺められます。
               </p>
             </div>
           )}
@@ -471,6 +430,10 @@ const reviewJsonLd = buildJsonLdGraph([
 </Layout>
 
 <style>
+  .reader-guidance { color: var(--color-muted); line-height: 1.8; }
+  .reader-guidance summary { cursor: pointer; min-height: 48px; display: list-item; padding-block: .7rem; }
+  @media (max-width: 640px) { .opening-visual { max-width: 15rem; margin-inline: auto; } }
+
   .review-story {
     max-width: 1080px;
     margin: 0 auto;

@@ -167,19 +167,6 @@ const heroPostcards = galleryHighlights.slice(0, 2);
 const galleryLead = galleryHighlights[0] ?? null;
 const galleryTrail = galleryHighlights.slice(1, 3);
 
-const supportItems = [
-  {
-    label: 'Review',
-    title: '読後の手ざわりを、言葉で残す。',
-    body: '本を閉じたあとに残る感情や学びを、短く深くたどる入口です。',
-  },
-  {
-    label: 'Gallery',
-    title: '読書からこぼれた景色を、そっと見返す。',
-    body: '気になった一冊の空気を、ココちゃんと一緒にビジュアルで確かめます。',
-  },
-];
-
 const aboutLead =
   aboutParagraphs[0] ??
   '読書 with Coco は、本を読み終えたあとに静かに残る気配を、もう一度見つめ直すための場所です。';
@@ -203,26 +190,11 @@ const worldAsideCopy =
         <p class="hero-brand">読書 with Coco</p>
         <h1 id="home-hero-heading">読書で生まれた世界を、ココちゃんが旅する。</h1>
         <p class="hero-lead">
-          仕事や役割に追われて、自分の気持ちが見えにくくなった日に。
-          レビューで言葉をひらき、ココちゃんと一緒に、暮らしへ戻せる学びを探します。
+          忙しい日に、本からひとつの問いと、今選べる小さな一歩を。
         </p>
 
-        <ul class="hero-promises" aria-label="レビューから持ち帰れるもの">
-          <li><strong>問い</strong><span>今のモヤモヤに名前をつける</span></li>
-          <li><strong>見方</strong><span>いつもの景色を別の角度から見る</span></li>
-          <li><strong>一歩</strong><span>今日できる小さな行動を選ぶ</span></li>
-        </ul>
 
-        <div class="hero-actions ui-action-group ui-action-group--stack">
-          <a class="hero-button hero-button-primary ui-action" href={reviewsUrl}>レビューを見る</a>
-          <a class="hero-button hero-button-secondary ui-action" href={galleryUrl}>ギャラリーを見る</a>
-        </div>
 
-        {featuredReview && (
-          <p class="hero-note">
-            今ひらける一冊は <span>{featuredReview.title}</span>。入口は、まず言葉の窓から。
-          </p>
-        )}
       </div>
 
       <section class="hero-visual" aria-label="ココちゃんと読書の世界">
@@ -274,38 +246,19 @@ const worldAsideCopy =
           </div>
         </div>
       </section>
-    </section>
-
-    <section class="support-section" aria-labelledby="support-heading">
-      <div class="section-intro">
-        <p class="section-label">Two Quiet Windows</p>
-        <h2 id="support-heading">一冊の余韻を、二つの窓でひらく。</h2>
-        <p>
-          まずレビューで言葉をひらき、ギャラリーでココちゃんと本から生まれた景色を見返します。
-        </p>
-      </div>
-
-      <div class="support-list">
-        {supportItems.map((item, index) => (
-          <article class="support-item">
-            <p class="support-index">{String(index + 1).padStart(2, '0')}</p>
-            <div class="support-body">
-              <p class="support-label">{item.label}</p>
-              <h3>{item.title}</h3>
-              <p>{item.body}</p>
-            </div>
-          </article>
-        ))}
-      </div>
+        <div class="hero-actions ui-action-group ui-action-group--stack">
+          <a class="hero-button hero-button-primary ui-action" href={reviewsUrl}>レビューを見る</a>
+          <a class="hero-button hero-button-secondary ui-action" href={galleryUrl}>ギャラリーを見る</a>
+        </div>
     </section>
 
     <section class="reviews-section" aria-labelledby="featured-reviews-heading">
       <div class="section-head">
         <div>
-          <p class="section-label">Featured Reviews</p>
+          <p class="section-label">今日の一冊</p>
           <h2 id="featured-reviews-heading">まずは、言葉の入口から。</h2>
         </div>
-        <a class="section-link ui-action" href={reviewsUrl}>レビュー一覧へ</a>
+        <a class="section-link ui-action" href={threeBooksUrl}>はじめての方へ：最初の3冊</a>
       </div>
 
       {featuredReview ? (
@@ -355,9 +308,6 @@ const worldAsideCopy =
               <a class="inline-button inline-button-secondary ui-action" href={reviewsUrl}>
                 すべてのレビューを見る
               </a>
-              <a class="inline-button inline-button-secondary ui-action" href={threeBooksUrl}>
-                3booksへ
-              </a>
               {featuredReview.purchaseLinks.length > 0 && (
                 <div class="review-purchase-links ui-action-group ui-action-group--stack">
                   {featuredReview.purchaseLinks.map((link) => (
@@ -402,8 +352,8 @@ const worldAsideCopy =
     <section class="gallery-section" aria-labelledby="featured-gallery-heading">
       <div class="section-head">
         <div>
-          <p class="section-label">Featured Gallery</p>
-          <h2 id="featured-gallery-heading">景色は、副旋律として寄り添う。</h2>
+          <p class="section-label">本から広がる景色</p>
+          <h2 id="featured-gallery-heading">ココちゃんと、本の景色へ。</h2>
         </div>
         <a class="section-link ui-action" href={galleryUrl}>ギャラリー一覧へ</a>
       </div>
@@ -422,7 +372,7 @@ const worldAsideCopy =
               />
             </div>
             <div class="gallery-lead-copy">
-              <p class="gallery-kicker">Gallery Lead</p>
+              <p class="gallery-kicker">ココちゃんと眺める</p>
               <h3>{galleryLead.title}</h3>
               {galleryLead.author && <p class="gallery-author">{galleryLead.author}</p>}
               <p>{galleryLead.description}</p>
@@ -457,8 +407,8 @@ const worldAsideCopy =
 
     <section class="world-bridge" aria-labelledby="world-bridge-heading">
       <div class="world-copy">
-        <p class="section-label">About / World Bridge</p>
-        <h2 id="world-bridge-heading">このサイトの心臓部を、静かにのぞく。</h2>
+        <p class="section-label">読書 with Coco について</p>
+        <h2 id="world-bridge-heading">本を、暮らしのそばに。</h2>
         <p>{aboutLead}</p>
         <p>{aboutBridge}</p>
       </div>
@@ -474,10 +424,10 @@ const worldAsideCopy =
     </section>
 
     <section class="final-cta" aria-labelledby="final-cta-heading">
-      <p class="section-label">Final CTA</p>
+      <p class="section-label">次の一冊へ</p>
       <h2 id="final-cta-heading">次にひらくのは、言葉の景色。</h2>
       <p>
-        入口はレビューです。気になった一冊の余韻を言葉でたどり、景色はそのあとで静かに寄り道できます。
+        気になる一冊を読んだり、ココちゃんと景色を眺めたり。今の気分で選べます。
       </p>
       <div class="final-actions ui-action-group ui-action-group--stack">
         <a class="hero-button hero-button-primary ui-action" href={reviewsUrl}>レビューを見る</a>
@@ -573,7 +523,8 @@ const worldAsideCopy =
 
     .hero-brand {
       margin-top: 0.9rem;
-      font-size: clamp(1.4rem, 1.9vw, 1.75rem);
+      font-size: clamp(2rem, 3.3vw, 3rem);
+      font-family: var(--font-display);
       color: color-mix(in srgb, var(--color-text) 92%, transparent);
     }
 
@@ -591,8 +542,8 @@ const worldAsideCopy =
 
     .hero h1 {
       margin-top: 1rem;
-      font-size: clamp(2.6rem, 5vw, 4.7rem);
-      max-width: 11ch;
+      font-size: clamp(1.65rem, 2.6vw, 2.4rem);
+      max-width: 19ch;
       text-wrap: balance;
       letter-spacing: -0.025em;
     }
@@ -704,7 +655,9 @@ const worldAsideCopy =
 
     .hero-visual-stage {
       position: relative;
-      min-height: clamp(320px, 42vw, 560px);
+      min-height: 0;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: .75rem;
       display: grid;
       place-items: center;
     }
@@ -712,7 +665,9 @@ const worldAsideCopy =
     .hero-portrait {
       position: relative;
       z-index: 2;
-      width: min(100%, 28rem);
+      width: min(100%, 17rem);
+      grid-column: 1 / -1;
+      grid-row: 1;
       margin: 0;
       padding: clamp(0.9rem, 2vw, 1.2rem);
       border-radius: 32px;
@@ -753,8 +708,9 @@ const worldAsideCopy =
     }
 
     .hero-orbit {
-      position: absolute;
+      position: static;
       z-index: 1;
+      grid-row: 2;
     }
 
     .hero-orbit-left {
@@ -766,7 +722,7 @@ const worldAsideCopy =
     }
 
     .hero-postcard {
-      width: clamp(7.5rem, 14vw, 9.5rem);
+      width: 8rem;
       margin: 0;
       padding: 0.7rem;
       border-radius: 22px;
@@ -776,7 +732,7 @@ const worldAsideCopy =
     }
 
     .hero-postcard-tilt {
-      transform: rotate(5deg);
+      transform: none;
     }
 
     .hero-postcard img {
@@ -1154,13 +1110,14 @@ const worldAsideCopy =
 
     @media (min-width: 961px) and (max-height: 760px) {
       .hero { padding: 1.5rem 2.25rem; gap: 2rem; }
-      .hero h1 { margin-top: .6rem; font-size: clamp(2.35rem, 4vw, 3.7rem); }
+      .hero h1 { margin-top: .6rem; font-size: clamp(1.6rem, 2.5vw, 2.1rem); }
       .hero-brand { margin-top: .45rem; }
       .hero-lead { margin-top: .7rem; line-height: 1.58; }
       .hero-promises { margin-top: .65rem; }
       .hero-actions { margin-top: .9rem; }
       .hero-note { margin-top: .55rem; }
-      .hero-visual-stage { min-height: 420px; }
+      .hero-portrait { width: 13rem; }
+      .hero-postcard { width: 6rem; }
     }
 
     /* Linux Japanese font metrics can wrap the 1200×656 hero taller; collapse only the supplemental promises. */
@@ -1180,7 +1137,7 @@ const worldAsideCopy =
       }
 
       .hero h1 {
-        max-width: 11ch;
+        max-width: 19ch;
         margin-top: 0.7rem;
         font-size: clamp(2.1rem, 8.7vw, 3rem);
       }
@@ -1312,6 +1269,32 @@ const worldAsideCopy =
       .world-aside {
         border-radius: 22px;
       }
+    }
+
+    /* Keep reading actions adjacent to the copy, with Coco visible on small screens. */
+    .hero { grid-template-areas: "copy visual" "actions visual"; row-gap: 1rem; }
+    .hero-copy { grid-area: copy; align-self: end; }
+    .hero-visual { grid-area: visual; }
+    .hero-actions { grid-area: actions; margin-top: 0; align-self: start; }
+    @media (max-width: 960px) {
+      .hero { grid-template-areas: "copy" "visual" "actions"; gap: 1rem; }
+      .hero-copy { order: initial; }
+      .hero-visual { order: initial; }
+      .hero-visual-stage { display: flex; justify-content: center; align-items: center; gap: .65rem; }
+      .hero-portrait { width: 11rem; flex-shrink: 0; order: 0; padding: .45rem; }
+      .hero-portrait figcaption { display: none; }
+      .hero-orbit { order: 0; min-width: 0; flex: 0 1 6rem; }
+      .hero-postcard { box-sizing: border-box; width: 100%; padding: .3rem; }
+      .hero-postcard img { aspect-ratio: 1; }
+      .hero-postcard figcaption { font-size: .72rem; overflow-wrap: anywhere; }
+      .hero-brand { margin: .35rem 0 0; font-size: clamp(1.9rem, 6.5vw, 2.6rem); }
+      .hero h1 { max-width: 24ch; font-size: clamp(1.3rem, 4.8vw, 1.8rem); line-height: 1.4; margin-top: .55rem; }
+      .hero-lead { margin-top: .65rem; }
+      .hero-actions { margin-top: 0; }
+    }
+    @media (max-width: 420px) {
+      .hero-portrait { width: 9rem; }
+      .hero-postcard figcaption { font-size: .68rem; }
     }
   </style>
 </Layout>
