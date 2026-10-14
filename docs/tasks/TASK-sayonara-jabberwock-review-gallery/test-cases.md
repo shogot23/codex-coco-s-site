@@ -24,7 +24,8 @@
 ## Manual Checks
 
 - [x] Review、Gallery、gallery/data.json、desktop/mobileを確認。
-- [ ] PR checksとPagesのcache-bypass HTML、HTML参照AVIF/WebPを確認。
+- [x] PR #206の必須CIとDeploy Previewが成功し、squash merge済み。
+- [x] Pages deploy run #38576030903が成功。cache-bypass付きReview、Gallery、gallery/data.jsonとHTML参照AVIF/WebPがHTTP 200。
 
 ## Optional Checks
 
