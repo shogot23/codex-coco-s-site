@@ -7125,6 +7125,96 @@
         "height": 630
       }
     },
+    "/uploads/gallery/books/sayonara_jabberwock_isaka_kotaro_coco.png": {
+      "hash": "06a624b88caef116",
+      "width": 1122,
+      "height": 1402,
+      "variants": {
+        "card": {
+          "320": {
+            "avif": {
+              "path": "06a624b88caef116/card-320.avif",
+              "width": 320,
+              "height": 400
+            },
+            "webp": {
+              "path": "06a624b88caef116/card-320.webp",
+              "width": 320,
+              "height": 400
+            }
+          },
+          "640": {
+            "avif": {
+              "path": "06a624b88caef116/card-640.avif",
+              "width": 640,
+              "height": 800
+            },
+            "webp": {
+              "path": "06a624b88caef116/card-640.webp",
+              "width": 640,
+              "height": 800
+            }
+          }
+        },
+        "detail": {
+          "768": {
+            "avif": {
+              "path": "06a624b88caef116/detail-768.avif",
+              "width": 768,
+              "height": 960
+            },
+            "webp": {
+              "path": "06a624b88caef116/detail-768.webp",
+              "width": 768,
+              "height": 960
+            }
+          },
+          "1200": {
+            "avif": {
+              "path": "06a624b88caef116/detail-1200.avif",
+              "width": 1122,
+              "height": 1402
+            },
+            "webp": {
+              "path": "06a624b88caef116/detail-1200.webp",
+              "width": 1122,
+              "height": 1402
+            }
+          }
+        },
+        "hero": {
+          "960": {
+            "avif": {
+              "path": "06a624b88caef116/hero-960.avif",
+              "width": 960,
+              "height": 1200
+            },
+            "webp": {
+              "path": "06a624b88caef116/hero-960.webp",
+              "width": 960,
+              "height": 1200
+            }
+          },
+          "1440": {
+            "avif": {
+              "path": "06a624b88caef116/hero-1440.avif",
+              "width": 1122,
+              "height": 1402
+            },
+            "webp": {
+              "path": "06a624b88caef116/hero-1440.webp",
+              "width": 1122,
+              "height": 1402
+            }
+          }
+        }
+      },
+      "social": {
+        "path": "06a624b88caef116/social-1200x630.jpg",
+        "width": 1200,
+        "height": 630
+      }
+    },
     "/uploads/gallery/books/Scientific_Snacks_for_Alcohol_Tsshi.jpeg": {
       "hash": "21b177d0223d3ba7",
       "width": 724,
@@ -13421,6 +13511,96 @@
       },
       "social": {
         "path": "1eb8469f6705eee1/social-1200x630.jpg",
+        "width": 1200,
+        "height": 630
+      }
+    },
+    "/uploads/review/infographic/sayonara_jabberwock_isaka_kotaro.png": {
+      "hash": "a8d47525232c1a8f",
+      "width": 1080,
+      "height": 1350,
+      "variants": {
+        "card": {
+          "320": {
+            "avif": {
+              "path": "a8d47525232c1a8f/card-320.avif",
+              "width": 320,
+              "height": 400
+            },
+            "webp": {
+              "path": "a8d47525232c1a8f/card-320.webp",
+              "width": 320,
+              "height": 400
+            }
+          },
+          "640": {
+            "avif": {
+              "path": "a8d47525232c1a8f/card-640.avif",
+              "width": 640,
+              "height": 800
+            },
+            "webp": {
+              "path": "a8d47525232c1a8f/card-640.webp",
+              "width": 640,
+              "height": 800
+            }
+          }
+        },
+        "detail": {
+          "768": {
+            "avif": {
+              "path": "a8d47525232c1a8f/detail-768.avif",
+              "width": 768,
+              "height": 960
+            },
+            "webp": {
+              "path": "a8d47525232c1a8f/detail-768.webp",
+              "width": 768,
+              "height": 960
+            }
+          },
+          "1200": {
+            "avif": {
+              "path": "a8d47525232c1a8f/detail-1200.avif",
+              "width": 1080,
+              "height": 1350
+            },
+            "webp": {
+              "path": "a8d47525232c1a8f/detail-1200.webp",
+              "width": 1080,
+              "height": 1350
+            }
+          }
+        },
+        "hero": {
+          "960": {
+            "avif": {
+              "path": "a8d47525232c1a8f/hero-960.avif",
+              "width": 960,
+              "height": 1200
+            },
+            "webp": {
+              "path": "a8d47525232c1a8f/hero-960.webp",
+              "width": 960,
+              "height": 1200
+            }
+          },
+          "1440": {
+            "avif": {
+              "path": "a8d47525232c1a8f/hero-1440.avif",
+              "width": 1080,
+              "height": 1350
+            },
+            "webp": {
+              "path": "a8d47525232c1a8f/hero-1440.webp",
+              "width": 1080,
+              "height": 1350
+            }
+          }
+        }
+      },
+      "social": {
+        "path": "a8d47525232c1a8f/social-1200x630.jpg",
         "width": 1200,
         "height": 630
       }
