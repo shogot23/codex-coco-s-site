@@ -7,7 +7,7 @@ import '../../styles/works.css';
 const works = await getVisibleWorks();
 const base = import.meta.env.BASE_URL;
 ---
-<Layout title="ワーク | 読書with Coco" description="本から生まれた問いを、手元で試せる短いワークにしました。今の気分や気がかりから、合いそうなひとつを選べます。"
+<Layout title="ワーク | 読書 with Coco" description="本から生まれた問いを、手元で試せる短いワークにしました。今の気分や気がかりから、合いそうなひとつを選べます。"
   image={`${base}works/works-social-20260926.jpg`}
   imageAlt="開いた本から白紙のメモへ、ココちゃんが小さな一歩を案内するイラスト"
   imageWidth={1200} imageHeight={630}>
@@ -19,7 +19,7 @@ const base = import.meta.env.BASE_URL;
     <header class="works-heading">
       <div class="works-hero-inner">
         <div class="works-heading-copy">
-          <p class="work-kicker">読書with Coco / ワーク</p>
+          <p class="work-kicker">読書 with Coco / ワーク</p>
           <h1>本の問いを、<br />今日の自分へ。</h1>
           <p class="works-heading-lead">本から生まれた問いを、手元で試せる短いワークにしました。今の気分や気がかりから、合いそうなひとつを選べます。</p>
           {works.length > 0 && <a class="works-heading-cta" href="#work-finder">気分からワークを探す <span aria-hidden="true">↓</span></a>}

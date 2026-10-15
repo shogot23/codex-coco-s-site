@@ -34,8 +34,8 @@ const getParagraphs = (value: string) =>
     .map((paragraph) => paragraph.replace(/\s*\n\s*/g, " ").trim())
     .filter(Boolean);
 
-const title = entry ? `${entry.data.title} | 読書with Coco` : "プロフィール | 読書with Coco";
-const description = entry?.data?.description ?? "読書with Coco のプロフィール";
+const title = entry ? `${entry.data.title} | 読書 with Coco` : "プロフィール | 読書 with Coco";
+const description = entry?.data?.description ?? "読書 with Coco のプロフィール";
 const avatarSource = entry?.data?.avatar ?? "/uploads/profile.png";
 const avatarUrl = getResponsiveMedia(avatarSource, base, "hero").src;
 const reviewsUrl = withBase("reviews/");
@@ -68,7 +68,7 @@ const updatedAtLabel = entry?.data?.updatedAt
       <div class="hero-copy">
         <p class="section-label">Profile / Site Guide</p>
         <p class="section-caption">ココちゃんについて</p>
-        <p class="hero-brand">読書with Coco</p>
+        <p class="hero-brand">読書 with Coco</p>
         <h1 id="profile-title">このサイトの案内役、ココちゃん。</h1>
         <p class="hero-lead">{profileLead}</p>
         {profileBridge && <p class="hero-bridge">{profileBridge}</p>}
@@ -88,7 +88,7 @@ const updatedAtLabel = entry?.data?.updatedAt
         <figure class="hero-image-frame">
           <img
             src={avatarUrl}
-            alt="読書with Coco の案内役、ココちゃん"
+            alt="読書 with Coco の案内役、ココちゃん"
             width="720"
             height="720"
             loading="eager"

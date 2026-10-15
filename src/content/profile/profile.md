@@ -1,6 +1,6 @@
 ---
 title: "ココちゃんについて"
-description: "読書with Coco で、難しい本への緊張をほどき、読後の問いと景色をやわらかく案内するココちゃんの紹介"
+description: "読書 with Coco で、難しい本への緊張をほどき、読後の問いと景色をやわらかく案内するココちゃんの紹介"
 avatar: /uploads/bc1bf64b-abcd-4e08-80ff-870c34201abf.png
 updatedAt: 2026-03-13
 profileItems:

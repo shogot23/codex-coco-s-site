@@ -140,7 +140,7 @@ const homeUrl = new URL(baseWithSlash, Astro.site!).toString();
 const galleryJsonLd = buildJsonLdGraph([
   buildCollectionJsonLd(
     canonicalUrl,
-    'ギャラリー | 読書with Coco',
+    'ギャラリー | 読書 with Coco',
     'レビューの余韻から生まれた景色を、ココちゃんと静かに見返す展示。',
     fullBrowseModel.items.slice(0, 12).map((item) => ({
       name: item.title,
@@ -156,7 +156,7 @@ const galleryJsonLd = buildJsonLdGraph([
 ---
 
 <Layout
-  title="ギャラリー | 読書with Coco"
+  title="ギャラリー | 読書 with Coco"
   description="レビューの余韻から続く景色を、ココちゃんと静かに見返す Gallery ページ。"
   jsonLd={galleryJsonLd}
 >
@@ -165,7 +165,7 @@ const galleryJsonLd = buildJsonLdGraph([
       <section class="gallery-hero" aria-labelledby="gallery-page-title">
         <div class="hero-copy">
           <p class="section-label">読書の景色</p>
-          <p class="hero-brand">読書with Coco</p>
+          <p class="hero-brand">読書 with Coco</p>
           <h1 id="gallery-page-title">読後の景色を、ココちゃんと静かに見返す。</h1>
           <p class="hero-lead">
             レビューで受け取った余韻を、ここでは色や構図のほうから確かめます。主役はあくまで本。
