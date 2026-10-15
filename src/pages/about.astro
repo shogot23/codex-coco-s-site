@@ -20,14 +20,14 @@ const hero = getResponsiveMedia('/uploads/about-hero.png', base, 'hero');
 const updatedAt = entry?.data.updatedAt?.toISOString().slice(0, 10);
 ---
 
-<Layout title={`${entry?.data.title ?? 'このサイトについて'} | 読書with Coco`}
+<Layout title={`${entry?.data.title ?? 'このサイトについて'} | 読書 with Coco`}
   description={entry?.data.description} image={getSocialImage('/uploads/about-hero.png', base)}
-  imageAlt="本に囲まれた読書with Cocoの案内役、ココちゃん">
+  imageAlt="本に囲まれた読書 with Cocoの案内役、ココちゃん">
   <div class="guide-page about-world">
     <section class="guide-hero about-hero" aria-labelledby="about-title">
       <div class="hero-copy">
         <p class="section-label">このサイトについて</p>
-        <p class="hero-brand">読書with Coco</p>
+        <p class="hero-brand">読書 with Coco</p>
         <h1 id="about-title">本から、今日の自分へ。</h1>
         <p class="hero-lead">忙しい日や、気がかりがある日に。ココちゃんと本の言葉や景色をたどり、ひとつの問いと、今選べる小さな一歩を持ち帰る場所です。</p>
         <div class="hero-actions ui-action-group">

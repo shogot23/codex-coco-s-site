@@ -1,4 +1,4 @@
-# 読書with Coco Repo Guide
+# 読書 with Coco Repo Guide
 
 ## 参照の基本
 
@@ -57,7 +57,7 @@
 
 - 実装前に必ず `visual thesis` / `content plan` / `interaction thesis` を短く定義してから着手する。
 - `site core` は常に「本 × ココちゃん × 学び」。この3要素のうち1つでも欠ける構成にしない。
-- first viewport は 1つの composition として扱い、brand name `読書with Coco` を hero-level の強さで見せる。
+- first viewport は 1つの composition として扱い、brand name `読書 with Coco` を hero-level の強さで見せる。
 - first viewport では “読書で生まれた世界を、ココちゃんが旅する。” の体験価値を最優先する。
 - generic SaaS 風レイアウト、過剰なカード分割、意味の薄い KPI セクションを増やさない。
 - トップページは機能一覧ではなく「物語の表紙」として設計し、整っていることより「このサイトらしさ」を優先する。

@@ -21,13 +21,13 @@ const writerReview = reviews.find((item) => item.slug === 'guzen-ha-donoyouni-an
 const updatedAt = entry?.data.updatedAt?.toISOString().slice(0, 10);
 ---
 
-<Layout title={`${entry?.data.title ?? 'ココちゃんと書き手'} | 読書with Coco`} description={entry?.data.description}
-  image={getSocialImage(avatar, base)} imageAlt="読書with Cocoの案内役、ココちゃん">
+<Layout title={`${entry?.data.title ?? 'ココちゃんと書き手'} | 読書 with Coco`} description={entry?.data.description}
+  image={getSocialImage(avatar, base)} imageAlt="読書 with Cocoの案内役、ココちゃん">
   <div class="guide-page profile-world">
     <section class="guide-hero profile-hero" aria-labelledby="profile-title">
       <div class="hero-copy">
         <p class="section-label">ココちゃんと書き手</p>
-        <p class="hero-brand">読書with Coco</p>
+        <p class="hero-brand">読書 with Coco</p>
         <h1 id="profile-title">本の世界を、一緒に。</h1>
         <p class="hero-lead">{entry?.data.introduction?.trim() || 'ココちゃんと、本から生まれた言葉や景色を届ける書き手の紹介です。'}</p>
         <div class="hero-actions ui-action-group">
@@ -37,7 +37,7 @@ const updatedAt = entry?.data.updatedAt?.toISOString().slice(0, 10);
         <a class="guide-text-link" href="#writer">書き手について ↓</a>
       </div>
       <figure class="hero-visual">
-        <img src={getResponsiveMedia(avatar, base, 'hero').src} alt="読書with Cocoの案内役、ココちゃん" width="720" height="720" loading="eager" decoding="async" />
+        <img src={getResponsiveMedia(avatar, base, 'hero').src} alt="読書 with Cocoの案内役、ココちゃん" width="720" height="720" loading="eager" decoding="async" />
       </figure>
     </section>
 

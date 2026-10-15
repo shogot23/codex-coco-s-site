@@ -1,4 +1,4 @@
-# 読書with Coco Content Guidelines
+# 読書 with Coco Content Guidelines
 
 この文書は、レビュー文、SNS投稿、ギャラリー文、画像プロンプト、CTA文言を作るときの制作ガイドラインである。ブランド原典は `docs/brand/reading-with-coco-brand-strategy.md` を参照する。
 
@@ -75,14 +75,14 @@
 ## Webサイト改修の判断基準
 
 - `docs/reading-with-coco-design-doctrine.md` と併用する
-- first viewport では `読書with Coco` の brand、世界観、主要CTA を弱めない
+- first viewport では `読書 with Coco` の brand、世界観、主要CTA を弱めない
 - 機能一覧やKPI風の整理より、読後の余韻が深まる順番を優先する
 - CTA は読書体験への導線を主役にし、購入やアフィリエイトだけを前面化しない
 - ココちゃん関連ビジュアルを、ブランドの主役級アセットとして扱う
 
 ## アフィリエイトと導線
 
-アフィリエイト導線は否定しない。ただし、読書with Cocoでは投稿単体の価値提供を先に置く。
+アフィリエイト導線は否定しない。ただし、読書 with Cocoでは投稿単体の価値提供を先に置く。
 
 - よい状態: 投稿を読んだだけで、読者に問い、見方の変化、今日の一歩が残る
 - 避ける状態: 投稿が購入リンクへの前置きになっている

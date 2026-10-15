@@ -21,8 +21,8 @@
 ## 3. Real Copy First
 
 - `src/content/` や既存ページの文言があるなら、ダミーテキストより先に使う。
-- `読書with Coco` は「本 × ココちゃん × 学び」の体験として扱い、3要素のどれかが欠ける構成にしない。
-- hero では brand name `読書with Coco` を明示し、読書とココちゃんの関係が一目で伝わる文にする。
+- `読書 with Coco` は「本 × ココちゃん × 学び」の体験として扱い、3要素のどれかが欠ける構成にしない。
+- hero では brand name `読書 with Coco` を明示し、読書とココちゃんの関係が一目で伝わる文にする。
 - first viewport では “読書で生まれた世界を、ココちゃんが旅する。” を損なう情報過多を避ける。
 - トップページは機能一覧ではなく「物語の表紙」として扱い、hero で世界観を一気に伝える。
 
@@ -58,7 +58,7 @@ Interaction thesis:
 - 
 
 Constraints:
-- 読書with Coco の世界観を壊さない
+- 読書 with Coco の世界観を壊さない
 - generic SaaS 風にしない
 - cards を増やしすぎない
 

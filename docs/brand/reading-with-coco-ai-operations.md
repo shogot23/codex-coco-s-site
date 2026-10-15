@@ -1,6 +1,6 @@
-# 読書with Coco AI Operations
+# 読書 with Coco AI Operations
 
-この文書は、Codex / Claude Code が読書with Cocoの作業を行うときのAI運用ルールである。ブランド原典は `docs/brand/reading-with-coco-brand-strategy.md`、制作判断は `docs/brand/reading-with-coco-content-guidelines.md` を参照する。
+この文書は、Codex / Claude Code が読書 with Cocoの作業を行うときのAI運用ルールである。ブランド原典は `docs/brand/reading-with-coco-brand-strategy.md`、制作判断は `docs/brand/reading-with-coco-content-guidelines.md` を参照する。
 
 ## 参照順
 
