@@ -1,0 +1,65 @@
+/* Shared only by the two introduction pages; theme.css owns the tokens. */
+.guide-page { display: grid; gap: var(--space-8); }
+.guide-page .guide-hero { display: grid; grid-template-columns: 1.05fr 1fr; gap: var(--space-7); align-items: center; padding-block: var(--space-5); }
+.guide-page .hero-copy { min-width: 0; }
+.guide-page .section-label { margin: 0 0 var(--space-3); }
+.guide-page .hero-brand { margin: 0 0 var(--space-4); font-size: clamp(2rem, 3.4vw, 2.8rem); line-height: 1.2; }
+.guide-page h1 { margin: 0; font-size: clamp(1.65rem, 2.6vw, 2.2rem); line-height: 1.4; }
+.guide-page .hero-lead { margin: var(--space-4) 0 var(--space-5); font-size: var(--text-body); max-width: var(--measure-copy); }
+.guide-page .hero-link-primary { color: var(--color-surface-strong); }
+.guide-page .hero-actions { margin: 0 0 var(--space-3); flex-wrap: wrap; }
+.guide-page .hero-visual { margin: 0; overflow: hidden; border-radius: var(--radius-lg); background: var(--color-surface-soft); }
+.guide-page .hero-visual img { display: block; width: 100%; height: 420px; object-fit: cover; }
+.guide-page .guide-section { padding-block: var(--space-6); border-top: 1px solid var(--color-border-strong); }
+.guide-page h2 { margin: 0 0 var(--space-5); font-size: var(--text-headline); line-height: 1.45; }
+.guide-page h3 { font-family: var(--font-body); margin-block: var(--space-5) var(--space-3); font-size: var(--text-lead); }
+.guide-page p, .guide-page li { max-width: var(--measure-body); }
+.guide-page .guide-example { margin-top: var(--space-6); }
+.guide-page .guide-example-book { font-weight: 600; }
+.guide-page .guide-lines { margin: var(--space-5) 0; }
+.guide-page .guide-lines > div { display: grid; grid-template-columns: 7rem 1fr; gap: var(--space-5); padding-block: var(--space-3); border-bottom: 1px solid var(--color-border); }
+.guide-page dt { font-size: var(--text-caption); font-weight: 600; color: var(--color-muted); }
+.guide-page dd { margin: 0; max-width: var(--measure-body); }
+.guide-page .guide-inline-links { display: flex; flex-wrap: wrap; gap: var(--space-4) var(--space-6); }
+.guide-page .guide-text-link, .guide-page .guide-copy a { color: var(--color-accent); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.3em; }
+.guide-page .guide-text-link { display: inline-flex; align-items: center; min-height: 44px; }
+.guide-page .guide-text-link:hover, .guide-page .guide-copy a:hover { color: var(--color-text); }
+.guide-page .guide-copy h2 { margin-top: var(--space-8); }
+.guide-page .guide-copy h2:first-child { margin-top: 0; }
+.guide-page .guide-copy ul { padding-left: var(--space-5); }
+.guide-page .guide-copy li { padding-block: var(--space-2); }
+.guide-page .guide-copy :is(h2, h3), .guide-page #writer { scroll-margin-top: 7rem; }
+.guide-page .guide-closing { padding: var(--space-6); border-radius: var(--radius-lg); background: var(--color-surface); }
+.guide-page .guide-closing .guide-text-link { margin-left: var(--space-4); }
+.guide-page .guide-note, .guide-page .guide-updated { color: var(--color-muted); font-size: var(--text-caption); }
+.guide-page .guide-updated { margin: 0; }
+/* coco-facts extends guide-lines; only its column sizing changes on mobile. */
+.profile-world .coco-facts { max-width: 40rem; }
+.profile-world .coco-everyday { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6); }
+.profile-world .guide-scene { display: grid; grid-template-columns: minmax(0, 0.7fr) minmax(0, 1fr); gap: var(--space-7); align-items: center; }
+.profile-world .guide-scene-image { overflow: hidden; border-radius: var(--radius-lg); }
+.profile-world .guide-scene-image img { display: block; width: 100%; max-height: 480px; object-fit: cover; transition: transform 0.22s ease; }
+.profile-world .guide-scene-image:hover img { transform: scale(1.015); }
+@media (max-width: 720px) {
+  .guide-page { gap: var(--space-6); }
+  .guide-page .guide-hero { grid-template-columns: 1fr; gap: var(--space-4); padding-block: var(--space-3); }
+  .guide-page .section-label { margin-bottom: var(--space-2); }
+  .guide-page .hero-brand { font-size: 2rem; margin-bottom: var(--space-3); }
+  .guide-page h1 { font-size: 1.65rem; }
+  .guide-page .hero-lead { margin-block: var(--space-3) var(--space-4); line-height: 1.75; }
+  .guide-page .hero-actions { gap: var(--space-2); }
+  .guide-page .hero-actions .hero-link { flex: 1 1 auto; padding: 0.65rem 0.8rem; font-size: 0.9rem; }
+  .guide-page .hero-visual img { height: 180px; object-position: center 40%; }
+  .guide-page .guide-section { padding-block: var(--space-5); }
+  .guide-page h2 { font-size: 1.65rem; }
+  .guide-page .guide-lines > div { grid-template-columns: 1fr; gap: var(--space-1); }
+  .profile-world .coco-facts > div { grid-template-columns: 6rem 1fr; gap: var(--space-3); }
+  .profile-world .coco-everyday, .profile-world .guide-scene { grid-template-columns: 1fr; gap: var(--space-4); }
+  .profile-world .guide-scene-image img { max-height: 360px; object-position: center; }
+  .guide-page .guide-closing { padding: var(--space-5); }
+  .guide-page .guide-closing .guide-text-link { margin-left: 0; display: flex; margin-top: var(--space-3); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .profile-world .guide-scene-image img { transition: none; }
+  .profile-world .guide-scene-image:hover img { transform: none; }
+}

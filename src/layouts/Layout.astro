@@ -35,7 +35,7 @@ const navItems = [
   { href: 'gallery/', label: 'ギャラリー' },
   ...(hasWorks ? [{ href: 'works/', label: 'ワーク' }] : []),
   { href: 'about/', label: 'このサイトについて' },
-  { href: 'profile/', label: 'プロフィール' },
+  { href: 'profile/', label: 'ココちゃんと書き手' },
 ];
 ---
 
@@ -342,8 +342,8 @@ const navItems = [
         <nav class="footer-links" aria-label="フッターナビゲーション">
           <a href={`${base}reviews/`}>レビュー</a>
           {hasWorks && <a href={`${base}works/`}>ワーク</a>}
-          <a href={`${base}about/`}>運営方針</a>
-          <a href={`${base}profile/`}>プロフィール</a>
+          <a href={`${base}about/`}>このサイトについて</a>
+          <a href={`${base}profile/`}>ココちゃんと書き手</a>
         </nav>
       </div>
     </footer>
