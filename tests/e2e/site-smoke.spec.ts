@@ -225,7 +225,7 @@ test('primary navigation keeps reviews first and removes the retired videos room
     'ギャラリー',
     'ワーク',
     'このサイトについて',
-    'プロフィール',
+    'ココちゃんと書き手',
   ]);
   await expect(primaryNav.getByRole('link', { name: '動画', exact: true })).toHaveCount(0);
 
@@ -242,15 +242,39 @@ test('primary navigation keeps reviews first and removes the retired videos room
   await expectNoHorizontalOverflow(page);
 });
 
-test('about page keeps review and gallery as its only world bridge paths', async ({ page }) => {
+test('about explains the current site and lets readers choose an entry', async ({ page }) => {
   await page.goto(`${SITE_BASE}about/`);
-
-  const bridge = page.locator('.bridge-room');
-  await expect(bridge.getByRole('link')).toHaveCount(2);
-  await expect(bridge.getByRole('link', { name: 'レビューを見る', exact: true })).toBeVisible();
-  await expect(bridge.getByRole('link', { name: 'ギャラリーを見る', exact: true })).toBeVisible();
-  await expect(page.getByRole('link', { name: '動く断片を見る', exact: true })).toHaveCount(0);
-  await expectNoHorizontalOverflow(page);
+  await expect(page).toHaveTitle('このサイトについて | 読書with Coco');
+  await page.getByRole('link', { name: '楽しみ方を選ぶ ↓', exact: true }).click();
+  await expect(page.locator('#今の自分に合う入口から')).toBeInViewport();
+  const copy = page.locator('.guide-copy');
+  await expect(copy).toContainText('休む、相談する、ここで終える');
+  await expect(copy.getByRole('heading', { name: '制作・編集について', exact: true })).toBeVisible();
+  await expect(copy.getByRole('heading', { name: 'AIと画像について', exact: true })).toBeVisible();
+  await expect(copy.getByRole('heading', { name: '購入リンクについて', exact: true })).toBeVisible();
+  for (const [name, route] of [
+    ['最初の3冊', '3books/'],
+    ['レビューの検索', 'reviews/#review-stream'],
+    ['ギャラリー', 'gallery/'],
+    ['ワーク', 'works/'],
+    ['ココちゃんと書き手の紹介', 'profile/'],
+  ]) {
+    await page.goto(`${SITE_BASE}about/`);
+    await page.locator('.guide-copy').getByRole('link', { name, exact: true }).click();
+    await expect(page).toHaveURL(`${new URL(SITE_BASE, page.url()).origin}${SITE_BASE}${route}`);
+    if (name === 'レビューの検索') await expect(page.getByRole('searchbox', { name: 'レビューを検索' })).toBeVisible();
+    await expectNoHorizontalOverflow(page);
+  }
+  for (const [name, route] of [
+    ['このレビューを読む →', 'reviews/'],
+    ['同じ本の景色へ →', 'gallery/'],
+    ['この本から生まれたワークへ →', 'works/'],
+  ]) {
+    await page.goto(`${SITE_BASE}about/`);
+    await page.locator('.guide-example').getByRole('link', { name, exact: true }).click();
+    expect(new URL(page.url()).pathname).toContain(`${SITE_BASE}${route}`);
+    expect((await page.locator('main').innerText()).length).toBeGreaterThan(100);
+  }
 });
 
 test('retired videos route uses the branded 404 with a review path', async ({ page }) => {
@@ -269,22 +293,25 @@ test('retired videos route uses the branded 404 with a review path', async ({ pa
   await expectNoHorizontalOverflow(page);
 });
 
-test('profile introduces coco as the site guide and keeps review/gallery as the next paths', async ({ page }) => {
+test('profile connects Coco, a real artwork, the writer and site policy', async ({ page }) => {
   await page.goto(`${SITE_BASE}profile/`);
-
-  const hero = page.locator('.profile-hero');
-
-  await expect(hero.getByText('ココちゃんについて', { exact: true })).toBeVisible();
-  await expect(hero.locator('.hero-footnote p')).toContainText('難しい本への緊張をほどき');
-  await expect(page.getByText('このサイトでのおしごと', { exact: true })).toBeVisible();
-  await expect(page.getByText('いっしょに、次の一冊の景色を見にいこう。')).toBeVisible();
-  await expect(page.getByRole('link', { name: /Fragments|動画|動く断片/ })).toHaveCount(0);
-  await expect(hero.getByRole('link', { name: 'レビューを見る', exact: true })).toBeVisible();
-  await expect(hero.getByRole('link', { name: 'ギャラリーを見る', exact: true })).toBeVisible();
-
-  await hero.getByRole('link', { name: 'レビューを見る', exact: true }).click();
-  await expect(page).toHaveURL(/\/codex-coco-s-site\/reviews\/$/);
-  await expect(page.getByRole('heading', { name: 'いまの気持ちに、静かな一冊を。' })).toBeVisible();
+  await expect(page).toHaveTitle('ココちゃんと書き手 | 読書with Coco');
+  await expect(page.locator('.character-room')).toContainText('2024年10月23日');
+  await expect(page.locator('.character-room')).toContainText('2024年12月26日');
+  await expect(page.locator('.character-room')).toContainText('タイニープードル');
+  await page.getByRole('link', { name: '書き手について ↓', exact: true }).click();
+  await expect(page).toHaveURL(/profile\/#writer$/);
+  await expect(page.locator('#writer')).toBeInViewport();
+  await expect(page.locator('#writer')).toContainText('私自身も本に支えられてきました');
+  await page.getByRole('link', { name: 'この景色を眺める →', exact: true }).click();
+  await expect(page).toHaveURL(/\/gallery\/[^/]+\/$/);
+  await expect(page.locator('main')).toContainText('AI');
+  await page.goto(`${SITE_BASE}profile/`);
+  await page.getByRole('link', { name: '書き手の視点に触れる：', exact: false }).click();
+  await expect(page).toHaveURL(/\/reviews\/guzen-ha-donoyouni-anata-wo-tsukurunoka\/$/);
+  await page.goto(`${SITE_BASE}profile/`);
+  await page.locator('.guide-copy').getByRole('link', { name: 'このサイトについて', exact: true }).click();
+  await expect(page).toHaveURL(/\/about\/$/);
   await expectNoHorizontalOverflow(page);
 });
 
@@ -339,7 +366,7 @@ test('gallery works as a scenic side path without breaking the review-led struct
   await expect(page.getByRole('heading', { name: '読後の景色を、ココちゃんと静かに見返す。' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '本から生まれた景色を、先に3つだけひらく。' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'レビューを読む', exact: true })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'About へ', exact: true })).toBeVisible();
+  await expect(page.locator('main').getByRole('link', { name: 'このサイトについて', exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: '全作品の一覧へ', exact: true })).toBeVisible();
   await expect(browse).toBeVisible();
   await expect(page.getByRole('button', { name: '章で見る', exact: true })).toHaveAttribute('aria-pressed', 'true');
@@ -575,13 +602,22 @@ test('gallery detail falls back to purchase links when no related review exists'
   await expect(page.getByRole('heading', { name: 'いまの気持ちに、静かな一冊を。' })).toBeVisible();
 });
 
-test('about page remains readable on small and large viewports', async ({ page }) => {
-  await page.goto(`${SITE_BASE}about/`);
-
-  await expect(page.getByRole('heading', { name: '本を閉じたあとも、ココちゃんと世界はつづいていく。' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: '本 × ココちゃん × 学び は、余韻のなかでゆっくり交わる。' })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'レビューを見る', exact: true }).first()).toBeVisible();
-  await expectNoHorizontalOverflow(page);
+test('introduction pages keep brand, image and CTAs within the first viewport', async ({ page, isMobile }) => {
+  const viewports = isMobile
+    ? [{ width: 360, height: 844 }, { width: 390, height: 844 }]
+    : [{ width: 1280, height: 720 }, { width: 1440, height: 1080 }];
+  for (const viewport of viewports) {
+    await page.setViewportSize(viewport);
+    for (const route of ['about/', 'profile/']) {
+      await page.goto(`${SITE_BASE}${route}`);
+      const hero = page.locator('.guide-hero');
+      await expectVisibleInViewport(page, hero.locator('.hero-brand'));
+      await expectVisibleInViewport(page, hero.getByRole('heading', { level: 1 }));
+      await expectVisibleInViewport(page, hero.getByRole('link', { name: 'レビューを見る', exact: true }));
+      await expectVisibleInViewport(page, hero.getByRole('img'));
+      await expectNoHorizontalOverflow(page);
+    }
+  }
 });
 
 test('mobile brand pages keep compact first-view cues', async ({ page, isMobile }) => {
@@ -616,7 +652,7 @@ test('mobile brand pages keep compact first-view cues', async ({ page, isMobile 
   );
 
   await page.goto(`${SITE_BASE}about/`);
-  await expect(page.getByRole('heading', { name: '本を閉じたあとも、ココちゃんと世界はつづいていく。' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '本から、今日の自分へ。' })).toBeVisible();
   await expectHeroCtasCompact(page.locator('.about-hero .hero-actions .hero-link'));
   await expectVisibleInViewport(
     page,
@@ -624,8 +660,8 @@ test('mobile brand pages keep compact first-view cues', async ({ page, isMobile 
   );
 
   await page.goto(`${SITE_BASE}profile/`);
-  await expect(page.getByRole('heading', { name: 'このサイトの案内役、ココちゃん。' })).toBeVisible();
-  await expect(page.locator('.profile-hero').getByText('ココちゃんについて', { exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '本の世界を、一緒に。' })).toBeVisible();
+  await expect(page.locator('.profile-hero').getByText('ココちゃんと書き手', { exact: true })).toBeVisible();
   await expectHeroCtasCompact(page.locator('.profile-hero .hero-actions .hero-link'));
   await expectVisibleInViewport(
     page,

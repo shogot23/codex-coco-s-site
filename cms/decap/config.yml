@@ -7,7 +7,7 @@ public_folder: "/uploads"
 
 collections:
   - name: "profile"
-    label: "プロフィール"
+    label: "ココちゃんと書き手"
     folder: "src/content/profile"
     create: false
     delete: false
@@ -16,6 +16,7 @@ collections:
     fields:
       - { label: "タイトル", name: "title", widget: "string" }
       - { label: "説明", name: "description", widget: "string", required: false }
+      - { label: "短い紹介", name: "introduction", widget: "text", required: false }
       - { label: "アバター画像", name: "avatar", widget: "image", required: false }
       - { label: "更新日", name: "updatedAt", widget: "datetime", required: false }
       - label: "プロフィール項目"
@@ -40,7 +41,7 @@ collections:
       - { label: "本文", name: "body", widget: "markdown" }
 
   - name: "about"
-    label: "About"
+    label: "このサイトについて"
     folder: "src/content/about"
     create: false
     delete: false
@@ -50,6 +51,8 @@ collections:
       - { label: "タイトル", name: "title", widget: "string" }
       - { label: "説明", name: "description", widget: "string", required: false }
       - { label: "更新日", name: "updatedAt", widget: "datetime", required: false }
+      - { label: "トップの紹介文", name: "homeLead", widget: "text", required: false }
+      - { label: "トップの補足文", name: "homeBridge", widget: "text", required: false }
       - { label: "本文", name: "body", widget: "markdown" }
 
   - name: "reviews"
