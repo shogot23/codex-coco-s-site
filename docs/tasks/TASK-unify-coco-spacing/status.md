@@ -3,14 +3,14 @@
 ## Task
 
 - task-id: TASK-unify-coco-spacing
-- state: in-progress
+- state: complete
 - updated: 2026-10-15
 
 ## Summary
 
 - 実施内容: 最新main（PR #210統合後）との差分34ファイルでブランド表記90箇所を `読書 with Coco` へ統一し、現行指針とE2E期待値も更新した。PlanGate・検査ヘルパー・dailyを含む変更40ファイルは宣言scopeと一致する。
 - 実施済み: PlanGate作成、全件棚卸し、baseline照合、40ケースの検査ヘルパー確認、最新main取り込み後のfrontend検証、182ページとRSSの最終表記確認。
-- Claudeレビュー: PR #210取り込み後のarch / grouped diff / cross-checkはすべて`ok: true`。brand strategyの旧空白ルールは修正済み。残るadvisoryはRSS alternate linkとfeed titleの区切り記号差（ブランド表記自体は一致）と、merge後確認が未完了である点。
+- Claudeレビュー: PR #210取り込み後のarch / grouped diff / cross-checkはすべて`ok: true`。brand strategyの旧空白ルールは修正済み。RSS alternate linkとfeed titleの区切り記号差は既存の表記差として記録し、今回のブランド統一範囲外とした。
 
 ## Verification Result
 
@@ -28,6 +28,9 @@
 - 最新main diff review: 変更されたHome/SEO・About/Profile・content・E2E groupは`glm-5.3`で`ok: true`。日本語助詞直前の空白ゆれはブランド名部分の外側にある既存表記として維持。review advisoryだったcuriosity本文の旧表記は検索で0件、works一覧タイトルは個別に指定表記を含み、E2Eでも確認済み。
 - PlanGateの`plan.md` approvedは実装前計画承認を示す。実装後レビューとcross-check、merge後確認は別の完了条件として扱う。
 - 最新main cross-check: Claude `glm-5.3` が`ok: true`。origin/mainとの差分40ファイル・90置換・ブランドルール1文修正と、frontend検証・checker結果の整合を確認し、blocking issueは0件。
+- PR #211: `https://github.com/shogot23/codex-coco-s-site/pull/211` を2026-10-15にsquash merge。main merge commitは`2c237f88c0b5aa63ab4152720b2dc44031f4c101`。
+- merge後main CI: `frontend-verify` 成功（[run 38683621743](https://github.com/shogot23/codex-coco-s-site/actions/runs/38683621743)）。GitHub Pages deployも成功（[run 38683621697](https://github.com/shogot23/codex-coco-s-site/actions/runs/38683621697)）。
+- 本番確認: sitemap掲載181ページと404ページの計182 HTMLページがすべてHTTP 200で、可視表記の不一致・旧表記候補は0件。RSSもHTTP 200で、titleは`読書 with Coco | Reviews`、descriptionを含め誤表記候補0件。
 
 ## Scope Check
 
@@ -37,7 +40,7 @@
 
 ## Next Action
 
-- 残件: merge resolutionをcommitしてPRを更新し、最新コミットのCIを再確認後にsquash mergeする。merge後はmain CI、Pages deploy、本番HTML/RSSを確認して最終statusを更新する。
+- 残件: なし。PR merge、main CI、Pages deploy、本番HTML/RSSの確認まで完了。
 - 次に見る人へのメモ: 正式表記はASCII空白を挟んだ `読書 with Coco`。
 
 ## Daily Record
