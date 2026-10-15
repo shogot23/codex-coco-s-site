@@ -78,6 +78,7 @@ const profile = defineCollection({
     title: z.string(),
     description: z.string().optional(),
     avatar: z.string().optional(),
+    introduction: z.string().optional(),
     updatedAt: z.coerce.date().optional(),
     profileItems: z
       .array(
@@ -100,6 +101,8 @@ const about = defineCollection({
     title: z.string(),
     description: z.string().optional(),
     updatedAt: z.coerce.date().optional(),
+    homeLead: z.string().optional(),
+    homeBridge: z.string().optional(),
   }),
 });
 

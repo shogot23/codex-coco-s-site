@@ -1,607 +1,84 @@
 ---
-import { getEntry } from "astro:content";
-import Layout from "../layouts/Layout.astro";
-import { getResponsiveMedia, getSocialImage } from "../lib/media";
+import { getEntry } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+import { getResponsiveMedia, getSocialImage } from '../lib/media';
+import { getPublishedGallery, hasDetailContent } from '../utils/gallery';
+import { getPublishedReviews } from '../utils/reviews';
+import '../styles/about-profile.css';
 
-let entry = null;
-
-try {
-  entry = await getEntry("profile", "profile");
-} catch {
-  // Profile content is optional during local content setup.
-}
-
-const base = import.meta.env.BASE_URL.endsWith("/")
-  ? import.meta.env.BASE_URL
-  : `${import.meta.env.BASE_URL}/`;
-
-const withBase = (path: string) => {
-  if (!path) return base;
-  return getResponsiveMedia(path, base, "card").src;
-};
-
-const stripMarkdown = (value: string) =>
-  value
-    .replace(/^#{1,6}\s+/gm, "")
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
-    .replace(/[*_`>-]/g, "")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
-
-const getParagraphs = (value: string) =>
-  stripMarkdown(value)
-    .split(/\n\s*\n/)
-    .map((paragraph) => paragraph.replace(/\s*\n\s*/g, " ").trim())
-    .filter(Boolean);
-
-const title = entry ? `${entry.data.title} | 読書 with Coco` : "プロフィール | 読書 with Coco";
-const description = entry?.data?.description ?? "読書 with Coco のプロフィール";
-const avatarSource = entry?.data?.avatar ?? "/uploads/profile.png";
-const avatarUrl = getResponsiveMedia(avatarSource, base, "hero").src;
-const reviewsUrl = withBase("reviews/");
-const galleryUrl = withBase("gallery/");
-const homeUrl = withBase("");
-
-const profileItems = entry?.data?.profileItems ?? [];
-const favoriteItems = entry?.data?.favoriteItems ?? [];
-const sensitiveItems = entry?.data?.sensitiveItems ?? [];
-const roleText = entry?.data?.roleText ?? "";
-const closingQuote = entry?.data?.closingQuote ?? "";
-
-const profileParagraphs = entry ? getParagraphs(entry.body) : [];
-const profileLead = profileParagraphs[0] ?? "ココちゃんは、このサイトの案内役です。";
-const profileBridge = profileParagraphs[1] ?? null;
-
-const updatedAtLabel = entry?.data?.updatedAt
-  ? new Intl.DateTimeFormat("ja-JP", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      timeZone: "UTC",
-    }).format(entry.data.updatedAt)
-  : null;
+const entry = await getEntry('profile', 'profile');
+const rendered = entry ? await entry.render() : null;
+const Content = rendered?.Content;
+const base = import.meta.env.BASE_URL;
+const avatar = entry?.data.avatar ?? '/uploads/profile.png';
+const gallery = (await getPublishedGallery()).filter(hasDetailContent);
+const scene = gallery.find((item) => item.slug === 'business-seisei-ai-de-sekai-wa-kou-kawaru-imai-shota' && item.data.visualOrigin === 'ai-generated')
+  ?? gallery.find((item) => item.data.visualOrigin === 'ai-generated')
+  ?? gallery[0];
+const sceneImage = scene ? getResponsiveMedia(scene.data.image, base, 'card') : null;
+const reviews = await getPublishedReviews();
+const writerReview = reviews.find((item) => item.slug === 'guzen-ha-donoyouni-anata-wo-tsukurunoka');
+const updatedAt = entry?.data.updatedAt?.toISOString().slice(0, 10);
 ---
 
-<Layout title={title} description={description} image={getSocialImage(avatarSource, base)}>
-  <div class="profile-world">
-    <section class="profile-hero" aria-labelledby="profile-title">
+<Layout title={`${entry?.data.title ?? 'ココちゃんと書き手'} | 読書 with Coco`} description={entry?.data.description}
+  image={getSocialImage(avatar, base)} imageAlt="読書 with Cocoの案内役、ココちゃん">
+  <div class="guide-page profile-world">
+    <section class="guide-hero profile-hero" aria-labelledby="profile-title">
       <div class="hero-copy">
-        <p class="section-label">Profile / Site Guide</p>
-        <p class="section-caption">ココちゃんについて</p>
+        <p class="section-label">ココちゃんと書き手</p>
         <p class="hero-brand">読書 with Coco</p>
-        <h1 id="profile-title">このサイトの案内役、ココちゃん。</h1>
-        <p class="hero-lead">{profileLead}</p>
-        {profileBridge && <p class="hero-bridge">{profileBridge}</p>}
-
-        <div class="hero-actions ui-action-group ui-action-group--stack">
-          <a class="hero-link hero-link-primary ui-action" href={reviewsUrl}>レビューを見る</a>
-          <a class="hero-link hero-link-secondary ui-action" href={galleryUrl}>ギャラリーを見る</a>
+        <h1 id="profile-title">本の世界を、一緒に。</h1>
+        <p class="hero-lead">{entry?.data.introduction?.trim() || 'ココちゃんと、本から生まれた言葉や景色を届ける書き手の紹介です。'}</p>
+        <div class="hero-actions ui-action-group">
+          <a class="hero-link hero-link-primary ui-action" href={`${base}reviews/`}>レビューを見る</a>
+          <a class="hero-link hero-link-secondary ui-action" href={`${base}gallery/`}>ギャラリーを見る</a>
         </div>
-
-        <div class="hero-footnote">
-          <p>{entry?.data?.description ?? "ココちゃんについて"}</p>
-          {updatedAtLabel && <span>更新: {updatedAtLabel}</span>}
-        </div>
+        <a class="guide-text-link" href="#writer">書き手について ↓</a>
       </div>
-
-      <div class="hero-visual">
-        <figure class="hero-image-frame">
-          <img
-            src={avatarUrl}
-            alt="読書 with Coco の案内役、ココちゃん"
-            width="720"
-            height="720"
-            loading="eager"
-            decoding="async"
-          />
-        </figure>
-      </div>
+      <figure class="hero-visual">
+        <img src={getResponsiveMedia(avatar, base, 'hero').src} alt="読書 with Cocoの案内役、ココちゃん" width="720" height="720" loading="eager" decoding="async" />
+      </figure>
     </section>
 
-    <section class="character-room" aria-labelledby="character-title">
-      <div class="character-intro">
-        <p class="section-label">Coco&apos;s Character</p>
-        <h2 id="character-title">ココちゃんのこと、少しだけ。</h2>
+    <section class="guide-section character-room" aria-labelledby="coco-title">
+      <p class="section-label">ココちゃんのこと</p>
+      <h2 id="coco-title">おてんばで、ちょっぴり慎重。</h2>
+      <dl class="guide-lines coco-facts">
+        {(entry?.data.profileItems ?? []).map((item) => <div><dt>{item.label}</dt><dd>{item.value}</dd></div>)}
+      </dl>
+      <div class="coco-everyday">
+        <div><h3>すきなこと</h3><p>{entry?.data.favoriteItems?.join('、')}。</p></div>
+        <div><h3>にがてなこと</h3><p>{entry?.data.sensitiveItems?.join('、')}。</p></div>
       </div>
-
-      <div class="character-rows">
-        {profileItems.map((item) => (
-          <article class="character-row">
-            <p class="character-label">{item.label}</p>
-            <p class="character-value">{item.value}</p>
-          </article>
-        ))}
-      </div>
+      <p>{entry?.data.roleText}</p>
     </section>
 
-    <section class="favorites-room" aria-labelledby="favorites-title">
-      <div class="favorites-intro">
-        <p class="section-label">What Coco Loves</p>
-        <h2 id="favorites-title">ココちゃんがすきなこと。</h2>
+    {scene && sceneImage && <section class="guide-section guide-scene" aria-labelledby="scene-title">
+      <a class="guide-scene-image" href={`${base}gallery/${scene.slug}/`} aria-label={`『${scene.data.title}』の景色を見る`}>
+        <img src={sceneImage.src} alt={`『${scene.data.title}』から生まれた、ココちゃんのいる読後の景色`} width="520" height="640" loading="lazy" decoding="async" />
+      </a>
+      <div>
+        <p class="section-label">本から生まれたココちゃんの旅</p>
+        <h2 id="scene-title">言葉の先には、こんな景色も。</h2>
+        <p>『{scene.data.title}』</p>
+        <p>{scene.data.description || scene.data.note}</p>
+        <p class="guide-note">{scene.data.visualOrigin === 'ai-generated' ? '本から着想したAI制作の読後ビジュアルです。公式書影ではありません。' : '本から着想した読後の景色です。'}</p>
+        <a class="guide-text-link" href={`${base}gallery/${scene.slug}/`}>この景色を眺める →</a>
       </div>
+    </section>}
 
-      <div class="favorites-grid">
-        {favoriteItems.map((item, index) => (
-          <article class="favorite-card">
-            <p class="favorite-count">{String(index + 1).padStart(2, "0")}</p>
-            <p class="favorite-text">{item}</p>
-          </article>
-        ))}
-      </div>
+    <section class="guide-section" id="writer" aria-label="書き手について">
+      <p class="section-label">書き手について</p>
+      <div class="guide-copy">{Content && <Content />}</div>
+      {writerReview && <p><a class="guide-text-link" href={`${base}reviews/${writerReview.slug}/`}>書き手の視点に触れる：『{writerReview.data.bookTitle ?? writerReview.data.title}』→</a></p>}
     </section>
 
-    <section class="sensitive-room" aria-labelledby="sensitive-title">
-      <div class="sensitive-intro">
-        <p class="section-label">What Coco Watches Carefully</p>
-        <h2 id="sensitive-title">ココちゃんがにがてなこと。</h2>
-      </div>
-
-      <div class="sensitive-grid">
-        {sensitiveItems.map((item, index) => (
-          <article class="sensitive-card">
-            <p class="sensitive-count">{String(index + 1).padStart(2, "0")}</p>
-            <p class="sensitive-text">{item}</p>
-          </article>
-        ))}
-      </div>
+    <section class="guide-closing" aria-labelledby="profile-next">
+      <h2 id="profile-next">{entry?.data.closingQuote ?? 'いっしょに、次の一冊の景色を見にいこう。'}</h2>
+      <a class="hero-link hero-link-primary ui-action" href={`${base}reviews/`}>レビューを見る</a>
+      <a class="guide-text-link" href={`${base}about/`}>このサイトについて →</a>
     </section>
-
-    <section class="closing-room" aria-labelledby="closing-title">
-      <div class="closing-copy">
-        <p class="section-label">Coco&apos;s Role / Site Guide</p>
-        <p class="section-caption">このサイトでのおしごと</p>
-        <h2 id="closing-title">本の世界を、やわらかく案内する相棒。</h2>
-        <p>{roleText}</p>
-        <blockquote class="closing-quote">{closingQuote}</blockquote>
-      </div>
-
-      <div class="closing-links ui-action-group ui-action-group--stack">
-        <a class="hero-link hero-link-primary ui-action" href={reviewsUrl}>レビューを見る</a>
-        <a class="hero-link hero-link-secondary ui-action" href={homeUrl}>Home へ戻る</a>
-      </div>
-    </section>
+    {updatedAt && <p class="guide-updated">更新: <time datetime={updatedAt}>{updatedAt}</time></p>}
   </div>
 </Layout>
-
-<style>
-  .profile-world {
-    display: grid;
-    gap: clamp(1.75rem, 4vw, 3.25rem);
-  }
-
-  .profile-hero,
-  .character-room,
-  .favorites-room,
-  .sensitive-room,
-  .closing-room {
-    position: relative;
-    overflow: clip;
-    border: 1px solid rgba(100, 76, 42, 0.14);
-    border-radius: clamp(26px, 4vw, 40px);
-    box-shadow: 0 24px 70px rgba(83, 55, 28, 0.1);
-  }
-
-  .profile-hero {
-    display: grid;
-    grid-template-columns: minmax(0, 1.02fr) minmax(320px, 0.98fr);
-    gap: clamp(1.5rem, 3vw, 3rem);
-    padding: clamp(2rem, 4.5vw, 3.8rem);
-    background:
-      radial-gradient(circle at top left, rgba(235, 224, 209, 0.78), transparent 30%),
-      radial-gradient(circle at bottom right, rgba(209, 218, 228, 0.22), transparent 32%),
-      linear-gradient(145deg, rgba(252, 249, 244, 0.98), rgba(245, 245, 242, 0.94));
-  }
-
-  .character-room,
-  .favorites-room,
-  .sensitive-room,
-  .closing-room {
-    padding: clamp(1.35rem, 3vw, 2.3rem);
-    background: linear-gradient(180deg, rgba(255, 253, 249, 0.98), rgba(248, 245, 239, 0.92));
-  }
-
-  .favorites-room {
-    background:
-      radial-gradient(circle at top right, rgba(244, 219, 186, 0.45), transparent 24%),
-      linear-gradient(180deg, rgba(255, 252, 247, 0.98), rgba(244, 238, 229, 0.9));
-  }
-
-  .sensitive-room {
-    background:
-      radial-gradient(circle at bottom left, rgba(62, 93, 139, 0.08), transparent 28%),
-      linear-gradient(180deg, rgba(255, 253, 248, 0.98), rgba(246, 238, 226, 0.92));
-  }
-
-  .hero-copy,
-  .hero-visual,
-  .closing-copy {
-    position: relative;
-    z-index: 1;
-  }
-
-  .section-label,
-  .character-label,
-  .favorite-count,
-  .sensitive-count {
-    margin: 0;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  .section-label,
-  .character-label {
-    font-size: 0.78rem;
-    font-weight: 700;
-    color: var(--color-accent);
-  }
-
-  .hero-brand {
-    margin: 0.95rem 0 0;
-    font-size: clamp(1.4rem, 1.9vw, 1.75rem);
-    color: color-mix(in srgb, var(--color-text) 92%, transparent);
-  }
-
-  .section-caption {
-    margin: 0.35rem 0 0;
-    font-size: 0.95rem;
-    font-weight: 700;
-    line-height: 1.4;
-    color: #5d3c20;
-  }
-
-  .profile-hero h1,
-  .character-intro h2,
-  .favorites-intro h2,
-  .sensitive-intro h2,
-  .closing-copy h2 {
-    margin: 0;
-    font-family: var(--font-display);
-    line-height: 1.1;
-    letter-spacing: 0.02em;
-    color: #1b2330;
-  }
-
-  .profile-hero h1 {
-    margin-top: 1rem;
-    font-size: clamp(2.7rem, 5vw, 4.5rem);
-    max-width: 10ch;
-    text-wrap: balance;
-    letter-spacing: -0.025em;
-  }
-
-  .character-intro,
-  .favorites-intro,
-  .sensitive-intro,
-  .closing-copy {
-    display: grid;
-    gap: 0.65rem;
-    max-width: 38rem;
-  }
-
-  .character-intro h2,
-  .favorites-intro h2,
-  .sensitive-intro h2,
-  .closing-copy h2 {
-    font-size: clamp(2rem, 3vw, 2.8rem);
-    text-wrap: balance;
-  }
-
-  .hero-lead,
-  .hero-bridge,
-  .closing-copy p,
-  .favorite-text,
-  .sensitive-text {
-    color: rgba(33, 23, 16, 0.78);
-  }
-
-  .hero-lead,
-  .hero-bridge {
-    margin: 1.2rem 0 0;
-    max-width: 31rem;
-    line-height: 1.82;
-    font-size: var(--text-lead);
-  }
-
-  .hero-actions,
-  .closing-links {
-    display: flex;
-    gap: 0.9rem;
-    margin-top: 1.8rem;
-  }
-
-  .hero-link {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 48px;
-    padding: 0.85rem 1.3rem;
-    border-radius: 999px;
-    font-weight: 700;
-    text-decoration: none;
-    transition:
-      transform 0.2s ease,
-      box-shadow 0.2s ease,
-      border-color 0.2s ease,
-      background-color 0.2s ease;
-  }
-
-  .hero-link:hover {
-    transform: translateY(-1px);
-  }
-
-  .hero-link-primary {
-    background: linear-gradient(180deg, rgba(50, 45, 41, 0.96), rgba(29, 27, 25, 0.96));
-    color: #fffdf9;
-    box-shadow: 0 18px 34px rgba(26, 22, 20, 0.16);
-  }
-
-  .hero-link-secondary {
-    border: 1px solid var(--color-border);
-    background: rgba(255, 255, 255, 0.78);
-    color: color-mix(in srgb, var(--color-text) 84%, transparent);
-  }
-
-  .hero-footnote {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem 1rem;
-    align-items: center;
-    width: fit-content;
-    margin-top: 1.5rem;
-    padding: 0.8rem 1rem;
-    border: 1px solid var(--color-border);
-    border-radius: 18px;
-    background: rgba(255, 255, 255, 0.76);
-  }
-
-  .hero-footnote p,
-  .hero-footnote span {
-    margin: 0;
-    color: rgba(33, 23, 16, 0.7);
-    font-size: 0.9rem;
-  }
-
-  .hero-visual {
-    display: grid;
-    align-items: stretch;
-  }
-
-  .hero-image-frame {
-    margin: 0;
-    overflow: hidden;
-    border-radius: clamp(24px, 3vw, 34px);
-    min-height: 100%;
-    background: linear-gradient(160deg, rgba(255, 255, 255, 0.64), rgba(237, 212, 184, 0.76));
-  }
-
-  .hero-image-frame img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    min-height: 460px;
-    object-fit: cover;
-  }
-
-  .character-room {
-    display: grid;
-    gap: 1.6rem;
-  }
-
-  .character-rows {
-    display: grid;
-    gap: 1rem;
-  }
-
-  .character-row {
-    display: grid;
-    gap: 0.55rem;
-    padding: 1.15rem 0;
-    border-top: 1px solid rgba(100, 76, 42, 0.12);
-  }
-
-  .character-row:first-child {
-    padding-top: 0;
-    border-top: 0;
-  }
-
-  .character-label {
-    font-size: 0.76rem;
-    font-weight: 700;
-    color: #8d5b2a;
-  }
-
-  .character-value {
-    margin: 0;
-    max-width: 40rem;
-    font-family: var(--font-headline);
-    font-size: clamp(1.15rem, 1.8vw, 1.45rem);
-    line-height: 1.65;
-    color: #2c2017;
-  }
-
-  .favorites-room,
-  .sensitive-room {
-    display: grid;
-    gap: 1.75rem;
-  }
-
-  .favorites-grid,
-  .sensitive-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.95rem;
-  }
-
-  .favorite-card,
-  .sensitive-card {
-    display: grid;
-    gap: 0.85rem;
-    padding: 1.15rem;
-    border: 1px solid rgba(100, 76, 42, 0.12);
-    border-radius: 24px;
-    background: rgba(255, 255, 255, 0.66);
-    transition:
-      transform 0.2s ease,
-      background-color 0.2s ease,
-      border-color 0.2s ease;
-  }
-
-  .favorite-card:hover,
-  .sensitive-card:hover {
-    transform: translateY(-2px);
-    background: rgba(255, 255, 255, 0.8);
-  }
-
-  .favorite-count,
-  .sensitive-count {
-    display: grid;
-    place-items: center;
-    width: 54px;
-    height: 54px;
-    border-radius: 16px;
-    background: rgba(247, 214, 176, 0.42);
-    color: #7d4c22;
-    font-weight: 700;
-    font-size: 0.82rem;
-  }
-
-  .favorite-text,
-  .sensitive-text {
-    margin: 0;
-    font-family: var(--font-headline);
-    font-size: clamp(1.1rem, 1.7vw, 1.35rem);
-    line-height: 1.6;
-    color: #2c2017;
-  }
-
-  .closing-room {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 1.6rem;
-    align-items: center;
-  }
-
-  .closing-copy {
-    gap: 0.95rem;
-  }
-
-  .closing-copy p {
-    margin: 0;
-    line-height: 1.85;
-  }
-
-  .closing-quote {
-    margin: 0.25rem 0 0;
-    padding: 1rem 1.1rem;
-    border-left: 3px solid rgba(100, 76, 42, 0.4);
-    border-radius: 18px;
-    background: rgba(255, 255, 255, 0.55);
-    color: #5d3c20;
-    font-family: var(--font-headline);
-    font-size: clamp(1.05rem, 1.5vw, 1.2rem);
-    line-height: 1.7;
-  }
-
-  @media (max-width: 920px) {
-    .profile-hero,
-    .closing-room {
-      grid-template-columns: 1fr;
-    }
-
-    .hero-visual {
-      order: -1;
-    }
-
-    .profile-hero h1 {
-      max-width: none;
-    }
-  }
-
-  @media (max-width: 720px) {
-    .profile-world {
-      gap: 1.15rem;
-    }
-
-    .profile-hero,
-    .character-room,
-    .favorites-room,
-    .sensitive-room,
-    .closing-room {
-      border-radius: 28px;
-      padding: 1.15rem;
-    }
-
-    .profile-hero {
-      gap: 1rem;
-    }
-
-    .hero-visual {
-      order: 0;
-    }
-
-    .hero-brand {
-      margin-top: 0.55rem;
-      font-size: 1.12rem;
-    }
-
-    .section-caption {
-      margin-top: 0.25rem;
-    }
-
-    .profile-hero h1 {
-      margin-top: 0.65rem;
-      font-size: 2.25rem;
-      line-height: 1.12;
-    }
-
-    .hero-lead,
-    .hero-bridge {
-      margin-top: 0.65rem;
-      font-size: 1rem;
-      line-height: 1.65;
-    }
-
-    .hero-actions {
-      gap: 0.65rem;
-      margin-top: 1rem;
-    }
-
-    .hero-actions .hero-link {
-      flex: 0 0 auto;
-      width: 100%;
-      min-height: 44px;
-      padding: 0.68rem 1rem;
-    }
-
-    .hero-footnote {
-      margin-top: 0.85rem;
-      padding: 0.65rem 0.8rem;
-    }
-
-    .hero-image-frame img {
-      min-height: 240px;
-      max-height: 260px;
-      object-position: center 38%;
-    }
-
-    .favorites-grid,
-    .sensitive-grid {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  @media (max-width: 520px) {
-    .profile-hero h1,
-    .character-intro h2,
-    .favorites-intro h2,
-    .sensitive-intro h2,
-    .closing-copy h2 {
-      font-size: 2rem;
-    }
-
-    .hero-footnote {
-      width: 100%;
-      box-sizing: border-box;
-    }
-  }
-</style>

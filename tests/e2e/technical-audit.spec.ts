@@ -37,7 +37,7 @@ test('review and gallery details expose structured data and responsive media', a
 });
 
 test('key public and error pages have no serious or critical axe violations', async ({ page }) => {
-  for (const pagePath of ['', 'reviews/', 'reviews/seiten/', 'gallery/', 'gallery/business-0d597c/', 'about/', 'videos/']) {
+  for (const pagePath of ['', 'reviews/', 'reviews/seiten/', 'gallery/', 'gallery/business-0d597c/', 'about/', 'profile/', 'videos/']) {
     await assertNoSeriousA11yViolations(pagePath, page);
   }
 });

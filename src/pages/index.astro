@@ -40,20 +40,6 @@ const clampText = (value: string, maxLength: number) => {
   return `${normalized.slice(0, maxLength).trimEnd()}…`;
 };
 
-const stripMarkdown = (value: string) =>
-  value
-    .replace(/^#{1,6}\s+/gm, '')
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-    .replace(/[*_`>-]/g, '')
-    .replace(/\n{3,}/g, '\n\n')
-    .trim();
-
-const getParagraphs = (value: string) =>
-  stripMarkdown(value)
-    .split(/\n\s*\n/)
-    .map((paragraph) => paragraph.replace(/\s*\n\s*/g, ' ').trim())
-    .filter(Boolean);
-
 const reviewDetailRoutePath = join(process.cwd(), 'src/pages/reviews/[slug].astro');
 const hasReviewDetailRoute = existsSync(reviewDetailRoutePath);
 
@@ -93,7 +79,6 @@ try {
 } catch {
   // About content is optional during local content setup.
 }
-const aboutParagraphs = aboutEntry ? getParagraphs(aboutEntry.body) : [];
 
 const reviewEntries = await getPublishedReviews();
 const sortedReviews = [...reviewEntries].sort(
@@ -168,11 +153,11 @@ const galleryLead = galleryHighlights[0] ?? null;
 const galleryTrail = galleryHighlights.slice(1, 3);
 
 const aboutLead =
-  aboutParagraphs[0] ??
-  '読書 with Coco は、本を読み終えたあとに静かに残る気配を、もう一度見つめ直すための場所です。';
+  aboutEntry?.data.homeLead?.trim() ||
+  '読書 with Cocoは、本からひとつの問いと、今選べる小さな一歩を持ち帰る場所です。';
 const aboutBridge =
-  aboutParagraphs[1] ??
-  '読んで終わりにしない。本のそばにココちゃんがいることで、言葉だけでは届かない景色や学びに、やわらかな呼吸を与えます。';
+  aboutEntry?.data.homeBridge?.trim() ||
+  'レビューの言葉、ココちゃんと眺めるギャラリー、暮らしで試すワーク。その日の自分に合う入口からどうぞ。';
 const worldAsideCopy =
   'ココちゃんは、このサイトで読後の景色をやわらかく見つめ直すための案内役です。';
 ---
@@ -417,8 +402,8 @@ const worldAsideCopy =
         <p class="world-aside-label">Coco&apos;s Note</p>
         <p class="world-aside-copy">{worldAsideCopy}</p>
         <div class="world-links ui-action-group ui-action-group--stack">
-          <a class="inline-button inline-button-secondary ui-action" href={aboutUrl}>About をひらく</a>
-          <a class="inline-button inline-button-secondary ui-action" href={profileUrl}>ココちゃんの紹介へ</a>
+          <a class="inline-button inline-button-secondary ui-action" href={aboutUrl}>このサイトについて</a>
+          <a class="inline-button inline-button-secondary ui-action" href={profileUrl}>ココちゃんと書き手</a>
         </div>
       </aside>
     </section>
