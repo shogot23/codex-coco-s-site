@@ -77,7 +77,7 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site!).toString();
 const threeBooksJsonLd = buildJsonLdGraph([
   buildCollectionJsonLd(
     canonicalUrl,
-    '最初の3冊 | 読書 with Coco',
+    '最初の3冊 | 読書with Coco',
     '忙しい日々に、本から問い・見方の変化・今日の一歩を持ち帰るための3冊。',
     books.map((book) => ({
       name: book.title,
@@ -88,17 +88,17 @@ const threeBooksJsonLd = buildJsonLdGraph([
 ---
 
 <Layout
-  title="3books | 読書 with Coco"
-  description="SNSから来た人に向けた、読書 with Coco の最初の入口。まずはおすすめ3冊からどうぞ。"
+  title="3books | 読書with Coco"
+  description="SNSから来た人に向けた、読書with Coco の最初の入口。まずはおすすめ3冊からどうぞ。"
   image={getSocialImage(avatar, baseWithSlash)}
-  imageAlt="読書 with Coco の案内役ココちゃん"
+  imageAlt="読書with Coco の案内役ココちゃん"
   jsonLd={threeBooksJsonLd}
 >
   <div class="three-books-story">
     <section class="three-books-hero" aria-labelledby="three-books-heading">
       <div class="hero-copy">
-        <p class="hero-kicker">読書 with Coco / Start Here</p>
-        <p class="hero-brand">読書 with Coco</p>
+        <p class="hero-kicker">読書with Coco / Start Here</p>
+        <p class="hero-brand">読書with Coco</p>
         <h1 id="three-books-heading">忙しい日々に、本で視界を整える最初の3冊。</h1>
         <p class="hero-lead">
           SNSから来てくれた方へ。役割や環境が変わる日々の中で、自分自身も支えられてきた3冊を置いています。
@@ -116,7 +116,7 @@ const threeBooksJsonLd = buildJsonLdGraph([
           <img
             class="coco-avatar"
             src={avatarUrl}
-            alt="読書 with Coco の案内役、ココちゃん"
+            alt="読書with Coco の案内役、ココちゃん"
             width="320"
             height="320"
             loading="eager"

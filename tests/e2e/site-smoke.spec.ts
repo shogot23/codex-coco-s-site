@@ -157,7 +157,7 @@ test('home first viewport shows brand and review-led hero CTA flow', async ({ pa
 
   const hero = page.locator('.hero');
 
-  await expect(page.getByRole('link', { name: '読書 with Coco' })).toBeVisible();
+  await expect(page.getByRole('link', { name: '読書with Coco' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '読書で生まれた世界を、ココちゃんが旅する。' })).toBeVisible();
   await expect(hero.getByRole('link', { name: 'レビューを見る', exact: true })).toBeVisible();
   await expect(hero.getByRole('link', { name: 'ギャラリーを見る', exact: true })).toBeVisible();
@@ -196,7 +196,7 @@ test('desktop home keeps the primary reading action in a short first viewport', 
       page,
       page.locator('.hero').getByRole('link', { name: 'レビューを見る', exact: true })
     );
-    await expect(page.locator('.hero-visual img[alt="読書 with Coco の案内役、ココちゃん"]')).toBeVisible();
+    await expect(page.locator('.hero-visual img[alt="読書with Coco の案内役、ココちゃん"]')).toBeVisible();
     await expectNoHorizontalOverflow(page);
   }
 });
@@ -642,7 +642,7 @@ test('home keeps nav and hero CTAs usable on mobile-chrome', async ({ page, isMo
 
   const primaryNav = page.getByRole('navigation', { name: '主要ナビゲーション' });
   const hero = page.locator('.hero');
-  const brandLink = page.getByRole('link', { name: '読書 with Coco' });
+  const brandLink = page.getByRole('link', { name: '読書with Coco' });
   const reviewLink = primaryNav.getByRole('link', { name: 'レビュー', exact: true });
   const galleryLink = primaryNav.getByRole('link', { name: 'ギャラリー', exact: true });
   const heroReviewCta = hero.getByRole('link', { name: 'レビューを見る', exact: true });

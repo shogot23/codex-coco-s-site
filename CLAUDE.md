@@ -1,4 +1,4 @@
-# Claude Code Instructions — 読書 with Coco
+# Claude Code Instructions — 読書with Coco
 
 Canonical source: **AGENTS.md**（本ファイルは入口）
 

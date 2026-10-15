@@ -1,4 +1,4 @@
-export const SITE_NAME = '読書 with Coco';
+export const SITE_NAME = '読書with Coco';
 
 type BreadcrumbItem = {
   name: string;

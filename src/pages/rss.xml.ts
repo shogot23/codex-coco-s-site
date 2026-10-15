@@ -17,8 +17,8 @@ export const GET: APIRoute = async (context) => {
   const site = new URL(base, context.site).toString();
 
   return rss({
-    title: '読書 with Coco | Reviews',
-    description: '本から残った問い、見方の変化、今日の小さな一歩を届ける読書 with Coco のレビュー更新情報。',
+    title: '読書with Coco | Reviews',
+    description: '本から残った問い、見方の変化、今日の小さな一歩を届ける読書with Coco のレビュー更新情報。',
     site,
     items: [...reviews]
       .sort((left, right) => right.data.date.getTime() - left.data.date.getTime())
