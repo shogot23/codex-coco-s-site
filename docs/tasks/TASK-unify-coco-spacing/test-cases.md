@@ -29,8 +29,8 @@
 
 - [x] build 出力のHome、About、Profile、Reviews、Gallery一覧・アーカイブ、3books、Works、404、個別詳細ページで表記を確認する。
 - [x] RSSのtitle/descriptionを確認する。
-- [ ] merge後のmain CIとPages deploy runが成功したことを確認する。
-- [ ] deploy後に公開HTML/RSSを確認する。
+- [x] merge後のmain CIとPages deploy runが成功したことを確認する。
+- [x] deploy後に公開HTML/RSSを確認する。
 
 ## Optional Checks
 
