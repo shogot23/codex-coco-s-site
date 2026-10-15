@@ -28,14 +28,14 @@ const purchaseLinks = [...(review?.data.purchaseLinks ?? []), ...galleries.flatM
 const { Content } = await work.render();
 const base = import.meta.env.BASE_URL;
 ---
-<Layout title={`${data.title} | 読書 with Coco`} description={data.description}
+<Layout title={`${data.title} | 読書with Coco`} description={data.description}
   image={workImageUrl(work.slug, 1080)} imageAlt={data.imageAlt} imageWidth={1080} imageHeight={1350} type="article">
   <article class="works-shell">
     {!data.published && <p class="work-preview">下書きプレビュー · まだ公開されていません</p>}
     <nav class="work-breadcrumb" aria-label="パンくずリスト"><a href={`${base}works/`}>ワーク</a><span aria-hidden="true"> / </span><span aria-current="page">{data.title}</span></nav>
     <header class="work-opening">
       <div>
-        <p class="work-kicker">読書 with Coco / {data.durationMinutes}分を目安に</p>
+        <p class="work-kicker">読書with Coco / {data.durationMinutes}分を目安に</p>
         <p class="work-worry">{data.readerWorry}</p>
         <h1>{data.title}</h1>
         <p>{data.description}</p>

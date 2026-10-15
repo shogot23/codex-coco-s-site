@@ -35,7 +35,7 @@ test('work taxonomy covers every work and every option', async () => {
 
 test('works visibility matches preview mode', async ({ page }) => {
   await page.goto(`${base}works/`);
-  await expect(page).toHaveTitle('ワーク | 読書 with Coco');
+  await expect(page).toHaveTitle('ワーク | 読書with Coco');
   await expect(page.locator('.work-entry')).toHaveCount(visibleItems.length);
   await expect(page.locator('.works-heading-cta')).toHaveCount(visibleItems.length > 0 ? 1 : 0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 2)).toBe(true);

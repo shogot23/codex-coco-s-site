@@ -207,7 +207,7 @@ const reviewJsonLd = buildJsonLdGraph([
           {excerpt && (
             <div class="opening-quote">
               <p class="panel-kicker">
-                {excerptKind === 'direct-quote' ? '本からの引用' : '読書 with Coco の要約'}
+                {excerptKind === 'direct-quote' ? '本からの引用' : '読書with Coco の要約'}
               </p>
               {excerptKind === 'direct-quote' ? <blockquote><p>“{excerpt}”</p></blockquote> : <p>{excerpt}</p>}
               {excerptKind === 'direct-quote' && excerptSource && <cite>{excerptSource}</cite>}

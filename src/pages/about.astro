@@ -58,7 +58,7 @@ const homeUrl = withBase("");
 
 const aboutLead =
   aboutParagraphs[0] ??
-  "読書 with Coco は、本を読み終えたあとに静かに残る気配を、もう一度見つめ直すための場所です。";
+  "読書with Coco は、本を読み終えたあとに静かに残る気配を、もう一度見つめ直すための場所です。";
 const aboutBridge =
   aboutParagraphs[1] ??
   "読んで終わりにしない。本のそばにココちゃんがいることで、言葉だけでは届かない景色や学びに、やわらかな呼吸を与えます。";
@@ -106,7 +106,7 @@ const bridgeSteps = [
 ---
 
 <Layout
-  title={entry ? `${entry.data.title} | 読書 with Coco` : "About | 読書 with Coco"}
+  title={entry ? `${entry.data.title} | 読書with Coco` : "About | 読書with Coco"}
   description={entry?.data?.description}
   image={getSocialImage("/uploads/about-hero.png", base)}
 >
@@ -114,7 +114,7 @@ const bridgeSteps = [
     <section class="about-hero" aria-labelledby="about-title">
       <div class="hero-copy">
         <p class="section-label">About / World Bridge</p>
-        <p class="hero-brand">読書 with Coco</p>
+        <p class="hero-brand">読書with Coco</p>
         <h1 id="about-title">本を閉じたあとも、ココちゃんと世界はつづいていく。</h1>
         <p class="hero-lead">{aboutLead}</p>
         <p class="hero-bridge">{aboutBridge}</p>
@@ -125,7 +125,7 @@ const bridgeSteps = [
         </div>
 
         <div class="hero-footnote">
-          <p>{entry?.data?.description ?? "読書 with Coco について"}</p>
+          <p>{entry?.data?.description ?? "読書with Coco について"}</p>
           {updatedAtLabel && <span>更新: {updatedAtLabel}</span>}
         </div>
       </div>
@@ -146,7 +146,7 @@ const bridgeSteps = [
           <div class="hero-note-avatar">
             <img
               src={avatarUrl}
-              alt="読書 with Coco の案内役、ココちゃん"
+              alt="読書with Coco の案内役、ココちゃん"
               width="160"
               height="160"
               loading="lazy"
@@ -181,7 +181,7 @@ const bridgeSteps = [
       <div class="philosophy-copy">
         <p class="section-label">Living Philosophy</p>
         <h2 id="philosophy-title">本と暮らしのあいだで</h2>
-        <p>読書withCocoは、本を正しく要約するためだけの場所ではありません。</p>
+        <p>読書with Cocoは、本を正しく要約するためだけの場所ではありません。</p>
         <p>
           一冊の本をきっかけに、自分の暮らし、働き方、学び方、弱さ、回復、これからの生き方を
           少しだけ見つめ直すための場所です。

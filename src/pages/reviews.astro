@@ -76,7 +76,7 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site!).toString();
 const reviewsJsonLd = buildJsonLdGraph([
   buildCollectionJsonLd(
     canonicalUrl,
-    "レビュー | 読書 with Coco",
+    "レビュー | 読書with Coco",
     "暮らしのモヤモヤから、問い・見方の変化・今日の一歩を持ち帰るレビュー一覧。",
     reviewCards.map((review) => ({
       name: review.title,
@@ -96,13 +96,13 @@ const explorerItems = reviewCards.map((review) => ({
 ---
 
 <Layout
-  title="レビュー | 読書 with Coco"
-  description="暮らしのモヤモヤから、問い・見方の変化・今日の一歩を持ち帰る、読書 with Coco のレビュー一覧。"
+  title="レビュー | 読書with Coco"
+  description="暮らしのモヤモヤから、問い・見方の変化・今日の一歩を持ち帰る、読書with Coco のレビュー一覧。"
   jsonLd={reviewsJsonLd}
 >
   <div class="reviews-story">
     <section class="hero" aria-labelledby="reviews-heading">
-      <p class="hero-kicker">読書 with Coco / Reviews</p>
+      <p class="hero-kicker">読書with Coco / Reviews</p>
       <h1 id="reviews-heading">いまの気持ちに、静かな一冊を。</h1>
       <p class="hero-lead">難しい本の言葉を、暮らしで使える小さな問いと一歩へ。今の自分に近い一冊から、ゆっくりどうぞ。</p>
       <div class="hero-actions ui-action-group ui-action-group--stack">

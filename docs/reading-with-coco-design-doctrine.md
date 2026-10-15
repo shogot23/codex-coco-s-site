@@ -10,7 +10,7 @@
 ## 2. Visual Thesis
 
 - first viewport は one composition で設計する。
-- 最初の一画面で `読書 with Coco` のブランド名、世界観、主要CTA を同時に読める密度にする。
+- 最初の一画面で `読書with Coco` のブランド名、世界観、主要CTA を同時に読める密度にする。
 - 整理された UI よりも、このサイトでしか成立しない構図と印象を優先する。
 - generic SaaS 風、テンプレ風、量産型 LP 風には寄せない。
 
@@ -46,7 +46,7 @@
 
 - hero copy は読書とココちゃんの関係が一目でわかる文にする。
 - 説明口調で機能を列挙するより、読書から広がる情景や学びを短く濃く伝える。
-- brand name `読書 with Coco` は hero-level の強さで見せる。
+- brand name `読書with Coco` は hero-level の強さで見せる。
 - CTA 文言は抽象化しすぎず、実際の行き先が想像できる具体性を持たせる。
 
 ## 8. Visual Rules
@@ -68,7 +68,7 @@
 - 色・余白・角丸・影・フォントの判断は `DESIGN.md` を参照する。トークン値の正本は `src/styles/theme.css`。
 - typography / color / spacing を先に決め、component 分割は後から行う。
 - 既存の Astro 構成、content collections、brand tone を壊さない。
-- 新規 UI 案は「整っているか」ではなく「読書 with Coco らしいか」を先に評価する。
+- 新規 UI 案は「整っているか」ではなく「読書with Coco らしいか」を先に評価する。
 - 実装判断に迷ったら、この doctrine と `frontend-playbook.md` の両方を見て、ブランド優先で決める。
 
 ## 11. Verify Rules
