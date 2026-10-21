@@ -1,0 +1,40 @@
+{
+  "status": "pre-deployment-dist-verified; production-pending",
+  "slug": "one-scene-sensory-sketch-3min",
+  "title": "3分の一場面スケッチ",
+  "relatedReview": "kyomo-kissaten-yori-sato-mitsuharu",
+  "bookTitle": "今日も、喫茶店より",
+  "baseCommit": "a3463cc89bae80ce9150757680c1f69008769403",
+  "local": {
+    "command": "npm run check:works-dist",
+    "exitCode": 0,
+    "worksIndex": "dist/works/index.html",
+    "detailHtml": "dist/works/one-scene-sensory-sketch-3min/index.html",
+    "detailCanonicalUrl": "https://shogot23.github.io/codex-coco-s-site/works/one-scene-sensory-sketch-3min/",
+    "ogImageUrl": "https://shogot23.github.io/codex-coco-s-site/works/media/one-scene-sensory-sketch-3min/1080.webp",
+    "images": [
+      {
+        "url": "https://shogot23.github.io/codex-coco-s-site/works/media/one-scene-sensory-sketch-3min/480.webp",
+        "file": "dist/works/media/one-scene-sensory-sketch-3min/480.webp",
+        "sha256": "cc56df8754d75031eb744cb9e99292836d4cdc7991e5ae6e14f4a167cb2412dc",
+        "width": 480,
+        "height": 600,
+        "format": "WebP"
+      },
+      {
+        "url": "https://shogot23.github.io/codex-coco-s-site/works/media/one-scene-sensory-sketch-3min/1080.webp",
+        "file": "dist/works/media/one-scene-sensory-sketch-3min/1080.webp",
+        "sha256": "51a4f7444aa816ef1040f4c2fb4009264736b5e1f77fab532b3db7e8f03c9563",
+        "width": 1080,
+        "height": 1350,
+        "format": "WebP"
+      }
+    ]
+  },
+  "production": {
+    "status": "not-verified",
+    "mergeCommit": null,
+    "pagesRunUrl": null,
+    "urls": []
+  }
+}
