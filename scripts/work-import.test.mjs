@@ -185,9 +185,9 @@ test('reader-copy guard allows research limits, source labels, work instructions
   assert.doesNotThrow(() => assertReaderFacingWorkCopy(supportedCopy));
 });
 
-test('all 23 current work Markdown files pass the narrow reader-copy guard', async () => {
+test('all 24 current work Markdown files pass the narrow reader-copy guard', async () => {
   const names = (await readdir('src/content/works')).filter((name) => name.endsWith('.md'));
-  assert.equal(names.length, 23);
+  assert.equal(names.length, 24);
   for (const name of names) {
     const text = await readFile(path.join('src/content/works', name), 'utf8');
     assert.doesNotThrow(() => assertReaderFacingWorkCopy(text, name), name);

@@ -1,0 +1,19 @@
+## main...origin/main [behind 4]
+ M docs/tasks/TASK-generative-ai-review-gallery/daily-2026-10-08.md
+ M docs/tasks/TASK-generative-ai-review-gallery/status.md
+ M docs/tasks/TASK-seishokuki-review-gallery/status.md
+ M package-lock.json
+ M package.json
+ M scripts/gallery-import.ts
+?? .agents/
+?? .playwright-cli/
+?? docs/tasks/TASK-seishokuki-review-gallery/daily-2026-10-11.md
+?? docs/tasks/TASK-seishokuki-review-gallery/production-verification-2026-10-11.json
+?? docs/tasks/typesafe-ocr-title-shadow-poc/
+?? inbox/gallery/
+?? inbox/infographic/
+?? inbox/work/
+?? output/
+?? scripts/lib/typesafe-title-choice.test.ts
+?? scripts/lib/typesafe-title-choice.ts
+?? skills-lock.json
