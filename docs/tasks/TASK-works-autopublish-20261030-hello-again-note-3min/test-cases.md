@@ -17,6 +17,12 @@
 - [x] distに公開URL/画像だけが出力され、共有画像HTML参照と480/1080最適化版を確認。
 - [ ] CI/Pagesのmerge SHA一致。cache-bypassで一覧/詳細/review相互リンク/OG/最適化mediaを確認。
 
+## CI runner復旧の確認項目（2026-11-02）
+- [x] .github/workflows/ci.ymlの差分はfrontend-verify runs-on: ubuntu-latest → ubuntu-24.04の1行のみ。
+- [x] deploy.yml、Node/Playwright version、package/lock files、actions、他workflow設定は差分なし。
+- [ ] PR #220の新CI runでPlaywright install、verify:frontend全工程、GitHub checksが成功し、head SHAが最新。
+- [ ] merge前のPR state/draft/mergeable/files/checksとClaudeレビュー結果を再確認する。
+
 ## Public Copy Four-Point Review
 1. bookConnectionと本文が本人の目線になっている。
 2. AIの調査事情や本人の公開reviewを第三者として語る表現がない。
@@ -54,3 +60,10 @@
 - Claude implementation arch/diff: actual glm-5.3、両phase valid、blocking 0。PBIのscope不一致とlatest-main確認記録を修正。件数assertionの将来動的化は別保守作業のため今回範囲外として保留。
 - preview開始時に既存review画像派生物がdev serverで404だったが、build生成後はdistと生成済みpublic/mediaに存在。無関係なレビュー/画像は変更していない。
 - merge後のCI/Pages/cache-bypass公開確認はこれから行う。
+
+## 実施記録（2026-11-02 JST）
+
+- ユーザーは2026-11-02、frontend-verifyのCI runnerをubuntu-latestからubuntu-24.04へ変更する1行を明示承認した。
+- 以前のrun 41144130903は、GitHubのUbuntu 26.04.1 runnerでPlaywright 1.58.2のChromium依存を導入できず、プロジェクト検証前に失敗した。
+- Playwright v1.58.2公式依存定義にubuntu24.04-x64のChromium依存があることを確認した。他の依存・workflow設定は対象外。
+- 同じPRを更新する前にPlanGateとCI変更をレビューする。新CI結果、merge SHA、Pages、公開URL/media確認は未完了。

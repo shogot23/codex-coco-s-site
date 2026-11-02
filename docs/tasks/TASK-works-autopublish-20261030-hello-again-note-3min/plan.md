@@ -24,8 +24,17 @@
   - src/content/works/hello-again-note-3min.md
   - src/assets/works/hello-again-note-3min.png
   - scripts/work-import.test.mjs（origin/mainに27件ある状態で期待数26件が残っていたため、追加後28件に一致させる1 assertionのみ）
-  - docs/tasks/TASK-works-autopublish-20261030-hello-again-note-3min/{pbi-input.md,plan.md,test-cases.md,status.md,daily-2026-10-31.md}
+  - docs/tasks/TASK-works-autopublish-20261030-hello-again-note-3min/{pbi-input.md,plan.md,test-cases.md,status.md,daily-2026-10-31.md,daily-2026-11-02.md}
+  - .github/workflows/ci.yml（frontend-verify.runs-onのubuntu-latest→ubuntu-24.04のみ）
 - 変更しない: 元dirty worktree、他worktree、制作job/audit/history、他のwork、画像、SNS投稿、公開UI/共通テンプレート。試験期待値の変更が必要なら停止しscopeを再確認する。
+
+## CI runner復旧の追加計画（2026-11-02）
+
+- 既存PR #220のfrontend-verify run 41144130903/job 124365103419は、GitHub-hosted Ubuntu 26.04.1でPlaywright 1.58.2のChromium依存インストールが非対応となり、アプリの検証前に失敗した。
+- ユーザーは2026-11-02に「1行修正を含めて続行する」と明示承認した。今回の追加対象は .github/workflows/ci.yml のfrontend-verify runs-onをubuntu-latestからubuntu-24.04にする1行だけ。
+- Playwright v1.58.2の公式nativeDeps.tsにubuntu24.04-x64のChromium依存定義があることを確認した。参照: https://raw.githubusercontent.com/microsoft/playwright/v1.58.2/packages/playwright-core/src/server/registry/nativeDeps.ts
+- .github/workflows/deploy.yml、Node、依存、Playwright version、lockfile、他のworkflow設定は変えない。変更後は対象diffが1行だけであることを確認し、PR #220にpushしてCIを再実行する。
+- CI成功後、PRのmergeabilityとheadを再確認してsquash mergeし、実merge SHAのPages deployと公開URL/mediaを確認する。CIや外部deploy checkが失敗した場合は原因と対象への影響を確認し、承認外の修正を加えない。
 
 ## Parallel Work Check
 - [ ] P1: 同時に進める独立タスクが2つ以上ある
@@ -59,3 +68,5 @@
 - approver: ユーザー（2026-10-30 automationの新規完成1件に限る継続承認）
 - status: approved
 - note: import前のClaude計画レビューは必須。blockingまたは未レビューなら停止する。
+- additional approval: ユーザー（2026-11-02）「1行修正を含めて続行する」
+- additional scope: frontend-verifyのruns-onをubuntu-24.04へ固定する1行、PR #220でのCI再実行・merge・公開確認。

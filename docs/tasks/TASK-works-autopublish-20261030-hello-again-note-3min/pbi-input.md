@@ -9,17 +9,19 @@
 ## Request Summary
 - 依頼: 制作完全成功後の新規1件を、サイトのプレビュー・レビュー・PR・公開確認まで進める。
 - 承認根拠: 2026-10-30 automationに対するユーザーの継続承認。今回完成した1件のみが対象。
+- 追加承認（2026-11-02）: ユーザーが「1行修正を含めて続行する」と明示。CI runner pin 1行の変更、Claudeレビュー、CI再実行、merge、公開確認までを許可。
 
 ## Goal
 - slug hello-again-note-3min を公開し、公開レビュー top-five-regrets-of-the-dying に関連づける。
 - 完了条件: 入力成果物7点のSHAと制作証跡、下書きプレビュー、意味確認、verify、Claude gate、PR/CI/merge、Pages公開URL/相互リンク/画像を確認。URL確認前は完了扱いにしない。
 
 ## Scope
-- 含める: 新規 src/content/works/hello-again-note-3min.md、src/assets/works/hello-again-note-3min.png、scripts/work-import.test.mjsの現行件数assertion1箇所、およびこのtask dirのPlanGate三文書・status・daily。変更ファイルはサイト成果物2件・test1件・task記録5件の計8件。origin/mainの27件に今回の1件を加えた28件へ期待値を合わせる。
+- 含める: 新規 src/content/works/hello-again-note-3min.md、src/assets/works/hello-again-note-3min.png、scripts/work-import.test.mjsの現行件数assertion1箇所、このtask dirのPlanGate三文書・status・daily-2026-10-31.md、.github/workflows/ci.ymlのfrontend-verify.runs-on 1行、daily-2026-11-02.md。最終差分は計10ファイル。元の8ファイルに、承認済みCI runner pinと当日記録を加える。CI設定は ubuntu-latest から ubuntu-24.04 への変更だけ。
 - 含めない: 過去未公開ワーク、制作job/inbox/history、画像生成/編集、X/Instagram実投稿、dlab、無関係なコードや文書。
 
 ## Constraints
 - 元dirty worktreeと制作jobは読み取り専用。最新origin/main由来の隔離worktreeだけで作業する。
+- CI変更は .github/workflows/ci.yml の frontend-verify.runs-on のみ。他workflow、依存、Node、Playwright、lockfile、action version、追加設定は変更しない。
 - site-work入力: /Users/shogo/Projects/codex-coco-s-site-main/inbox/work/2026-10-30_2236_hello-again-note-3min/site-work.json と同フォルダの6成果物。
 - 本との接続・本文は本人の目線。AI調査事情や第三者レビュー表現を載せず、研究範囲/翻案/未検証を保つ。
 
@@ -37,6 +39,7 @@
 ## References
 - AGENTS.md、docs/parallel-dev-core.md、docs/parallel-dev-config.md、docs/works-publishing.md、brand strategy/content guidelines/AI operations、design doctrine、frontend playbook、claude-review-gate、pr-merge。
 - user continuation approval for this one new completion; production success was confirmed by parent.
+- 2026-11-02の追加承認はCI runner pinの1行に限定。Playwright v1.58.2公式依存定義: https://raw.githubusercontent.com/microsoft/playwright/v1.58.2/packages/playwright-core/src/server/registry/nativeDeps.ts
 
 ## Notes
 - bookTitle: 死ぬ瞬間の5つの後悔; relatedReview: top-five-regrets-of-the-dying.
