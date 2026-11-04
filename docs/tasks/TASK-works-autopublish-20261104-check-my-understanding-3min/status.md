@@ -8,7 +8,7 @@
 
 ## Summary
 
-- 現在: 2026-11-05のユーザー再開指示を受け、PlanGateの最小追加レビュー後にテスト名・期待件数のみ28→29へ更新した。`test:works` 35/35、`verify:frontend`（127 passed / 7 skipped）、`check:works-dist` が成功。最終実装reviewはarch/diffともok:true。commit/PR以降は未完了。
+- 現在: 2026-11-05のユーザー再開指示を受け、PlanGateの最小追加レビュー後にテスト名・期待件数のみ28→29へ更新した。`test:works` 35/35、`verify:frontend`（127 passed / 7 skipped）、`check:works-dist` が成功。最終実装reviewはarch/diffともok:true。PR #221を作成。GitHub CI run #495がin_progressで、merge/Pages/public proofは未完了。
 - サイト記事の `published:true` は隔離worktree内の未commit状態で、本番は未公開。
 
 ## Resume 2026-11-05
@@ -59,7 +59,7 @@
 
 ## Next Action
 
-- 残件: commit前差分確認、commit/PR/CI/merge/Pages/public proof。すべての必須レビューとcheckが成功するまで次段階へ進まない。
+- 残件: PR #221の現headでCI通過を確認し、差分・mergeable状態とmerge前レビューを確認後squash mergeする。Pages成功と公開HTML/画像検証までは完了扱いにしない。
 - 次に見る人へのメモ: `published:true` MarkdownとPNGは隔離worktree内の未commit差分で、本番は未公開。制作納品/history/元main dirty worktreeは保持。CI/config修正、画像修正、新しいコンテンツ課題が必要なら公開停止。
 
 ## Daily Record
