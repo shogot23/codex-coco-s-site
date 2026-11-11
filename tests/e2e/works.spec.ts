@@ -193,7 +193,17 @@ for (const { slug, review, gallery, title, book, published, steps } of items) te
   await expect(bookSection.locator(`a[href="${base}${bookPath}/"]`)).toContainText(book);
   if (!review) await expect(bookSection.locator('a[href*="/reviews/"]')).toHaveCount(0);
   const purchaseLinks = bookSection.locator('a[href^="https://af.moshimo.com/"]');
-  const expectedPurchaseUrls = [...readFileSync(`src/content/${bookPath}.md`, 'utf8').matchAll(/^\s+url: "(https:\/\/af\.moshimo\.com\/[^"]+)"$/gm)].map((match) => match[1]);
+  const bookSource = readFileSync(`src/content/${bookPath}.md`, 'utf8');
+  const inlinePurchaseLinksJson = bookSource.match(/^purchaseLinks:\s*(\[[^\n]*\])$/m)?.[1];
+  const inlinePurchaseUrls = inlinePurchaseLinksJson
+    ? (JSON.parse(inlinePurchaseLinksJson) as Array<{ url?: string }>)
+      .map((link) => link.url)
+      .filter((url): url is string => typeof url === 'string' && url.startsWith('https://af.moshimo.com/'))
+    : [];
+  const expectedPurchaseUrls = [
+    ...[...bookSource.matchAll(/^\s+url: "(https:\/\/af\.moshimo\.com\/[^"]+)"$/gm)].map((match) => match[1]),
+    ...inlinePurchaseUrls,
+  ];
   const actualPurchaseUrls = await purchaseLinks.evaluateAll((links) => links.map((link) => (link as HTMLAnchorElement).href));
   expect(expectedPurchaseUrls.length).toBeGreaterThan(0);
   for (const url of expectedPurchaseUrls) expect(actualPurchaseUrls).toContain(url);
