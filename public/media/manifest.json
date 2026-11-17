@@ -5775,6 +5775,96 @@
         "height": 630
       }
     },
+    "/uploads/gallery/books/Motonaga_Walking_Psychology.png": {
+      "hash": "fd448adcc239a40b",
+      "width": 1080,
+      "height": 1350,
+      "variants": {
+        "card": {
+          "320": {
+            "avif": {
+              "path": "fd448adcc239a40b/card-320.avif",
+              "width": 320,
+              "height": 400
+            },
+            "webp": {
+              "path": "fd448adcc239a40b/card-320.webp",
+              "width": 320,
+              "height": 400
+            }
+          },
+          "640": {
+            "avif": {
+              "path": "fd448adcc239a40b/card-640.avif",
+              "width": 640,
+              "height": 800
+            },
+            "webp": {
+              "path": "fd448adcc239a40b/card-640.webp",
+              "width": 640,
+              "height": 800
+            }
+          }
+        },
+        "detail": {
+          "768": {
+            "avif": {
+              "path": "fd448adcc239a40b/detail-768.avif",
+              "width": 768,
+              "height": 960
+            },
+            "webp": {
+              "path": "fd448adcc239a40b/detail-768.webp",
+              "width": 768,
+              "height": 960
+            }
+          },
+          "1200": {
+            "avif": {
+              "path": "fd448adcc239a40b/detail-1200.avif",
+              "width": 1080,
+              "height": 1350
+            },
+            "webp": {
+              "path": "fd448adcc239a40b/detail-1200.webp",
+              "width": 1080,
+              "height": 1350
+            }
+          }
+        },
+        "hero": {
+          "960": {
+            "avif": {
+              "path": "fd448adcc239a40b/hero-960.avif",
+              "width": 960,
+              "height": 1200
+            },
+            "webp": {
+              "path": "fd448adcc239a40b/hero-960.webp",
+              "width": 960,
+              "height": 1200
+            }
+          },
+          "1440": {
+            "avif": {
+              "path": "fd448adcc239a40b/hero-1440.avif",
+              "width": 1080,
+              "height": 1350
+            },
+            "webp": {
+              "path": "fd448adcc239a40b/hero-1440.webp",
+              "width": 1080,
+              "height": 1350
+            }
+          }
+        }
+      },
+      "social": {
+        "path": "fd448adcc239a40b/social-1200x630.jpg",
+        "width": 1200,
+        "height": 630
+      }
+    },
     "/uploads/gallery/books/Naruse_Aims_for_World_Domination_Miyajima_Mina.jpeg": {
       "hash": "80e78dd3b818155f",
       "width": 886,
@@ -14771,6 +14861,96 @@
       },
       "social": {
         "path": "87749cef2fa346e9/social-1200x630.jpg",
+        "width": 1200,
+        "height": 630
+      }
+    },
+    "/uploads/review/infographic/walking_psychology_motonaga_takuro.png": {
+      "hash": "f3dbd26ef5079712",
+      "width": 1080,
+      "height": 1350,
+      "variants": {
+        "card": {
+          "320": {
+            "avif": {
+              "path": "f3dbd26ef5079712/card-320.avif",
+              "width": 320,
+              "height": 400
+            },
+            "webp": {
+              "path": "f3dbd26ef5079712/card-320.webp",
+              "width": 320,
+              "height": 400
+            }
+          },
+          "640": {
+            "avif": {
+              "path": "f3dbd26ef5079712/card-640.avif",
+              "width": 640,
+              "height": 800
+            },
+            "webp": {
+              "path": "f3dbd26ef5079712/card-640.webp",
+              "width": 640,
+              "height": 800
+            }
+          }
+        },
+        "detail": {
+          "768": {
+            "avif": {
+              "path": "f3dbd26ef5079712/detail-768.avif",
+              "width": 768,
+              "height": 960
+            },
+            "webp": {
+              "path": "f3dbd26ef5079712/detail-768.webp",
+              "width": 768,
+              "height": 960
+            }
+          },
+          "1200": {
+            "avif": {
+              "path": "f3dbd26ef5079712/detail-1200.avif",
+              "width": 1080,
+              "height": 1350
+            },
+            "webp": {
+              "path": "f3dbd26ef5079712/detail-1200.webp",
+              "width": 1080,
+              "height": 1350
+            }
+          }
+        },
+        "hero": {
+          "960": {
+            "avif": {
+              "path": "f3dbd26ef5079712/hero-960.avif",
+              "width": 960,
+              "height": 1200
+            },
+            "webp": {
+              "path": "f3dbd26ef5079712/hero-960.webp",
+              "width": 960,
+              "height": 1200
+            }
+          },
+          "1440": {
+            "avif": {
+              "path": "f3dbd26ef5079712/hero-1440.avif",
+              "width": 1080,
+              "height": 1350
+            },
+            "webp": {
+              "path": "f3dbd26ef5079712/hero-1440.webp",
+              "width": 1080,
+              "height": 1350
+            }
+          }
+        }
+      },
+      "social": {
+        "path": "f3dbd26ef5079712/social-1200x630.jpg",
         "width": 1200,
         "height": 630
       }
